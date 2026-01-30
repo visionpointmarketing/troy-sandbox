@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TROY Sandbox - Stats Section Preview</title>
+
+    <!-- Typekit Fonts (Troy University) -->
+    <link rel="stylesheet" href="https://use.typekit.net/yie8ysb.css">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                fontFamily: {
+                    'headline-primary': ['pressio-x-compressed', 'sans-serif'],
+                    'headline-secondary': ['pressio-compressed', 'sans-serif'],
+                    'subhead': ['avenir-lt-pro', 'sans-serif'],
+                    'body': ['avenir-lt-pro', 'sans-serif'],
+                },
+                extend: {
+                    colors: {
+                        cardinal: {
+                            DEFAULT: '#910039',
+                            800: '#910039',
+                            900: '#720724',
+                        },
+                        sand: {
+                            DEFAULT: '#f1efe3',
+                            300: '#e8e6da',
+                        },
+                        wheat: {
+                            DEFAULT: '#efd19f',
+                            light: '#f5e1b3',
+                        },
+                        grey: '#999999',
+                    },
+                }
+            }
+        }
+    </script>
+
+    <!-- Base Component Styles -->
+    <link rel="stylesheet" href="base.css">
+
+    <style>
+        /* Page-level styles for preview */
+        body {
+            font-family: 'avenir-lt-pro', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+
+        /* Preview header */
+        .preview-header {
+            background: #333;
+            color: white;
+            padding: 1rem 2rem;
+            font-size: 0.875rem;
+        }
+
+        .preview-header h1 {
+            font-family: 'avenir-lt-pro', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 0 0 0.25rem 0;
+        }
+
+        .preview-header p {
+            margin: 0;
+            opacity: 0.7;
+        }
+
+        /* Stat number styling */
+        .stat-number {
+            font-family: 'pressio-compressed', sans-serif;
+            font-size: clamp(3rem, 5vw, 3.75rem);
+            font-weight: bold;
+            line-height: 1;
+        }
+    </style>
+</head>
+<body>
+    <!-- Preview Header -->
+    <div class="preview-header">
+        <h1>Phase B.2: Stats Section Preview</h1>
+        <p>TROY Sandbox Static Component Test</p>
+    </div>
+
+    <!-- ============================================
+         STATS SECTION
+         Source: showcase.html lines 322-367
+         ============================================ -->
+    <section class="bg-sand py-24 relative overflow-hidden">
+        <!-- Halftone overlay (using CSS pattern instead of image) -->
+        <div class="halftone-overlay absolute inset-0 pointer-events-none"></div>
+
+        <div class="container mx-auto px-8 text-center relative z-10">
+
+            <!-- Section badge -->
+            <div class="boxed-subhead bg-cardinal-800 text-white px-6 py-3 inline-block mb-6">
+                Student Success
+            </div>
+
+            <!-- Section heading with accent bar -->
+            <h2 class="section-title text-black mb-12 section-header-center section-header-black">
+                Real Innovation.<br>Real Progress.
+            </h2>
+
+            <!-- Body text -->
+            <p class="body-text-large max-w-3xl mx-auto mb-16 text-black">
+                Troy University stands out with authentic achievements that demonstrate our commitment to student success and community impact.
+                <strong>Real work always wins.</strong>
+            </p>
+
+            <!-- Stats grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+
+                <div class="text-center py-8 px-4">
+                    <div class="stat-number text-black mb-3">95%</div>
+                    <div class="nav-heading text-black mb-2">Job Placement Rate</div>
+                    <p class="text-sm text-black">Within 6 months of graduation</p>
+                </div>
+
+                <div class="text-center py-8 px-4">
+                    <div class="stat-number text-black mb-3">$58K</div>
+                    <div class="nav-heading text-black mb-2">Average Starting Salary</div>
+                    <p class="text-sm text-black">For recent graduates</p>
+                </div>
+
+                <div class="text-center py-8 px-4">
+                    <div class="stat-number text-black mb-3">150+</div>
+                    <div class="nav-heading text-black mb-2">Industry Partners</div>
+                    <p class="text-sm text-black">Providing real-world experience</p>
+                </div>
+
+                <div class="text-center py-8 px-4">
+                    <div class="stat-number text-black mb-3">20:1</div>
+                    <div class="nav-heading text-black mb-2">Student-Faculty Ratio</div>
+                    <p class="text-sm text-black">Personalized attention guaranteed</p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         VARIATION: 3 Column Stats
+         ============================================ -->
+
+    <div class="preview-header">
+        <h1>Stats Variation: 3 Columns</h1>
+        <p>Alternative layout with fewer stats</p>
+    </div>
+
+    <section class="bg-sand py-24 relative overflow-hidden">
+        <div class="halftone-overlay absolute inset-0 pointer-events-none"></div>
+
+        <div class="container mx-auto px-8 text-center relative z-10">
+
+            <div class="boxed-subhead bg-cardinal-800 text-white px-6 py-3 inline-block mb-6">
+                By The Numbers
+            </div>
+
+            <h2 class="section-title text-black mb-12 section-header-center section-header-black">
+                Measuring Success<br>That Matters.
+            </h2>
+
+            <p class="body-text-large max-w-3xl mx-auto mb-16 text-black">
+                Our commitment to excellence is reflected in every metric that truly matters for student outcomes.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-4xl mx-auto">
+
+                <div class="text-center py-8 px-4">
+                    <div class="stat-number text-black mb-3">40K+</div>
+                    <div class="nav-heading text-black mb-2">Active Alumni</div>
+                    <p class="text-sm text-black">Making an impact worldwide</p>
+                </div>
+
+                <div class="text-center py-8 px-4">
+                    <div class="stat-number text-black mb-3">200+</div>
+                    <div class="nav-heading text-black mb-2">Degree Programs</div>
+                    <p class="text-sm text-black">Across all disciplines</p>
+                </div>
+
+                <div class="text-center py-8 px-4">
+                    <div class="stat-number text-black mb-3">#1</div>
+                    <div class="nav-heading text-black mb-2">In Alabama</div>
+                    <p class="text-sm text-black">For online programs</p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         VARIATION: Dark Background Stats
+         ============================================ -->
+
+    <div class="preview-header">
+        <h1>Stats Variation: Dark Background</h1>
+        <p>Cardinal background with light text</p>
+    </div>
+
+    <section class="bg-cardinal-800 py-24 relative overflow-hidden">
+
+        <div class="container mx-auto px-8 text-center relative z-10">
+
+            <div class="boxed-subhead bg-wheat text-black px-6 py-3 inline-block mb-6">
+                Academic Excellence
+            </div>
+
+            <h2 class="section-title text-sand mb-12 section-header-center-light">
+                Numbers That<br>Speak For Themselves.
+            </h2>
+
+            <p class="body-text-large max-w-3xl mx-auto mb-16 text-white/90">
+                When it comes to student success, our results are clear and consistent.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+
+                <div class="text-center py-8 px-4">
+                    <div class="stat-number text-wheat mb-3">18:1</div>
+                    <div class="nav-heading text-white mb-2">Student Ratio</div>
+                    <p class="text-sm text-white/80">Small class sizes</p>
+                </div>
+
+                <div class="text-center py-8 px-4">
+                    <div class="stat-number text-wheat mb-3">98%</div>
+                    <div class="nav-heading text-white mb-2">Satisfaction</div>
+                    <p class="text-sm text-white/80">Student rating</p>
+                </div>
+
+                <div class="text-center py-8 px-4">
+                    <div class="stat-number text-wheat mb-3">50+</div>
+                    <div class="nav-heading text-white mb-2">Countries</div>
+                    <p class="text-sm text-white/80">Global reach</p>
+                </div>
+
+                <div class="text-center py-8 px-4">
+                    <div class="stat-number text-wheat mb-3">$42M</div>
+                    <div class="nav-heading text-white mb-2">Scholarships</div>
+                    <p class="text-sm text-white/80">Awarded annually</p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Spacer for bottom of page -->
+    <div class="h-16 bg-gray-100"></div>
+
+</body>
+</html>

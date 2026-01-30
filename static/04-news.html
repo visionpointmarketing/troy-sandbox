@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TROY Sandbox - News & Stories Section Preview</title>
+
+    <!-- Typekit Fonts (Troy University) -->
+    <link rel="stylesheet" href="https://use.typekit.net/yie8ysb.css">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                fontFamily: {
+                    'headline-primary': ['pressio-x-compressed', 'sans-serif'],
+                    'headline-secondary': ['pressio-compressed', 'sans-serif'],
+                    'subhead': ['avenir-lt-pro', 'sans-serif'],
+                    'body': ['avenir-lt-pro', 'sans-serif'],
+                },
+                extend: {
+                    colors: {
+                        cardinal: {
+                            DEFAULT: '#910039',
+                            800: '#910039',
+                            900: '#720724',
+                        },
+                        sand: {
+                            DEFAULT: '#f1efe3',
+                            300: '#e8e6da',
+                        },
+                        wheat: {
+                            DEFAULT: '#efd19f',
+                            light: '#f5e1b3',
+                        },
+                        grey: '#999999',
+                    },
+                }
+            }
+        }
+    </script>
+
+    <!-- Base Component Styles -->
+    <link rel="stylesheet" href="base.css">
+
+    <style>
+        /* Page-level styles for preview */
+        body {
+            font-family: 'avenir-lt-pro', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+
+        /* Preview header */
+        .preview-header {
+            background: #333;
+            color: white;
+            padding: 1rem 2rem;
+            font-size: 0.875rem;
+        }
+
+        .preview-header h1 {
+            font-family: 'avenir-lt-pro', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 0 0 0.25rem 0;
+        }
+
+        .preview-header p {
+            margin: 0;
+            opacity: 0.7;
+        }
+
+        /* News card title */
+        .news-title {
+            font-family: 'avenir-lt-pro', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            line-height: 1.3;
+        }
+    </style>
+</head>
+<body>
+    <!-- Preview Header -->
+    <div class="preview-header">
+        <h1>Phase B.4: News & Stories Section Preview</h1>
+        <p>TROY Sandbox Static Component Test</p>
+    </div>
+
+    <!-- ============================================
+         NEWS & STORIES SECTION
+         Source: showcase.html lines 431-499
+         ============================================ -->
+    <section class="bg-sand py-24 relative overflow-hidden">
+        <!-- Halftone overlay -->
+        <div class="halftone-overlay absolute inset-0 pointer-events-none"></div>
+
+        <div class="container mx-auto px-8 relative z-10">
+
+            <!-- Centered header -->
+            <div class="text-center mb-16">
+                <div class="boxed-subhead bg-cardinal-800 text-white px-6 py-3 inline-block mb-6">
+                    Latest Stories
+                </div>
+
+                <h2 class="section-title text-black mb-8 section-header-center section-header-black">
+                    Real Stories.<br>Real Impact.
+                </h2>
+
+                <p class="body-text max-w-3xl mx-auto text-black">
+                    Stories that showcase the real work, real people, and real results that define TROY.
+                    We don't just highlight outcomes—<strong>we celebrate the entire journey</strong>.
+                </p>
+            </div>
+
+            <!-- News grid (3 cards) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+                <!-- News card 1 -->
+                <article class="news-card">
+                    <div class="aspect-video">
+                        <img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600&q=80"
+                             alt="Engineering student working on prototype"
+                             class="w-full h-full object-cover grayscale">
+                    </div>
+                    <div class="p-8">
+                        <div class="nav-heading text-cardinal-800 mb-3">
+                            Student in the Work
+                        </div>
+                        <h3 class="news-title text-black mb-4">Engineering Student's 47 Prototypes Lead to National Win</h3>
+                        <p class="body-text-small text-black/80">Real innovation through persistence: How TROY student Sarah Chen's determination through multiple failed attempts led to breakthrough design recognition.</p>
+                    </div>
+                </article>
+
+                <!-- News card 2 -->
+                <article class="news-card">
+                    <div class="aspect-video">
+                        <img src="https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=600&q=80"
+                             alt="Biology research team"
+                             class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-8">
+                        <div class="nav-heading text-cardinal-800 mb-3">
+                            Research Breakthrough
+                        </div>
+                        <h3 class="news-title text-black mb-4">Biology Team's Persistence Yields Environmental Solution</h3>
+                        <p class="body-text-small text-black/80">After two years of trial and refinement, undergraduate researchers develop innovative water purification method.</p>
+                    </div>
+                </article>
+
+                <!-- News card 3 -->
+                <article class="news-card">
+                    <div class="aspect-video">
+                        <img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&q=80"
+                             alt="Nursing students in community clinic"
+                             class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-8">
+                        <div class="nav-heading text-cardinal-800 mb-3">
+                            Community Impact
+                        </div>
+                        <h3 class="news-title text-black mb-4">Nursing Students Transform Rural Healthcare Access</h3>
+                        <p class="body-text-small text-black/80">Real solutions for real communities: How student-led clinics are making healthcare accessible to underserved populations.</p>
+                    </div>
+                </article>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         VARIATION: 2 Column Featured Layout
+         ============================================ -->
+
+    <div class="preview-header">
+        <h1>News Variation: Featured + Grid</h1>
+        <p>Large featured story with smaller grid</p>
+    </div>
+
+    <section class="bg-sand py-24 relative overflow-hidden">
+        <div class="halftone-overlay absolute inset-0 pointer-events-none"></div>
+
+        <div class="container mx-auto px-8 relative z-10">
+
+            <div class="text-center mb-16">
+                <div class="boxed-subhead bg-cardinal-800 text-white px-6 py-3 inline-block mb-6">
+                    TROY News
+                </div>
+
+                <h2 class="section-title text-black mb-8 section-header-center section-header-black">
+                    What's Happening<br>On Campus.
+                </h2>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+                <!-- Featured story (larger) -->
+                <article class="news-card lg:row-span-2">
+                    <div class="aspect-[4/3] lg:aspect-auto lg:h-full lg:min-h-[400px]">
+                        <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800&q=80"
+                             alt="Campus event"
+                             class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-8">
+                        <div class="nav-heading text-cardinal-800 mb-3">
+                            Featured Story
+                        </div>
+                        <h3 class="news-title text-black mb-4">Troy University Celebrates 50 Years of Excellence in Education</h3>
+                        <p class="body-text text-black/80">From humble beginnings to becoming one of the South's most respected institutions, Troy's journey reflects the determination and vision of generations of educators, students, and community leaders.</p>
+                    </div>
+                </article>
+
+                <!-- Smaller stories -->
+                <article class="news-card">
+                    <div class="aspect-video">
+                        <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&q=80"
+                             alt="Athletics"
+                             class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-6">
+                        <div class="nav-heading text-cardinal-800 mb-2">Athletics</div>
+                        <h3 class="news-title text-black text-lg mb-2">Trojans Advance to Conference Championship</h3>
+                    </div>
+                </article>
+
+                <article class="news-card">
+                    <div class="aspect-video">
+                        <img src="https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?w=600&q=80"
+                             alt="Academic news"
+                             class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-6">
+                        <div class="nav-heading text-cardinal-800 mb-2">Academics</div>
+                        <h3 class="news-title text-black text-lg mb-2">New Cybersecurity Program Launches This Fall</h3>
+                    </div>
+                </article>
+
+            </div>
+
+            <div class="text-center mt-12">
+                <a href="#" class="btn-cardinal-outline">View All News</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         VARIATION: Dark Background
+         ============================================ -->
+
+    <div class="preview-header">
+        <h1>News Variation: Dark Background</h1>
+        <p>Cardinal background with light cards</p>
+    </div>
+
+    <section class="bg-cardinal-800 py-24 relative overflow-hidden">
+
+        <div class="container mx-auto px-8 relative z-10">
+
+            <div class="text-center mb-16">
+                <div class="boxed-subhead bg-wheat text-black px-6 py-3 inline-block mb-6">
+                    Success Stories
+                </div>
+
+                <h2 class="section-title text-sand mb-8 section-header-center-light">
+                    Celebrating<br>Student Achievement.
+                </h2>
+
+                <p class="body-text max-w-3xl mx-auto text-white/90">
+                    Every day, TROY students are making their mark on the world.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+                <article class="news-card">
+                    <div class="aspect-video">
+                        <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=600&q=80"
+                             alt="Student achievement"
+                             class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-8">
+                        <div class="nav-heading text-cardinal-800 mb-3">Alumni Spotlight</div>
+                        <h3 class="news-title text-black mb-4">From TROY to Fortune 500</h3>
+                        <p class="body-text-small text-black/80">How one graduate's TROY experience launched a career at the top.</p>
+                    </div>
+                </article>
+
+                <article class="news-card">
+                    <div class="aspect-video">
+                        <img src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=600&q=80"
+                             alt="Research"
+                             class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-8">
+                        <div class="nav-heading text-cardinal-800 mb-3">Research</div>
+                        <h3 class="news-title text-black mb-4">Undergraduate Wins National Grant</h3>
+                        <p class="body-text-small text-black/80">Junior biology student receives prestigious NSF research funding.</p>
+                    </div>
+                </article>
+
+                <article class="news-card">
+                    <div class="aspect-video">
+                        <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&q=80"
+                             alt="Community service"
+                             class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-8">
+                        <div class="nav-heading text-cardinal-800 mb-3">Service</div>
+                        <h3 class="news-title text-black mb-4">Students Log 10,000 Volunteer Hours</h3>
+                        <p class="body-text-small text-black/80">TROY community engagement reaches new milestone this semester.</p>
+                    </div>
+                </article>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Spacer for bottom of page -->
+    <div class="h-16 bg-gray-100"></div>
+
+</body>
+</html>

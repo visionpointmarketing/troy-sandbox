@@ -1,0 +1,361 @@
+/**
+ * TROY Sandbox - Editor UI Styles
+ *
+ * These styles are ONLY for the editor chrome, not section content.
+ * All visual component styles (typography, buttons, cards, header, footer)
+ * are in static/base.css.
+ */
+
+/* ============================================
+   Section Wrapper & Controls
+   ============================================ */
+
+.section-wrapper {
+    position: relative;
+    transition: box-shadow 0.15s ease;
+}
+
+.section-wrapper:hover {
+    box-shadow: 0 0 0 2px #910039;
+}
+
+.section-wrapper.dragging {
+    opacity: 0.5;
+}
+
+.section-wrapper.drag-over {
+    box-shadow: 0 -3px 0 0 #efd19f;
+}
+
+/* Section Separator */
+.section-wrapper + .section-wrapper {
+    border-top: 1px solid #e5e7eb;
+}
+
+/* Drag Handle */
+.drag-handle {
+    position: absolute;
+    left: 8px;
+    top: 8px;
+    width: 28px;
+    height: 28px;
+    cursor: grab;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    opacity: 0;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.section-wrapper:hover .drag-handle {
+    opacity: 1;
+}
+
+.drag-handle:hover {
+    background: #910039;
+    border-color: #910039;
+}
+
+.drag-handle:hover svg {
+    stroke: white;
+}
+
+.drag-handle:active {
+    cursor: grabbing;
+}
+
+.drag-handle svg {
+    width: 16px;
+    height: 16px;
+    stroke: #6b7280;
+    transition: stroke 0.15s ease;
+}
+
+/* Section Controls (duplicate, delete, visibility) */
+.section-controls {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    z-index: 10;
+}
+
+.section-wrapper:hover .section-controls {
+    opacity: 1;
+}
+
+.section-control-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    transition: all 0.15s ease;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.section-control-btn:hover {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+}
+
+.section-control-btn.delete:hover {
+    background: #fee2e2;
+    border-color: #fca5a5;
+    color: #dc2626;
+}
+
+/* ============================================
+   Inline Editing
+   ============================================ */
+
+[contenteditable="true"] {
+    outline: none;
+    cursor: text;
+}
+
+[contenteditable="true"]:hover {
+    outline: 1px dashed rgba(145, 0, 57, 0.3);
+    outline-offset: 2px;
+}
+
+[contenteditable="true"]:focus {
+    outline: 2px solid #910039;
+    outline-offset: 2px;
+}
+
+/* ============================================
+   Image Placeholders
+   ============================================ */
+
+.image-placeholder {
+    background: #f3f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    min-height: 200px;
+}
+
+.image-placeholder:hover {
+    background: #e5e7eb;
+}
+
+.image-placeholder::before {
+    content: '\1F4F7 Click to upload';
+    color: #9ca3af;
+    font-size: 14px;
+}
+
+.image-placeholder.has-image::before {
+    content: none;
+}
+
+.image-placeholder.has-image {
+    cursor: pointer;
+}
+
+.image-placeholder.has-image:hover::after {
+    content: 'Click to change';
+    position: absolute;
+    background: rgba(0,0,0,0.7);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+/* ============================================
+   Visibility Popover
+   ============================================ */
+
+#visibility-popover {
+    min-width: 220px;
+}
+
+.visibility-field-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+}
+
+.visibility-field-row label {
+    flex: 1;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.visibility-field-row input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #910039;
+    cursor: pointer;
+}
+
+/* ============================================
+   Empty State
+   ============================================ */
+
+#sections-container:empty::before {
+    content: 'No sections yet. Click a section type in the sidebar to add it.';
+    display: block;
+    padding: 48px;
+    text-align: center;
+    color: #9ca3af;
+}
+
+/* ============================================
+   Sidebar Section Buttons
+   ============================================ */
+
+#section-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.section-add-btn {
+    width: 100%;
+    padding: 10px 12px;
+    text-align: left;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-size: 14px;
+}
+
+.section-add-btn:hover {
+    background: #f3f4f6;
+    border-color: #910039;
+}
+
+.section-add-btn .section-name {
+    font-weight: 500;
+    color: #374151;
+}
+
+.section-add-btn .section-desc {
+    font-size: 11px;
+    color: #9ca3af;
+    margin-top: 2px;
+}
+
+/* ============================================
+   Static Header/Footer
+   ============================================ */
+
+#static-header,
+#static-footer {
+    pointer-events: none;
+    user-select: none;
+}
+
+#static-header:empty,
+#static-footer:empty {
+    display: none;
+}
+
+/* ============================================
+   Modal Styles
+   ============================================ */
+
+#image-drop-zone.drag-active {
+    border-color: #910039;
+    background: #fef2f2;
+}
+
+/* ============================================
+   Scrollbar Styling
+   ============================================ */
+
+#section-buttons::-webkit-scrollbar,
+#canvas-wrapper::-webkit-scrollbar {
+    width: 8px;
+}
+
+#section-buttons::-webkit-scrollbar-track,
+#canvas-wrapper::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+#section-buttons::-webkit-scrollbar-thumb,
+#canvas-wrapper::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+#section-buttons::-webkit-scrollbar-thumb:hover,
+#canvas-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #a1a1a1;
+}
+
+/* ============================================
+   Responsive Preview (future)
+   ============================================ */
+
+#canvas.preview-tablet {
+    max-width: 768px;
+}
+
+#canvas.preview-mobile {
+    max-width: 375px;
+}
+
+/* ============================================
+   Sidebar Toggle
+   ============================================ */
+
+#sidebar {
+    transition: margin-left 0.3s ease, opacity 0.3s ease;
+}
+
+#sidebar.hidden {
+    margin-left: -256px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+#sidebar-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+#sidebar-toggle:hover {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+}
+
+#sidebar-toggle.active {
+    background: #910039;
+    color: white;
+    border-color: #910039;
+}
+
+#sidebar-toggle svg {
+    stroke: currentColor;
+}

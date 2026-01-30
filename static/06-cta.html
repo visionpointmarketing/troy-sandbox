@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TROY Sandbox - CTA Section Preview</title>
+
+    <!-- Typekit Fonts (Troy University) -->
+    <link rel="stylesheet" href="https://use.typekit.net/yie8ysb.css">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                fontFamily: {
+                    'headline-primary': ['pressio-x-compressed', 'sans-serif'],
+                    'headline-secondary': ['pressio-compressed', 'sans-serif'],
+                    'subhead': ['avenir-lt-pro', 'sans-serif'],
+                    'body': ['avenir-lt-pro', 'sans-serif'],
+                },
+                extend: {
+                    colors: {
+                        cardinal: {
+                            DEFAULT: '#910039',
+                            800: '#910039',
+                            900: '#720724',
+                        },
+                        sand: {
+                            DEFAULT: '#f1efe3',
+                            300: '#e8e6da',
+                        },
+                        wheat: {
+                            DEFAULT: '#efd19f',
+                            light: '#f5e1b3',
+                        },
+                        grey: '#999999',
+                    },
+                }
+            }
+        }
+    </script>
+
+    <!-- Base Component Styles -->
+    <link rel="stylesheet" href="base.css">
+
+    <style>
+        /* Page-level styles for preview */
+        body {
+            font-family: 'avenir-lt-pro', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+
+        /* Preview header */
+        .preview-header {
+            background: #333;
+            color: white;
+            padding: 1rem 2rem;
+            font-size: 0.875rem;
+        }
+
+        .preview-header h1 {
+            font-family: 'avenir-lt-pro', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 0 0 0.25rem 0;
+        }
+
+        .preview-header p {
+            margin: 0;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <!-- Preview Header -->
+    <div class="preview-header">
+        <h1>Phase B.6: CTA Section Preview</h1>
+        <p>TROY Sandbox Static Component Test</p>
+    </div>
+
+    <!-- ============================================
+         CALL TO ACTION SECTION
+         Source: showcase.html lines 541-572
+         ============================================ -->
+    <section class="relative py-24"
+             style="background-image: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.9)), url('https://images.unsplash.com/photo-1562774053-701939374585?w=1200&q=80'); background-size: cover; background-position: center;">
+
+        <div class="container mx-auto px-8 text-center relative z-10">
+
+            <!-- Section badge -->
+            <div class="boxed-subhead bg-wheat text-black px-6 py-3 inline-block mb-10">
+                Ready to Start?
+            </div>
+
+            <!-- Section heading with centered light accent bar -->
+            <h2 class="section-title text-sand mb-12 section-header-center-light">
+                Unlock the Real You.
+            </h2>
+
+            <!-- Body text -->
+            <p class="body-text-large max-w-3xl mx-auto mb-6 text-white">
+                Your journey to real success starts here. Join a community that celebrates every step forward
+                and believes that <strong>real work always wins</strong>.
+            </p>
+
+            <!-- Tagline -->
+            <p class="text-wheat italic text-base max-w-2xl mx-auto mb-16">
+                And our students' victories? They're ours, too.
+            </p>
+
+            <!-- Button group -->
+            <div class="flex flex-col md:flex-row gap-8 justify-center items-center">
+                <a href="#" class="btn-cardinal">
+                    Apply Today
+                </a>
+                <a href="#" class="btn-bordered-white">
+                    Schedule Visit
+                </a>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ============================================
+         VARIATION: Cardinal Background
+         ============================================ -->
+
+    <div class="preview-header">
+        <h1>CTA Variation: Cardinal Background</h1>
+        <p>Using cardinal overlay instead of black</p>
+    </div>
+
+    <section class="relative py-24"
+             style="background-image: linear-gradient(rgba(145,0,57,0.9), rgba(114,7,36,0.95)), url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1200&q=80'); background-size: cover; background-position: center;">
+
+        <div class="container mx-auto px-8 text-center relative z-10">
+
+            <div class="boxed-subhead bg-wheat text-black px-6 py-3 inline-block mb-10">
+                Take the Next Step
+            </div>
+
+            <h2 class="section-title text-sand mb-12 section-header-center-light">
+                Your Future<br>Starts Now.
+            </h2>
+
+            <p class="body-text-large max-w-3xl mx-auto mb-6 text-white">
+                Don't wait to start building your tomorrow. Troy University offers flexible programs,
+                <strong>affordable tuition</strong>, and a supportive community ready to help you succeed.
+            </p>
+
+            <p class="text-wheat italic text-base max-w-2xl mx-auto mb-16">
+                "Every great journey begins with a single step."
+            </p>
+
+            <div class="flex flex-col md:flex-row gap-8 justify-center items-center">
+                <a href="#" class="btn-blue">
+                    Request Information
+                </a>
+                <a href="#" class="btn-bordered-white">
+                    Visit Campus
+                </a>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ============================================
+         VARIATION: Minimal / Simple
+         ============================================ -->
+
+    <div class="preview-header">
+        <h1>CTA Variation: Minimal</h1>
+        <p>Simpler layout with single CTA</p>
+    </div>
+
+    <section class="bg-cardinal-800 py-20">
+
+        <div class="container mx-auto px-8 text-center">
+
+            <h2 class="section-title text-sand mb-8 section-header-center-light">
+                Ready to Begin?
+            </h2>
+
+            <p class="body-text-large max-w-2xl mx-auto mb-10 text-white/90">
+                Join thousands of students who have found their path at Troy University.
+            </p>
+
+            <a href="#" class="btn-blue">
+                Apply Now
+            </a>
+
+        </div>
+    </section>
+
+    <!-- ============================================
+         VARIATION: With Form Fields
+         ============================================ -->
+
+    <div class="preview-header">
+        <h1>CTA Variation: With Quick Form</h1>
+        <p>Includes inline request info form</p>
+    </div>
+
+    <section class="relative py-24"
+             style="background-image: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.9)), url('https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=1200&q=80'); background-size: cover; background-position: center;">
+
+        <div class="container mx-auto px-8 relative z-10">
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+
+                <!-- Left: Content -->
+                <div class="text-center lg:text-left">
+                    <div class="boxed-subhead bg-wheat text-black px-6 py-3 inline-block mb-8">
+                        Get Started Today
+                    </div>
+
+                    <h2 class="section-title text-sand mb-8 section-header section-header-light lg:before:mx-0">
+                        Let's Talk About<br>Your Future.
+                    </h2>
+
+                    <p class="body-text-large text-white/90 mb-6">
+                        Fill out the form and one of our admissions counselors will reach out
+                        to help you take the next step.
+                    </p>
+
+                    <p class="text-wheat italic text-base">
+                        "Your success story starts with a conversation."
+                    </p>
+                </div>
+
+                <!-- Right: Form -->
+                <div class="bg-white p-8 rounded-br-2xl shadow-xl">
+                    <h3 class="text-xl font-bold text-black mb-6">Request Information</h3>
+
+                    <form class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-black mb-2">First Name</label>
+                            <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded focus:outline-none focus:border-cardinal-800" placeholder="Enter your first name">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-black mb-2">Last Name</label>
+                            <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded focus:outline-none focus:border-cardinal-800" placeholder="Enter your last name">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-black mb-2">Email Address</label>
+                            <input type="email" class="w-full px-4 py-3 border border-gray-300 rounded focus:outline-none focus:border-cardinal-800" placeholder="Enter your email">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-black mb-2">Program of Interest</label>
+                            <select class="w-full px-4 py-3 border border-gray-300 rounded focus:outline-none focus:border-cardinal-800">
+                                <option>Select a program...</option>
+                                <option>Business Administration</option>
+                                <option>Computer Science</option>
+                                <option>Nursing</option>
+                                <option>Education</option>
+                                <option>Engineering</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn-cardinal w-full text-center mt-4">
+                            Submit Request
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         VARIATION: Stats + CTA Combo
+         ============================================ -->
+
+    <div class="preview-header">
+        <h1>CTA Variation: With Stats</h1>
+        <p>Quick stats above the call to action</p>
+    </div>
+
+    <section class="relative py-24"
+             style="background-image: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.9)), url('https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=1200&q=80'); background-size: cover; background-position: center;">
+
+        <div class="container mx-auto px-8 text-center relative z-10">
+
+            <!-- Quick stats row -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-16 max-w-4xl mx-auto">
+                <div>
+                    <div class="text-wheat text-4xl font-bold font-headline mb-2">95%</div>
+                    <div class="text-white/80 text-sm">Job Placement</div>
+                </div>
+                <div>
+                    <div class="text-wheat text-4xl font-bold font-headline mb-2">200+</div>
+                    <div class="text-white/80 text-sm">Programs</div>
+                </div>
+                <div>
+                    <div class="text-wheat text-4xl font-bold font-headline mb-2">18:1</div>
+                    <div class="text-white/80 text-sm">Student Ratio</div>
+                </div>
+                <div>
+                    <div class="text-wheat text-4xl font-bold font-headline mb-2">#1</div>
+                    <div class="text-white/80 text-sm">In Alabama</div>
+                </div>
+            </div>
+
+            <div class="boxed-subhead bg-wheat text-black px-6 py-3 inline-block mb-10">
+                Join the TROY Family
+            </div>
+
+            <h2 class="section-title text-sand mb-12 section-header-center-light">
+                Your Success<br>Awaits.
+            </h2>
+
+            <p class="body-text-large max-w-3xl mx-auto mb-12 text-white">
+                Become part of a university that's committed to your success from day one.
+            </p>
+
+            <div class="flex flex-col md:flex-row gap-8 justify-center items-center">
+                <a href="#" class="btn-cardinal">
+                    Apply Now
+                </a>
+                <a href="#" class="btn-bordered-white">
+                    Learn More
+                </a>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Spacer for bottom of page -->
+    <div class="h-16 bg-gray-100"></div>
+
+</body>
+</html>

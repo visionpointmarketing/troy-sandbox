@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TROY Sandbox - Hero Section Preview</title>
+
+    <!-- Typekit Fonts (Troy University) -->
+    <link rel="stylesheet" href="https://use.typekit.net/yie8ysb.css">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                fontFamily: {
+                    'headline-primary': ['pressio-x-compressed', 'sans-serif'],
+                    'headline-secondary': ['pressio-compressed', 'sans-serif'],
+                    'subhead': ['avenir-lt-pro', 'sans-serif'],
+                    'body': ['avenir-lt-pro', 'sans-serif'],
+                },
+                extend: {
+                    colors: {
+                        cardinal: {
+                            DEFAULT: '#910039',
+                            800: '#910039',
+                            900: '#720724',
+                        },
+                        sand: {
+                            DEFAULT: '#f1efe3',
+                            300: '#e8e6da',
+                        },
+                        wheat: {
+                            DEFAULT: '#efd19f',
+                            light: '#f5e1b3',
+                        },
+                        grey: '#999999',
+                    },
+                    aspectRatio: {
+                        'feature': '16 / 9',
+                    },
+                }
+            }
+        }
+    </script>
+
+    <!-- Base Component Styles -->
+    <link rel="stylesheet" href="base.css">
+
+    <style>
+        /* Page-level styles for preview */
+        body {
+            font-family: 'avenir-lt-pro', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+
+        /* Preview header */
+        .preview-header {
+            background: #333;
+            color: white;
+            padding: 1rem 2rem;
+            font-size: 0.875rem;
+        }
+
+        .preview-header h1 {
+            font-family: 'avenir-lt-pro', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 0 0 0.25rem 0;
+        }
+
+        .preview-header p {
+            margin: 0;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <!-- Preview Header -->
+    <div class="preview-header">
+        <h1>Phase B.1: Hero Section Preview</h1>
+        <p>TROY Sandbox Static Component Test</p>
+    </div>
+
+    <!-- ============================================
+         HERO SECTION
+         Source: showcase.html lines 286-320
+         ============================================ -->
+    <section class="relative min-h-[80vh] flex items-center overflow-hidden py-24 halftone-overlay"
+             style="background-image: url('https://images.unsplash.com/photo-1562774053-701939374585?w=2000&q=80'); background-size: cover; background-position: center;">
+
+        <!-- Background gradient overlay -->
+        <div class="absolute inset-0 bg-gradient-to-r from-black/95 to-black/80"></div>
+
+        <!-- Content container -->
+        <div class="container mx-auto px-8 relative z-10">
+            <div class="max-w-[61.8%]">
+
+                <!-- Brand tagline badge -->
+                <div class="brand-tagline bg-wheat text-black px-6 py-3 inline-block mb-8">
+                    All Ways Real. Always TROY.
+                </div>
+
+                <!-- Hero headline -->
+                <h1 class="hero-headline text-sand mb-8">
+                    Real People.<br>Real Success.
+                </h1>
+
+                <!-- Description -->
+                <p class="body-text-large text-white mb-12 max-w-lg">
+                    At TROY, no one works alone. Every challenge you face is met with a team behind you,
+                    ready to lift you up, push you forward and celebrate your every breakthrough.
+                </p>
+
+                <!-- Button group -->
+                <div class="flex flex-col sm:flex-row gap-4 sm:gap-8 items-start sm:items-center">
+                    <a href="#" class="btn-bordered-white">
+                        Visit Campus
+                    </a>
+                    <a href="#" class="btn-blue">
+                        Apply Now
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         ALTERNATE HERO VARIATIONS (for testing)
+         ============================================ -->
+
+    <div class="preview-header">
+        <h1>Hero Variation: Wider Content</h1>
+        <p>Testing with more content width and different image</p>
+    </div>
+
+    <section class="relative min-h-[80vh] flex items-center overflow-hidden py-24 halftone-overlay"
+             style="background-image: url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=2000&q=80'); background-size: cover; background-position: center;">
+
+        <!-- Background gradient overlay -->
+        <div class="absolute inset-0 bg-gradient-to-r from-black/95 to-black/80"></div>
+
+        <!-- Content container -->
+        <div class="container mx-auto px-8 relative z-10">
+            <div class="max-w-2xl">
+
+                <!-- Brand tagline badge -->
+                <div class="brand-tagline bg-wheat text-black px-6 py-3 inline-block mb-8">
+                    Discover Your Potential
+                </div>
+
+                <!-- Hero headline -->
+                <h1 class="hero-headline text-sand mb-8">
+                    Your Journey<br>Starts Here.
+                </h1>
+
+                <!-- Description -->
+                <p class="body-text-large text-white mb-12">
+                    Join thousands of students who have found their path at Troy University.
+                    World-class education, personalized attention, and a community that cares about your success.
+                </p>
+
+                <!-- Button group -->
+                <div class="flex flex-col sm:flex-row gap-4 sm:gap-8 items-start sm:items-center">
+                    <a href="#" class="btn-cardinal">
+                        Request Info
+                    </a>
+                    <a href="#" class="btn-bordered-white">
+                        Schedule a Tour
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         MOBILE PREVIEW
+         ============================================ -->
+
+    <div class="preview-header">
+        <h1>Mobile Preview (375px width simulation)</h1>
+        <p>Responsive behavior check</p>
+    </div>
+
+    <div class="mx-auto" style="max-width: 375px; border: 2px solid #333;">
+        <section class="relative min-h-[60vh] flex items-center overflow-hidden py-16 halftone-overlay"
+                 style="background-image: url('https://images.unsplash.com/photo-1562774053-701939374585?w=800&q=80'); background-size: cover; background-position: center;">
+
+            <!-- Background gradient overlay -->
+            <div class="absolute inset-0 bg-gradient-to-r from-black/95 to-black/80"></div>
+
+            <!-- Content container -->
+            <div class="container mx-auto px-6 relative z-10">
+                <div class="w-full">
+
+                    <!-- Brand tagline badge -->
+                    <div class="brand-tagline bg-wheat text-black px-4 py-2 inline-block mb-6 text-[0.625rem]">
+                        All Ways Real. Always TROY.
+                    </div>
+
+                    <!-- Hero headline -->
+                    <h1 class="hero-headline text-sand mb-6" style="font-size: 2.5rem;">
+                        Real People.<br>Real Success.
+                    </h1>
+
+                    <!-- Description -->
+                    <p class="body-text text-white mb-8">
+                        At TROY, no one works alone. Every challenge you face is met with a team behind you.
+                    </p>
+
+                    <!-- Button group - stacked on mobile -->
+                    <div class="flex flex-col gap-4">
+                        <a href="#" class="btn-bordered-white text-center">
+                            Visit Campus
+                        </a>
+                        <a href="#" class="btn-blue text-center">
+                            Apply Now
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Spacer for bottom of page -->
+    <div class="h-16 bg-gray-100"></div>
+
+</body>
+</html>

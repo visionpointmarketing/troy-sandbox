@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TROY Sandbox - Brand Story Section Preview</title>
+
+    <!-- Typekit Fonts (Troy University) -->
+    <link rel="stylesheet" href="https://use.typekit.net/yie8ysb.css">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                fontFamily: {
+                    'headline-primary': ['pressio-x-compressed', 'sans-serif'],
+                    'headline-secondary': ['pressio-compressed', 'sans-serif'],
+                    'subhead': ['avenir-lt-pro', 'sans-serif'],
+                    'body': ['avenir-lt-pro', 'sans-serif'],
+                },
+                extend: {
+                    colors: {
+                        cardinal: {
+                            DEFAULT: '#910039',
+                            800: '#910039',
+                            900: '#720724',
+                        },
+                        sand: {
+                            DEFAULT: '#f1efe3',
+                            300: '#e8e6da',
+                        },
+                        wheat: {
+                            DEFAULT: '#efd19f',
+                            light: '#f5e1b3',
+                        },
+                        grey: '#999999',
+                    },
+                    aspectRatio: {
+                        'feature': '16 / 9',
+                    },
+                }
+            }
+        }
+    </script>
+
+    <!-- Base Component Styles -->
+    <link rel="stylesheet" href="base.css">
+
+    <style>
+        /* Page-level styles for preview */
+        body {
+            font-family: 'avenir-lt-pro', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+
+        /* Preview header */
+        .preview-header {
+            background: #333;
+            color: white;
+            padding: 1rem 2rem;
+            font-size: 0.875rem;
+        }
+
+        .preview-header h1 {
+            font-family: 'avenir-lt-pro', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 0 0 0.25rem 0;
+        }
+
+        .preview-header p {
+            margin: 0;
+            opacity: 0.7;
+        }
+
+        /* Brand tagline (dark bg variant) */
+        .brand-tag-dark {
+            font-family: 'avenir-lt-pro', sans-serif;
+            font-weight: 900;
+            font-size: 0.75rem;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+    <!-- Preview Header -->
+    <div class="preview-header">
+        <h1>Phase B.5: Brand Story Section Preview</h1>
+        <p>TROY Sandbox Static Component Test</p>
+    </div>
+
+    <!-- ============================================
+         BRAND STORY SECTION
+         Source: showcase.html lines 501-539
+         ============================================ -->
+    <section class="relative py-24 overflow-hidden"
+             style="background-image: linear-gradient(rgba(145,0,57,0.85), rgba(114,7,36,0.9)), url('https://images.unsplash.com/photo-1562774053-701939374585?w=1200&q=80'); background-size: cover; background-position: center;">
+
+        <div class="container mx-auto px-8 relative z-10">
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+
+                <!-- Left column: Content -->
+                <div>
+                    <!-- Brand tagline badge -->
+                    <div class="brand-tag-dark bg-cardinal-900 text-white px-6 py-3 inline-block mb-8">
+                        All Ways Real. Always TROY.
+                    </div>
+
+                    <!-- Section heading with light accent bar -->
+                    <h2 class="section-title text-sand mb-10 section-header section-header-light">
+                        No Filters.<br>Just Real Breakthroughs.
+                    </h2>
+
+                    <!-- Body text -->
+                    <p class="text-base md:text-lg leading-[1.8] text-white mb-8">
+                        Instead of just highlighting glossy, finished products, TROY differentiates itself by revealing
+                        the entire journey as a valuable, relatable experience. <strong>We show the proposals that didn't work,
+                        the setbacks overcome, and the people who inspired breakthrough moments.</strong>
+                    </p>
+
+                    <!-- Blockquote -->
+                    <blockquote class="text-wheat italic text-base mb-10">
+                        "Because here, we believe every step forward is a victory worth celebrating."
+                    </blockquote>
+
+                    <!-- CTA Button -->
+                    <a href="#" class="btn-blue">
+                        Learn Our Story
+                    </a>
+                </div>
+
+                <!-- Right column: Image -->
+                <div class="overflow-hidden">
+                    <div class="aspect-feature">
+                        <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=900&q=80"
+                             alt="TROY students collaborating"
+                             class="w-full h-full object-cover">
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         VARIATION: Image on Left
+         ============================================ -->
+
+    <div class="preview-header">
+        <h1>Brand Story Variation: Image Left</h1>
+        <p>Reversed layout with image on the left side</p>
+    </div>
+
+    <section class="relative py-24 overflow-hidden"
+             style="background-image: linear-gradient(rgba(145,0,57,0.85), rgba(114,7,36,0.9)), url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1200&q=80'); background-size: cover; background-position: center;">
+
+        <div class="container mx-auto px-8 relative z-10">
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+
+                <!-- Left column: Image -->
+                <div class="overflow-hidden order-2 lg:order-1">
+                    <div class="aspect-feature">
+                        <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=900&q=80"
+                             alt="Students in discussion"
+                             class="w-full h-full object-cover">
+                    </div>
+                </div>
+
+                <!-- Right column: Content -->
+                <div class="order-1 lg:order-2">
+                    <div class="brand-tag-dark bg-cardinal-900 text-white px-6 py-3 inline-block mb-8">
+                        Our Mission
+                    </div>
+
+                    <h2 class="section-title text-sand mb-10 section-header section-header-light">
+                        Education That<br>Changes Lives.
+                    </h2>
+
+                    <p class="text-base md:text-lg leading-[1.8] text-white mb-8">
+                        At Troy University, we believe education should be accessible, affordable, and transformative.
+                        <strong>Our commitment to student success drives everything we do</strong>—from innovative online programs
+                        to personalized support services.
+                    </p>
+
+                    <blockquote class="text-wheat italic text-base mb-10">
+                        "Real education isn't just about degrees—it's about becoming who you're meant to be."
+                    </blockquote>
+
+                    <a href="#" class="btn-bordered-white">
+                        Discover Our Values
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         VARIATION: Dark (Non-Cardinal) Background
+         ============================================ -->
+
+    <div class="preview-header">
+        <h1>Brand Story Variation: Dark Overlay</h1>
+        <p>Black/dark gradient instead of cardinal</p>
+    </div>
+
+    <section class="relative py-24 overflow-hidden"
+             style="background-image: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.9)), url('https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=1200&q=80'); background-size: cover; background-position: center;">
+
+        <div class="container mx-auto px-8 relative z-10">
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+
+                <!-- Content -->
+                <div>
+                    <div class="brand-tagline bg-wheat text-black px-6 py-3 inline-block mb-8">
+                        Student Success
+                    </div>
+
+                    <h2 class="section-title text-sand mb-10 section-header section-header-light">
+                        Your Success<br>Is Our Priority.
+                    </h2>
+
+                    <p class="text-base md:text-lg leading-[1.8] text-white/90 mb-8">
+                        From your first day on campus to walking across the graduation stage, Troy University
+                        is committed to your success. <strong>Our advisors, faculty, and staff work together</strong>
+                        to ensure you have every resource you need to achieve your goals.
+                    </p>
+
+                    <blockquote class="text-wheat italic text-base mb-10">
+                        "We don't just prepare students for careers—we prepare them for life."
+                    </blockquote>
+
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <a href="#" class="btn-cardinal">
+                            Student Resources
+                        </a>
+                        <a href="#" class="btn-bordered-white">
+                            Meet Our Team
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Image -->
+                <div class="overflow-hidden">
+                    <div class="aspect-feature">
+                        <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=900&q=80"
+                             alt="Graduation celebration"
+                             class="w-full h-full object-cover">
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         VARIATION: Full-Width Centered
+         ============================================ -->
+
+    <div class="preview-header">
+        <h1>Brand Story Variation: Centered Layout</h1>
+        <p>Full-width centered content without side image</p>
+    </div>
+
+    <section class="relative py-24 overflow-hidden"
+             style="background-image: linear-gradient(rgba(145,0,57,0.9), rgba(114,7,36,0.95)), url('https://images.unsplash.com/photo-1562774053-701939374585?w=1600&q=80'); background-size: cover; background-position: center;">
+
+        <div class="container mx-auto px-8 relative z-10 text-center">
+
+            <div class="max-w-4xl mx-auto">
+
+                <div class="brand-tag-dark bg-cardinal-900 text-white px-6 py-3 inline-block mb-8">
+                    All Ways Real. Always TROY.
+                </div>
+
+                <h2 class="section-title text-sand mb-10 section-header-center-light">
+                    Where Dreams<br>Become Reality.
+                </h2>
+
+                <p class="text-lg md:text-xl leading-[1.8] text-white mb-8 max-w-3xl mx-auto">
+                    For over a century, Troy University has been transforming lives through education.
+                    <strong>We believe in the power of hard work, dedication, and community</strong>—
+                    values that have guided generations of Trojans to success.
+                </p>
+
+                <blockquote class="text-wheat italic text-xl mb-12 max-w-2xl mx-auto">
+                    "Real work always wins."
+                </blockquote>
+
+                <div class="flex flex-col sm:flex-row gap-6 justify-center">
+                    <a href="#" class="btn-blue">
+                        Our History
+                    </a>
+                    <a href="#" class="btn-bordered-white">
+                        Our Future
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Spacer for bottom of page -->
+    <div class="h-16 bg-gray-100"></div>
+
+</body>
+</html>
