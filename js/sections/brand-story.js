@@ -97,9 +97,15 @@ export default {
                         ${renderIfVisible(visibility, 'image', `
                             <div class="overflow-hidden cursor-pointer" data-field="image" data-image-field="true">
                                 <div class="aspect-feature">
-                                    <img src="${content.image || ''}"
-                                         alt="TROY students collaborating"
-                                         class="w-full h-full object-cover">
+                                    ${content.image ? `
+                                        <img src="${content.image}"
+                                             alt="TROY students collaborating"
+                                             class="w-full h-full object-cover">
+                                    ` : `
+                                        <div class="w-full h-full bg-white/20 flex items-center justify-center text-white/60">
+                                            <span class="text-sm">Click to add image</span>
+                                        </div>
+                                    `}
                                 </div>
                             </div>
                         `)}
@@ -124,13 +130,13 @@ export default {
             <div>
                 <div class="brand-tag-dark bg-cardinal-900 text-white px-6 py-3 inline-block mb-8">${escapeHtml(content.tagline)}</div>
                 <h2 class="section-title text-sand mb-10 section-header section-header-light">${headlineHtml}</h2>
-                <p class="text-base md:text-lg leading-[1.8] text-white mb-8">${content.body}</p>
+                <p class="text-base md:text-lg leading-[1.8] text-white mb-8">${escapeHtml(content.body)}</p>
                 <blockquote class="text-wheat italic text-base mb-10">${escapeHtml(content.quote)}</blockquote>
                 <a href="#" class="btn-blue">${escapeHtml(content.ctaText)}</a>
             </div>
             <div class="overflow-hidden">
                 <div class="aspect-feature">
-                    <img src="${content.image || ''}" alt="TROY students collaborating" class="w-full h-full object-cover">
+                    ${content.image ? `<img src="${content.image}" alt="TROY students collaborating" class="w-full h-full object-cover">` : ''}
                 </div>
             </div>
         </div>

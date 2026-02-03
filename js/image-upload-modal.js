@@ -26,6 +26,11 @@ export function initImageModal() {
     // Click to select file
     dropZone.addEventListener('click', () => fileInput.click());
 
+    // Reset file input on click to allow re-selecting same file
+    fileInput.addEventListener('click', () => {
+        fileInput.value = '';
+    });
+
     // File input change
     fileInput.addEventListener('change', handleFileSelect);
 

@@ -125,9 +125,15 @@ export default {
                         <!-- Right column: Featured program image -->
                         ${renderIfVisible(visibility, 'featuredImage', `
                             <div class="relative overflow-hidden aspect-auto min-h-[280px] sm:aspect-feature cursor-pointer" data-field="featuredImage" data-image-field="true">
-                                <img src="${content.featuredImage || ''}"
-                                     alt="Featured Program"
-                                     class="absolute inset-0 w-full h-full object-cover">
+                                ${content.featuredImage ? `
+                                    <img src="${content.featuredImage}"
+                                         alt="Featured Program"
+                                         class="absolute inset-0 w-full h-full object-cover">
+                                ` : `
+                                    <div class="absolute inset-0 bg-gray-200 flex items-center justify-center text-gray-400">
+                                        <span class="text-sm">Click to add image</span>
+                                    </div>
+                                `}
 
                                 <!-- Content overlay -->
                                 <div class="absolute bottom-4 left-4 right-4 sm:bottom-8 sm:left-8 sm:right-8 text-white z-10">
@@ -186,11 +192,11 @@ export default {
             <div>
                 <div class="boxed-subhead ${contrast.badgeBg} ${contrast.badgeText} px-6 py-3 inline-block mb-6">${escapeHtml(content.badge)}</div>
                 <h2 class="section-title ${contrast.text} mb-8 ${contrast.headerAccent}">${headlineHtml}</h2>
-                <p class="body-text mb-10 ${contrast.text}">${content.body}</p>
+                <p class="body-text mb-10 ${contrast.text}">${escapeHtml(content.body)}</p>
                 <a href="#" class="btn-cardinal">${escapeHtml(content.ctaText)}</a>
             </div>
             <div class="relative overflow-hidden aspect-auto min-h-[280px] sm:aspect-feature">
-                <img src="${content.featuredImage || ''}" alt="Featured Program" class="absolute inset-0 w-full h-full object-cover">
+                ${content.featuredImage ? `<img src="${content.featuredImage}" alt="Featured Program" class="absolute inset-0 w-full h-full object-cover">` : ''}
                 <div class="absolute bottom-4 left-4 right-4 sm:bottom-8 sm:left-8 sm:right-8 text-white z-10">
                     <div class="featured-tag bg-cardinal-800 text-white px-4 py-2 inline-block mb-4">${escapeHtml(content.featuredTag)}</div>
                     <h3 class="program-title text-white mb-2">${escapeHtml(content.featuredTitle)}</h3>

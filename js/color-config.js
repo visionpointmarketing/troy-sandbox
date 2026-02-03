@@ -62,14 +62,29 @@ export const COLORS = {
 /**
  * Get contrast-appropriate classes based on background color
  * @param {string} colorKey - The color key from COLORS
+ * @param {number} _depth - Internal recursion guard
  * @returns {object} Object with text, badge, header accent classes
  */
-export function getContrastConfig(colorKey) {
+export function getContrastConfig(colorKey, _depth = 0) {
     const color = COLORS[colorKey];
 
     if (!color) {
+        // Prevent infinite recursion if 'sand' is somehow missing
+        if (_depth > 0) {
+            // Return safe defaults
+            return {
+                text: 'text-black',
+                textMuted: 'text-black/80',
+                badgeBg: 'bg-cardinal-800',
+                badgeText: 'text-white',
+                headerAccent: 'section-header section-header-black',
+                headerAccentCenter: 'section-header-center section-header-black',
+                categoryText: 'text-cardinal-800',
+                showHalftone: false
+            };
+        }
         // Default to light background config
-        return getContrastConfig('sand');
+        return getContrastConfig('sand', _depth + 1);
     }
 
     if (color.isDark) {

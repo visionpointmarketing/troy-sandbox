@@ -8,6 +8,7 @@ const DB_VERSION = 1;
 const STORE_NAME = 'images';
 
 let db = null;
+let initPromise = null;
 
 /**
  * Initialize the database
@@ -36,12 +37,23 @@ export async function initImageStore() {
 }
 
 /**
+ * Ensure database is initialized (prevents race conditions)
+ */
+async function ensureInit() {
+    if (db) return db;
+    if (!initPromise) {
+        initPromise = initImageStore();
+    }
+    return initPromise;
+}
+
+/**
  * Store an image
  * @param {string} id - Unique identifier (usually sectionId-fieldName)
  * @param {string} data - Base64 image data
  */
 export async function storeImage(id, data) {
-    if (!db) await initImageStore();
+    await ensureInit();
 
     return new Promise((resolve, reject) => {
         const transaction = db.transaction([STORE_NAME], 'readwrite');
@@ -59,7 +71,7 @@ export async function storeImage(id, data) {
  * @returns {Promise<string|null>} Base64 image data or null
  */
 export async function getImage(id) {
-    if (!db) await initImageStore();
+    await ensureInit();
 
     return new Promise((resolve, reject) => {
         const transaction = db.transaction([STORE_NAME], 'readonly');
@@ -78,7 +90,7 @@ export async function getImage(id) {
  * @param {string} id - Image identifier
  */
 export async function deleteImage(id) {
-    if (!db) await initImageStore();
+    await ensureInit();
 
     return new Promise((resolve, reject) => {
         const transaction = db.transaction([STORE_NAME], 'readwrite');
@@ -95,7 +107,7 @@ export async function deleteImage(id) {
  * @returns {Promise<Object>} Map of id -> data
  */
 export async function getAllImages() {
-    if (!db) await initImageStore();
+    await ensureInit();
 
     return new Promise((resolve, reject) => {
         const transaction = db.transaction([STORE_NAME], 'readonly');
@@ -117,7 +129,7 @@ export async function getAllImages() {
  * Clear all images
  */
 export async function clearAllImages() {
-    if (!db) await initImageStore();
+    await ensureInit();
 
     return new Promise((resolve, reject) => {
         const transaction = db.transaction([STORE_NAME], 'readwrite');

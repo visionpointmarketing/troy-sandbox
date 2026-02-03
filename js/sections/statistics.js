@@ -145,7 +145,7 @@ export default {
     <div class="container mx-auto px-8 text-center relative z-10">
         <div class="boxed-subhead ${contrast.badgeBg} ${contrast.badgeText} px-6 py-3 inline-block mb-6">${escapeHtml(content.badge)}</div>
         <h2 class="section-title ${contrast.text} mb-12 ${contrast.headerAccentCenter}">${headlineHtml}</h2>
-        <p class="body-text-large max-w-3xl mx-auto mb-16 ${contrast.text}">${content.body}</p>
+        <p class="body-text-large max-w-3xl mx-auto mb-16 ${contrast.text}">${escapeHtml(content.body)}</p>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div class="text-center py-8 px-4">
                 <div class="stat-number ${contrast.text} mb-3">${escapeHtml(content.stat1Number)}</div>

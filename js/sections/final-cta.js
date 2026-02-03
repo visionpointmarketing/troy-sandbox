@@ -111,7 +111,7 @@ export default {
     <div class="container mx-auto px-8 text-center relative z-10">
         <div class="boxed-subhead bg-wheat text-black px-6 py-3 inline-block mb-10">${escapeHtml(content.badge)}</div>
         <h2 class="section-title text-sand mb-12 section-header-center-light">${escapeHtml(content.headline)}</h2>
-        <p class="body-text-large max-w-3xl mx-auto mb-6 text-white">${content.body}</p>
+        <p class="body-text-large max-w-3xl mx-auto mb-6 text-white">${escapeHtml(content.body)}</p>
         <p class="text-wheat italic text-base max-w-2xl mx-auto mb-16">${escapeHtml(content.tagline)}</p>
         <div class="flex flex-col md:flex-row gap-8 justify-center items-center">
             <a href="#" class="btn-cardinal">${escapeHtml(content.ctaPrimary)}</a>

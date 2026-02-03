@@ -68,9 +68,15 @@ export default {
                 <article class="news-card ${cardBgColor.bgClass}">
                     ${showImage ? `
                         <div class="aspect-video cursor-pointer" data-field="${imageKey}" data-image-field="true">
-                            <img src="${image || ''}"
-                                 alt="${title || 'News story'}"
-                                 class="w-full h-full object-cover ${grayscale ? 'grayscale' : ''}">
+                            ${image ? `
+                                <img src="${image}"
+                                     alt="${escapeHtml(title || 'News story')}"
+                                     class="w-full h-full object-cover ${grayscale ? 'grayscale' : ''}">
+                            ` : `
+                                <div class="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400">
+                                    <span class="text-sm">Click to add image</span>
+                                </div>
+                            `}
                         </div>
                     ` : ''}
                     <div class="p-8">
@@ -165,7 +171,7 @@ export default {
         const renderNewsMarkup = (image, category, title, desc, grayscale = false) => `
             <article class="news-card ${cardBgColor.bgClass}">
                 <div class="aspect-video">
-                    <img src="${image || ''}" alt="${title || 'News story'}" class="w-full h-full object-cover ${grayscale ? 'grayscale' : ''}">
+                    ${image ? `<img src="${image}" alt="${escapeHtml(title || 'News story')}" class="w-full h-full object-cover ${grayscale ? 'grayscale' : ''}">` : ''}
                 </div>
                 <div class="p-8">
                     <div class="nav-heading text-cardinal-800 mb-3">${escapeHtml(category)}</div>
@@ -181,7 +187,7 @@ export default {
         <div class="text-center mb-16">
             <div class="boxed-subhead ${contrast.badgeBg} ${contrast.badgeText} px-6 py-3 inline-block mb-6">${escapeHtml(content.badge)}</div>
             <h2 class="section-title ${contrast.text} mb-8 ${contrast.headerAccentCenter}">${headlineHtml}</h2>
-            <p class="body-text max-w-3xl mx-auto ${contrast.text}">${content.body}</p>
+            <p class="body-text max-w-3xl mx-auto ${contrast.text}">${escapeHtml(content.body)}</p>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             ${renderNewsMarkup(content.story1Image, content.story1Category, content.story1Title, content.story1Description, true)}

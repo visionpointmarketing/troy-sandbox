@@ -4,6 +4,7 @@
  */
 
 import { getDefaultColors, sectionHasCards } from './color-config.js';
+import { deleteImage } from './image-store.js';
 
 // Generate unique IDs
 function generateId() {
@@ -13,6 +14,15 @@ function generateId() {
 // Deep clone helper
 function deepClone(obj) {
     return JSON.parse(JSON.stringify(obj));
+}
+
+// Validate section structure for import
+function validateSection(section) {
+    return section &&
+           typeof section.id === 'string' &&
+           typeof section.type === 'string' &&
+           typeof section.content === 'object' && section.content !== null &&
+           typeof section.visibility === 'object' && section.visibility !== null;
 }
 
 // State object
@@ -170,7 +180,23 @@ const state = {
     /**
      * Delete a section
      */
-    deleteSection(id) {
+    async deleteSection(id) {
+        const section = this.sections.find(s => s.id === id);
+        if (!section) return;
+
+        // Clean up any images stored in IndexedDB for this section
+        if (section.content) {
+            for (const [key, value] of Object.entries(section.content)) {
+                if (typeof value === 'string' && value.startsWith('data:image')) {
+                    try {
+                        await deleteImage(`${id}-${key}`);
+                    } catch (e) {
+                        console.warn(`Failed to delete image ${id}-${key}:`, e);
+                    }
+                }
+            }
+        }
+
         const index = this.sections.findIndex(s => s.id === id);
         if (index !== -1) {
             this.sections.splice(index, 1);
@@ -246,13 +272,28 @@ const state = {
      * Import state from JSON
      */
     fromJSON(json) {
-        if (json && json.sections && Array.isArray(json.sections)) {
-            this.sections = deepClone(json.sections);
-            this._saveToHistory();
-            this._notifyChange();
-            return true;
+        if (!json || !json.sections || !Array.isArray(json.sections)) {
+            console.error('Invalid JSON: missing sections array');
+            return false;
         }
-        return false;
+
+        // Validate each section structure
+        if (!json.sections.every(validateSection)) {
+            console.error('Invalid JSON: one or more sections have invalid structure');
+            return false;
+        }
+
+        // Version check (future-proofing)
+        const version = json.version || 1;
+        const CURRENT_VERSION = 1;
+        if (version > CURRENT_VERSION) {
+            console.warn('This file was created with a newer version. Some features may not work correctly.');
+        }
+
+        this.sections = deepClone(json.sections);
+        this._saveToHistory();
+        this._notifyChange();
+        return true;
     },
 
     /**

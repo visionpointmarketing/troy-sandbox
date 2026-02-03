@@ -45,13 +45,33 @@ export function initCanvas() {
         }
     });
 
+    // Strip HTML from pasted content to prevent XSS
+    sectionsContainer.addEventListener('paste', (e) => {
+        if (e.target.hasAttribute('contenteditable')) {
+            e.preventDefault();
+            const text = e.clipboardData.getData('text/plain');
+            document.execCommand('insertText', false, text);
+        }
+    }, true);
+
     // Visibility popover
     document.getElementById('visibility-close').addEventListener('click', closeVisibilityPopover);
     document.getElementById('visibility-show-all').addEventListener('click', () => setAllVisibility(true));
     document.getElementById('visibility-hide-all').addEventListener('click', () => setAllVisibility(false));
 
+    // Use event delegation for visibility checkboxes to prevent listener accumulation
+    document.getElementById('visibility-fields').addEventListener('change', (e) => {
+        if (e.target.type === 'checkbox' && e.target.dataset.field && currentVisibilitySection) {
+            state.updateVisibility(currentVisibilitySection, e.target.dataset.field, e.target.checked);
+        }
+    });
+
     // Color popover
     document.getElementById('color-close').addEventListener('click', closeColorPopover);
+
+    // Use event delegation for color swatches to prevent listener accumulation
+    document.getElementById('section-color-swatches').addEventListener('click', handleColorSwatchClick);
+    document.getElementById('card-color-swatches').addEventListener('click', handleColorSwatchClick);
 
     // Close popovers on outside click
     document.addEventListener('click', (e) => {
@@ -251,7 +271,7 @@ function openVisibilityPopover(sectionId, button) {
 
     currentVisibilitySection = sectionId;
 
-    // Build field checkboxes
+    // Build field checkboxes (event delegation handles change events)
     const fieldsContainer = document.getElementById('visibility-fields');
     fieldsContainer.innerHTML = template.fields.map(field => `
         <div class="visibility-field-row">
@@ -265,16 +285,10 @@ function openVisibilityPopover(sectionId, button) {
         </div>
     `).join('');
 
-    // Add change listeners
-    fieldsContainer.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-        checkbox.addEventListener('change', (e) => {
-            state.updateVisibility(currentVisibilitySection, e.target.dataset.field, e.target.checked);
-        });
-    });
-
-    // Position popover
+    // Position popover (account for scroll offset)
     const rect = button.getBoundingClientRect();
-    visibilityPopover.style.top = `${rect.bottom + 8}px`;
+    const scrollTop = window.scrollY || document.documentElement.scrollTop;
+    visibilityPopover.style.top = `${rect.bottom + scrollTop + 8}px`;
     visibilityPopover.style.right = `${window.innerWidth - rect.right}px`;
     visibilityPopover.classList.remove('hidden');
 }
@@ -312,7 +326,7 @@ function openColorPopover(sectionId, button) {
     const colors = section.colors || getDefaultColors(section.type);
     const hasCards = sectionHasCards(section.type);
 
-    // Build section background swatches
+    // Build section background swatches (event delegation handles clicks)
     const sectionSwatches = document.getElementById('section-color-swatches');
     sectionSwatches.innerHTML = getSectionBackgroundColors().map(color => {
         const isSelected = colors.background === color.key;
@@ -328,17 +342,12 @@ function openColorPopover(sectionId, button) {
         `;
     }).join('');
 
-    // Add click handlers for section swatches
-    sectionSwatches.querySelectorAll('.color-swatch').forEach(swatch => {
-        swatch.addEventListener('click', handleColorSwatchClick);
-    });
-
     // Show/hide card color section
     const cardSection = document.getElementById('card-color-section');
     if (hasCards) {
         cardSection.classList.remove('hidden');
 
-        // Build card background swatches (light colors only)
+        // Build card background swatches (event delegation handles clicks)
         const cardSwatches = document.getElementById('card-color-swatches');
         cardSwatches.innerHTML = getCardBackgroundColors().map(color => {
             const isSelected = colors.cardBackground === color.key;
@@ -352,31 +361,29 @@ function openColorPopover(sectionId, button) {
                 ></button>
             `;
         }).join('');
-
-        // Add click handlers for card swatches
-        cardSwatches.querySelectorAll('.color-swatch').forEach(swatch => {
-            swatch.addEventListener('click', handleColorSwatchClick);
-        });
     } else {
         cardSection.classList.add('hidden');
     }
 
-    // Position popover
+    // Position popover (account for scroll offset)
     const rect = button.getBoundingClientRect();
-    colorPopover.style.top = `${rect.bottom + 8}px`;
+    const scrollTop = window.scrollY || document.documentElement.scrollTop;
+    colorPopover.style.top = `${rect.bottom + scrollTop + 8}px`;
     colorPopover.style.right = `${window.innerWidth - rect.right}px`;
     colorPopover.classList.remove('hidden');
 }
 
 /**
- * Handle color swatch click
+ * Handle color swatch click (using event delegation)
  */
 function handleColorSwatchClick(e) {
-    const swatch = e.currentTarget;
+    const swatch = e.target.closest('.color-swatch');
+    if (!swatch) return;
+
     const colorType = swatch.dataset.colorType;
     const colorKey = swatch.dataset.colorKey;
 
-    if (!currentColorSection) return;
+    if (!currentColorSection || !colorType || !colorKey) return;
 
     // Update state
     state.updateSectionColor(currentColorSection, colorType, colorKey);
