@@ -261,7 +261,9 @@
    ============================================ */
 
 #static-header,
-#static-footer {
+#static-footer,
+#static-header *,
+#static-footer * {
     pointer-events: none;
     user-select: none;
 }
@@ -306,15 +308,87 @@
 }
 
 /* ============================================
-   Responsive Preview (future)
+   Viewport Preview Toggle
    ============================================ */
 
-#canvas.preview-tablet {
-    max-width: 768px;
+.viewport-toggle-group {
+    display: flex;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    overflow: hidden;
 }
 
-#canvas.preview-mobile {
-    max-width: 375px;
+.viewport-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: white;
+    border: none;
+    border-right: 1px solid #e5e7eb;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    color: #6b7280;
+}
+
+.viewport-btn:last-child {
+    border-right: none;
+}
+
+.viewport-btn:hover {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.viewport-btn.active {
+    background: #910039;
+    color: white;
+}
+
+.viewport-btn.active:hover {
+    background: #720724;
+}
+
+.viewport-btn svg {
+    stroke: currentColor;
+}
+
+/* ============================================
+   Preview Iframe
+   ============================================ */
+
+#preview-iframe {
+    border: none;
+    background: white;
+    display: block;
+    margin: 0 auto;
+    min-height: 100vh;
+    box-shadow: 0 0 0 1px #e5e7eb, 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    transition: width 0.3s ease;
+}
+
+#preview-iframe.tablet {
+    width: 768px;
+}
+
+#preview-iframe.mobile {
+    width: 375px;
+}
+
+#preview-iframe.hidden {
+    display: none;
+}
+
+/* Canvas wrapper in preview mode */
+#canvas-wrapper.preview-mode {
+    background: #e5e7eb;
+    padding: 24px;
+}
+
+/* Hide canvas when in preview mode */
+#canvas.hidden {
+    display: none;
 }
 
 /* ============================================

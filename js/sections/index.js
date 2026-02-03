@@ -48,6 +48,13 @@ export function getTemplate(type) {
 }
 
 /**
+ * Get template map (type -> template)
+ */
+export function getTemplateMap() {
+    return sectionTemplates;
+}
+
+/**
  * Get all categories
  */
 export function getCategories() {

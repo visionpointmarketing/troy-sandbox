@@ -118,13 +118,13 @@ export default {
 
                         <!-- Right column: Featured program image -->
                         ${renderIfVisible(visibility, 'featuredImage', `
-                            <div class="relative overflow-hidden aspect-feature cursor-pointer" data-field="featuredImage" data-image-field="true">
+                            <div class="relative overflow-hidden aspect-auto min-h-[280px] sm:aspect-feature cursor-pointer" data-field="featuredImage" data-image-field="true">
                                 <img src="${content.featuredImage || ''}"
                                      alt="Featured Program"
                                      class="absolute inset-0 w-full h-full object-cover">
 
                                 <!-- Content overlay -->
-                                <div class="absolute bottom-8 left-8 right-8 text-white z-10">
+                                <div class="absolute bottom-4 left-4 right-4 sm:bottom-8 sm:left-8 sm:right-8 text-white z-10">
                                     ${renderIfVisible(visibility, 'featuredTag', `
                                         <div
                                             contenteditable="true"
@@ -178,9 +178,9 @@ export default {
                 <p class="body-text mb-10 text-black">${content.body}</p>
                 <a href="#" class="btn-cardinal">${escapeHtml(content.ctaText)}</a>
             </div>
-            <div class="relative overflow-hidden aspect-feature">
+            <div class="relative overflow-hidden aspect-auto min-h-[280px] sm:aspect-feature">
                 <img src="${content.featuredImage || ''}" alt="Featured Program" class="absolute inset-0 w-full h-full object-cover">
-                <div class="absolute bottom-8 left-8 right-8 text-white z-10">
+                <div class="absolute bottom-4 left-4 right-4 sm:bottom-8 sm:left-8 sm:right-8 text-white z-10">
                     <div class="featured-tag bg-cardinal-800 text-white px-4 py-2 inline-block mb-4">${escapeHtml(content.featuredTag)}</div>
                     <h3 class="program-title text-white mb-2">${escapeHtml(content.featuredTitle)}</h3>
                     <p class="text-sm text-white/90">${escapeHtml(content.featuredDescription)}</p>

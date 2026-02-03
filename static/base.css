@@ -559,6 +559,9 @@ body {
     background-color: #73002E;
     padding: 0 15px;
     border-radius: 60px 0 0 60px;
+    min-height: 82px;
+    display: flex;
+    align-items: center;
 }
 
 .header-global-menu {
@@ -593,8 +596,8 @@ body {
     display: inline-flex;
 }
 
-@media (max-width: 768px) {
-    .header-menu-text-item {
+@media (max-width: 480px) {
+    .header-global-menu .header-menu-text-item {
         display: none;
     }
 }
@@ -610,6 +613,10 @@ body {
 }
 
 @media (max-width: 768px) {
+    .header-global-menu-wrap {
+        min-height: 56px;
+    }
+
     .header-search-icon,
     .header-hamburger-icon {
         width: 38px;
@@ -724,7 +731,7 @@ body {
 
 @media (max-width: 768px) {
     .hero-headline {
-        font-size: clamp(2.5rem, 10vw, 4rem);
+        font-size: clamp(3rem, 12vw, 4.5rem);  /* 48px min, 72px max - larger for compressed font */
     }
 
     .section-title {

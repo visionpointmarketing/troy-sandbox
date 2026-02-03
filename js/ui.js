@@ -4,9 +4,10 @@
  */
 
 import state from './state.js';
-import { getAllTemplates, getTemplate } from './sections/index.js';
+import { getAllTemplates, getTemplate, getTemplateMap } from './sections/index.js';
 import { downloadFile, getTimestamp } from './utils.js';
 import { getAllImages, storeImage, clearAllImages } from './image-store.js';
+import { setViewportMode, updatePreviewContent } from './preview-iframe.js';
 
 /**
  * Initialize UI components
@@ -14,6 +15,7 @@ import { getAllImages, storeImage, clearAllImages } from './image-store.js';
 export function initUI() {
     initSidebar();
     initSidebarToggle();
+    initViewportToggle();
     initExportImport();
     initUndoRedo();
     initKeyboardShortcuts();
@@ -62,6 +64,47 @@ function initSidebarToggle() {
             sidebar.classList.toggle('hidden');
             toggleBtn.classList.toggle('active');
         });
+    }
+}
+
+/**
+ * Initialize viewport preview toggle
+ */
+function initViewportToggle() {
+    const toggleGroup = document.getElementById('viewport-toggle');
+    const canvas = document.getElementById('canvas');
+
+    if (!toggleGroup || !canvas) return;
+
+    // Load saved preference
+    const savedViewport = localStorage.getItem('troy-sandbox-viewport') || 'desktop';
+    setViewport(savedViewport);
+
+    // Event delegation for viewport buttons
+    toggleGroup.addEventListener('click', (e) => {
+        const btn = e.target.closest('.viewport-btn');
+        if (!btn) return;
+        setViewport(btn.dataset.viewport);
+    });
+
+    function setViewport(viewport) {
+        // Update button states
+        toggleGroup.querySelectorAll('.viewport-btn').forEach(btn => {
+            const isActive = btn.dataset.viewport === viewport;
+            btn.classList.toggle('active', isActive);
+            btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+        });
+
+        // Switch between canvas and iframe
+        setViewportMode(viewport);
+
+        // Update iframe content when entering preview mode
+        if (viewport !== 'desktop') {
+            updatePreviewContent(state.sections, getTemplateMap());
+        }
+
+        // Save preference
+        localStorage.setItem('troy-sandbox-viewport', viewport);
     }
 }
 

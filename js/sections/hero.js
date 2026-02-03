@@ -51,7 +51,7 @@ export default {
 
                 <!-- Content container -->
                 <div class="container mx-auto px-8 relative z-10">
-                    <div class="max-w-[61.8%]">
+                    <div class="w-full lg:max-w-[61.8%]">
 
                         ${renderIfVisible(visibility, 'tagline', `
                             <div
@@ -112,7 +112,7 @@ export default {
 <section class="relative min-h-[80vh] flex items-center overflow-hidden py-24 halftone-overlay" style="${bgStyle}">
     <div class="absolute inset-0 bg-gradient-to-r from-black/95 to-black/80"></div>
     <div class="container mx-auto px-8 relative z-10">
-        <div class="max-w-[61.8%]">
+        <div class="w-full lg:max-w-[61.8%]">
             <div class="brand-tagline bg-wheat text-black px-6 py-3 inline-block mb-8">${escapeHtml(content.tagline)}</div>
             <h1 class="hero-headline text-sand mb-8">${headlineHtml}</h1>
             <p class="body-text-large text-white mb-12 max-w-lg">${escapeHtml(content.body)}</p>
