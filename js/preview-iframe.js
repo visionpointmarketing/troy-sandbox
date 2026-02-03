@@ -109,7 +109,8 @@ export async function updatePreviewContent(sections, templates) {
         .map(section => {
             const template = templates[section.type];
             if (!template || !template.toMarkup) return '';
-            return template.toMarkup(section.content);
+            // Pass colors to toMarkup for color-aware rendering
+            return template.toMarkup(section.content, section.colors);
         })
         .join('\n');
 

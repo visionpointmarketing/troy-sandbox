@@ -432,3 +432,79 @@
 #sidebar-toggle svg {
     stroke: currentColor;
 }
+
+/* ============================================
+   Color Popover
+   ============================================ */
+
+#color-popover {
+    min-width: 280px;
+}
+
+.color-swatch {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 2px solid #e5e7eb;
+    transition: all 0.15s ease;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.color-swatch:hover {
+    border-color: #910039;
+    transform: scale(1.05);
+}
+
+.color-swatch.selected {
+    border-color: #910039;
+    box-shadow: 0 0 0 2px rgba(145, 0, 57, 0.3);
+}
+
+.color-swatch.selected::after {
+    content: '';
+    width: 12px;
+    height: 12px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23910039' stroke-width='3'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+.color-swatch.selected.dark::after {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
+}
+
+.color-swatch.light {
+    border-color: #d1d5db;
+}
+
+.color-swatch[title]::before {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 4px 8px;
+    background: #374151;
+    color: white;
+    font-size: 11px;
+    border-radius: 4px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+    margin-bottom: 4px;
+}
+
+.color-swatch:hover[title]::before {
+    opacity: 1;
+}
+
+/* Color button in section controls */
+.section-control-btn.color:hover {
+    background: #fef3c7;
+    border-color: #f59e0b;
+}

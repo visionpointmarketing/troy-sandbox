@@ -3,6 +3,8 @@
  * Manages section state with undo/redo history
  */
 
+import { getDefaultColors, sectionHasCards } from './color-config.js';
+
 // Generate unique IDs
 function generateId() {
     return 'section-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
@@ -56,12 +58,13 @@ const state = {
     /**
      * Add a new section
      */
-    addSection(type, defaults, fields) {
+    addSection(type, defaults, fields, defaultColors = null) {
         const section = {
             id: generateId(),
             type: type,
             content: deepClone(defaults),
-            visibility: {}
+            visibility: {},
+            colors: defaultColors ? deepClone(defaultColors) : getDefaultColors(type)
         };
 
         // Initialize all fields as visible
@@ -138,7 +141,8 @@ const state = {
                 id: generateId(),
                 type: section.type,
                 content: deepClone(section.content),
-                visibility: deepClone(section.visibility)
+                visibility: deepClone(section.visibility),
+                colors: section.colors ? deepClone(section.colors) : getDefaultColors(section.type)
             };
             this.sections.splice(index + 1, 0, newSection);
             this._saveToHistory();
@@ -146,6 +150,21 @@ const state = {
             return newSection;
         }
         return null;
+    },
+
+    /**
+     * Update section color
+     */
+    updateSectionColor(id, colorType, colorKey) {
+        const section = this.getSection(id);
+        if (section) {
+            if (!section.colors) {
+                section.colors = getDefaultColors(section.type);
+            }
+            section.colors[colorType] = colorKey;
+            this._saveToHistory();
+            this._notifyChange();
+        }
     },
 
     /**

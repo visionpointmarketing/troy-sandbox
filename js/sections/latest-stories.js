@@ -4,6 +4,7 @@
  */
 
 import { escapeHtml, renderIfVisible } from '../utils.js';
+import { COLORS, getContrastConfig } from '../color-config.js';
 
 export default {
     type: 'latest-stories',
@@ -47,8 +48,13 @@ export default {
         { key: 'story3Description', label: 'Story 3 Description', type: 'text' }
     ],
 
-    render(content, visibility) {
+    render(content, visibility, colors = { background: 'sand', cardBackground: 'white' }) {
         const headlineHtml = escapeHtml(content.headline).replace(/\n/g, '<br>');
+
+        // Get color config
+        const bgColor = COLORS[colors.background] || COLORS.sand;
+        const cardBgColor = COLORS[colors.cardBackground] || COLORS.white;
+        const contrast = getContrastConfig(colors.background);
 
         const renderNewsCard = (image, category, title, desc, imageKey, categoryKey, titleKey, descKey, grayscale = false) => {
             const showImage = visibility[imageKey] !== false;
@@ -59,7 +65,7 @@ export default {
             if (!showImage && !showCategory && !showTitle && !showDesc) return '';
 
             return `
-                <article class="news-card">
+                <article class="news-card ${cardBgColor.bgClass}">
                     ${showImage ? `
                         <div class="aspect-video cursor-pointer" data-field="${imageKey}" data-image-field="true">
                             <img src="${image || ''}"
@@ -95,9 +101,9 @@ export default {
         };
 
         return `
-            <section class="bg-sand py-24 relative overflow-hidden">
+            <section class="${bgColor.bgClass} py-24 relative overflow-hidden">
                 <!-- Halftone overlay -->
-                <div class="halftone-overlay absolute inset-0 pointer-events-none"></div>
+                ${contrast.showHalftone ? '<div class="halftone-overlay absolute inset-0 pointer-events-none"></div>' : ''}
 
                 <div class="container mx-auto px-8 relative z-10">
 
@@ -107,7 +113,7 @@ export default {
                             <div
                                 contenteditable="true"
                                 data-field="badge"
-                                class="boxed-subhead bg-cardinal-800 text-white px-6 py-3 inline-block mb-6"
+                                class="boxed-subhead ${contrast.badgeBg} ${contrast.badgeText} px-6 py-3 inline-block mb-6"
                             >${escapeHtml(content.badge)}</div>
                         `)}
 
@@ -115,7 +121,7 @@ export default {
                             <h2
                                 contenteditable="true"
                                 data-field="headline"
-                                class="section-title text-black mb-8 section-header-center section-header-black"
+                                class="section-title ${contrast.text} mb-8 ${contrast.headerAccentCenter}"
                             >${headlineHtml}</h2>
                         `)}
 
@@ -123,7 +129,7 @@ export default {
                             <p
                                 contenteditable="true"
                                 data-field="body"
-                                class="body-text max-w-3xl mx-auto text-black"
+                                class="body-text max-w-3xl mx-auto ${contrast.text}"
                             >${content.body}</p>
                         `)}
                     </div>
@@ -148,11 +154,16 @@ export default {
         `;
     },
 
-    toMarkup(content) {
+    toMarkup(content, colors = { background: 'sand', cardBackground: 'white' }) {
         const headlineHtml = escapeHtml(content.headline).replace(/\n/g, '<br>');
 
+        // Get color config
+        const bgColor = COLORS[colors.background] || COLORS.sand;
+        const cardBgColor = COLORS[colors.cardBackground] || COLORS.white;
+        const contrast = getContrastConfig(colors.background);
+
         const renderNewsMarkup = (image, category, title, desc, grayscale = false) => `
-            <article class="news-card">
+            <article class="news-card ${cardBgColor.bgClass}">
                 <div class="aspect-video">
                     <img src="${image || ''}" alt="${title || 'News story'}" class="w-full h-full object-cover ${grayscale ? 'grayscale' : ''}">
                 </div>
@@ -164,13 +175,13 @@ export default {
             </article>`;
 
         return `
-<section class="bg-sand py-24 relative overflow-hidden">
-    <div class="halftone-overlay absolute inset-0 pointer-events-none"></div>
+<section class="${bgColor.bgClass} py-24 relative overflow-hidden">
+    ${contrast.showHalftone ? '<div class="halftone-overlay absolute inset-0 pointer-events-none"></div>' : ''}
     <div class="container mx-auto px-8 relative z-10">
         <div class="text-center mb-16">
-            <div class="boxed-subhead bg-cardinal-800 text-white px-6 py-3 inline-block mb-6">${escapeHtml(content.badge)}</div>
-            <h2 class="section-title text-black mb-8 section-header-center section-header-black">${headlineHtml}</h2>
-            <p class="body-text max-w-3xl mx-auto text-black">${content.body}</p>
+            <div class="boxed-subhead ${contrast.badgeBg} ${contrast.badgeText} px-6 py-3 inline-block mb-6">${escapeHtml(content.badge)}</div>
+            <h2 class="section-title ${contrast.text} mb-8 ${contrast.headerAccentCenter}">${headlineHtml}</h2>
+            <p class="body-text max-w-3xl mx-auto ${contrast.text}">${content.body}</p>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             ${renderNewsMarkup(content.story1Image, content.story1Category, content.story1Title, content.story1Description, true)}

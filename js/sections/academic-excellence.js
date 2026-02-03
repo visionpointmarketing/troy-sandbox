@@ -4,6 +4,7 @@
  */
 
 import { escapeHtml, renderIfVisible } from '../utils.js';
+import { COLORS, getContrastConfig } from '../color-config.js';
 
 export default {
     type: 'academic-excellence',
@@ -45,8 +46,13 @@ export default {
         { key: 'program3Description', label: 'Program 3 Description', type: 'text' }
     ],
 
-    render(content, visibility) {
+    render(content, visibility, colors = { background: 'white', cardBackground: 'white' }) {
         const headlineHtml = escapeHtml(content.headline).replace(/\n/g, '<br>');
+
+        // Get color config
+        const bgColor = COLORS[colors.background] || COLORS.white;
+        const cardBgColor = COLORS[colors.cardBackground] || COLORS.white;
+        const contrast = getContrastConfig(colors.background);
 
         const renderProgramCard = (title, desc, titleKey, descKey) => {
             const showTitle = visibility[titleKey] !== false;
@@ -55,7 +61,7 @@ export default {
             if (!showTitle && !showDesc) return '';
 
             return `
-                <div class="program-card">
+                <div class="program-card ${cardBgColor.bgClass}">
                     ${showTitle ? `
                         <h3
                             contenteditable="true"
@@ -75,7 +81,7 @@ export default {
         };
 
         return `
-            <section class="bg-white py-24">
+            <section class="${bgColor.bgClass} py-24">
                 <div class="container mx-auto px-8">
 
                     <!-- Two-column layout -->
@@ -87,7 +93,7 @@ export default {
                                 <div
                                     contenteditable="true"
                                     data-field="badge"
-                                    class="boxed-subhead bg-wheat text-black px-6 py-3 inline-block mb-6"
+                                    class="boxed-subhead ${contrast.badgeBg} ${contrast.badgeText} px-6 py-3 inline-block mb-6"
                                 >${escapeHtml(content.badge)}</div>
                             `)}
 
@@ -95,7 +101,7 @@ export default {
                                 <h2
                                     contenteditable="true"
                                     data-field="headline"
-                                    class="section-title text-black mb-8 section-header section-header-black"
+                                    class="section-title ${contrast.text} mb-8 ${contrast.headerAccent}"
                                 >${headlineHtml}</h2>
                             `)}
 
@@ -103,7 +109,7 @@ export default {
                                 <p
                                     contenteditable="true"
                                     data-field="body"
-                                    class="body-text mb-10 text-black"
+                                    class="body-text mb-10 ${contrast.text}"
                                 >${content.body}</p>
                             `)}
 
@@ -165,17 +171,22 @@ export default {
         `;
     },
 
-    toMarkup(content) {
+    toMarkup(content, colors = { background: 'white', cardBackground: 'white' }) {
         const headlineHtml = escapeHtml(content.headline).replace(/\n/g, '<br>');
 
+        // Get color config
+        const bgColor = COLORS[colors.background] || COLORS.white;
+        const cardBgColor = COLORS[colors.cardBackground] || COLORS.white;
+        const contrast = getContrastConfig(colors.background);
+
         return `
-<section class="bg-white py-24">
+<section class="${bgColor.bgClass} py-24">
     <div class="container mx-auto px-8">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-20">
             <div>
-                <div class="boxed-subhead bg-wheat text-black px-6 py-3 inline-block mb-6">${escapeHtml(content.badge)}</div>
-                <h2 class="section-title text-black mb-8 section-header section-header-black">${headlineHtml}</h2>
-                <p class="body-text mb-10 text-black">${content.body}</p>
+                <div class="boxed-subhead ${contrast.badgeBg} ${contrast.badgeText} px-6 py-3 inline-block mb-6">${escapeHtml(content.badge)}</div>
+                <h2 class="section-title ${contrast.text} mb-8 ${contrast.headerAccent}">${headlineHtml}</h2>
+                <p class="body-text mb-10 ${contrast.text}">${content.body}</p>
                 <a href="#" class="btn-cardinal">${escapeHtml(content.ctaText)}</a>
             </div>
             <div class="relative overflow-hidden aspect-auto min-h-[280px] sm:aspect-feature">
@@ -189,15 +200,15 @@ export default {
             </div>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div class="program-card">
+            <div class="program-card ${cardBgColor.bgClass}">
                 <h3 class="program-title text-black mb-4">${escapeHtml(content.program1Title)}</h3>
                 <p class="body-text text-black/80">${escapeHtml(content.program1Description)}</p>
             </div>
-            <div class="program-card">
+            <div class="program-card ${cardBgColor.bgClass}">
                 <h3 class="program-title text-black mb-4">${escapeHtml(content.program2Title)}</h3>
                 <p class="body-text text-black/80">${escapeHtml(content.program2Description)}</p>
             </div>
-            <div class="program-card">
+            <div class="program-card ${cardBgColor.bgClass}">
                 <h3 class="program-title text-black mb-4">${escapeHtml(content.program3Title)}</h3>
                 <p class="body-text text-black/80">${escapeHtml(content.program3Description)}</p>
             </div>

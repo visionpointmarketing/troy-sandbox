@@ -8,10 +8,13 @@ import { getTemplate } from './sections/index.js';
 import { wrapSection } from './utils.js';
 import { openImageModal } from './image-upload-modal.js';
 import { storeImage } from './image-store.js';
+import { COLORS, getSectionBackgroundColors, getCardBackgroundColors, sectionHasCards, getDefaultColors } from './color-config.js';
 
 let sectionsContainer = null;
 let visibilityPopover = null;
+let colorPopover = null;
 let currentVisibilitySection = null;
+let currentColorSection = null;
 
 // Editing state tracking - prevents re-render during active typing
 let isEditing = false;
@@ -22,6 +25,7 @@ let isEditing = false;
 export function initCanvas() {
     sectionsContainer = document.getElementById('sections-container');
     visibilityPopover = document.getElementById('visibility-popover');
+    colorPopover = document.getElementById('color-popover');
 
     // Event delegation for section interactions
     sectionsContainer.addEventListener('click', handleClick);
@@ -46,11 +50,18 @@ export function initCanvas() {
     document.getElementById('visibility-show-all').addEventListener('click', () => setAllVisibility(true));
     document.getElementById('visibility-hide-all').addEventListener('click', () => setAllVisibility(false));
 
-    // Close popover on outside click
+    // Color popover
+    document.getElementById('color-close').addEventListener('click', closeColorPopover);
+
+    // Close popovers on outside click
     document.addEventListener('click', (e) => {
         if (!visibilityPopover.contains(e.target) &&
             !e.target.closest('[data-action="visibility"]')) {
             closeVisibilityPopover();
+        }
+        if (!colorPopover.contains(e.target) &&
+            !e.target.closest('[data-action="color"]')) {
+            closeColorPopover();
         }
     });
 
@@ -86,7 +97,9 @@ export function render() {
             console.error(`Unknown section type: ${section.type}`);
             return '';
         }
-        const innerHtml = template.render(section.content, section.visibility);
+        // Pass colors to render, falling back to defaults if not set
+        const colors = section.colors || getDefaultColors(section.type);
+        const innerHtml = template.render(section.content, section.visibility, colors);
         return wrapSection(section.id, section.type, innerHtml);
     }).join('');
 
@@ -143,6 +156,9 @@ function handleClick(e) {
                 break;
             case 'visibility':
                 openVisibilityPopover(sectionId, controlBtn);
+                break;
+            case 'color':
+                openColorPopover(sectionId, controlBtn);
                 break;
         }
         return;
@@ -283,6 +299,100 @@ function setAllVisibility(visible) {
     document.querySelectorAll('#visibility-fields input[type="checkbox"]').forEach(checkbox => {
         checkbox.checked = visible;
     });
+}
+
+/**
+ * Open color popover for a section
+ */
+function openColorPopover(sectionId, button) {
+    const section = state.getSection(sectionId);
+    if (!section) return;
+
+    currentColorSection = sectionId;
+    const colors = section.colors || getDefaultColors(section.type);
+    const hasCards = sectionHasCards(section.type);
+
+    // Build section background swatches
+    const sectionSwatches = document.getElementById('section-color-swatches');
+    sectionSwatches.innerHTML = getSectionBackgroundColors().map(color => {
+        const isSelected = colors.background === color.key;
+        const isDark = color.isDark;
+        return `
+            <button
+                class="color-swatch ${isSelected ? 'selected' : ''} ${isDark ? 'dark' : 'light'}"
+                data-color-type="background"
+                data-color-key="${color.key}"
+                style="background-color: ${color.hex};"
+                title="${color.label}"
+            ></button>
+        `;
+    }).join('');
+
+    // Add click handlers for section swatches
+    sectionSwatches.querySelectorAll('.color-swatch').forEach(swatch => {
+        swatch.addEventListener('click', handleColorSwatchClick);
+    });
+
+    // Show/hide card color section
+    const cardSection = document.getElementById('card-color-section');
+    if (hasCards) {
+        cardSection.classList.remove('hidden');
+
+        // Build card background swatches (light colors only)
+        const cardSwatches = document.getElementById('card-color-swatches');
+        cardSwatches.innerHTML = getCardBackgroundColors().map(color => {
+            const isSelected = colors.cardBackground === color.key;
+            return `
+                <button
+                    class="color-swatch ${isSelected ? 'selected' : ''} light"
+                    data-color-type="cardBackground"
+                    data-color-key="${color.key}"
+                    style="background-color: ${color.hex};"
+                    title="${color.label}"
+                ></button>
+            `;
+        }).join('');
+
+        // Add click handlers for card swatches
+        cardSwatches.querySelectorAll('.color-swatch').forEach(swatch => {
+            swatch.addEventListener('click', handleColorSwatchClick);
+        });
+    } else {
+        cardSection.classList.add('hidden');
+    }
+
+    // Position popover
+    const rect = button.getBoundingClientRect();
+    colorPopover.style.top = `${rect.bottom + 8}px`;
+    colorPopover.style.right = `${window.innerWidth - rect.right}px`;
+    colorPopover.classList.remove('hidden');
+}
+
+/**
+ * Handle color swatch click
+ */
+function handleColorSwatchClick(e) {
+    const swatch = e.currentTarget;
+    const colorType = swatch.dataset.colorType;
+    const colorKey = swatch.dataset.colorKey;
+
+    if (!currentColorSection) return;
+
+    // Update state
+    state.updateSectionColor(currentColorSection, colorType, colorKey);
+
+    // Update UI - remove selected from siblings, add to clicked
+    const container = swatch.parentElement;
+    container.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+    swatch.classList.add('selected');
+}
+
+/**
+ * Close color popover
+ */
+function closeColorPopover() {
+    colorPopover.classList.add('hidden');
+    currentColorSection = null;
 }
 
 export default { initCanvas, render };

@@ -4,6 +4,7 @@
  */
 
 import { escapeHtml, renderIfVisible } from '../utils.js';
+import { COLORS, getContrastConfig } from '../color-config.js';
 
 export default {
     type: 'statistics',
@@ -47,9 +48,13 @@ export default {
         { key: 'stat4Description', label: 'Stat 4 Description', type: 'text' }
     ],
 
-    render(content, visibility) {
+    render(content, visibility, colors = { background: 'sand' }) {
         // Convert newlines to <br> for headline display
         const headlineHtml = escapeHtml(content.headline).replace(/\n/g, '<br>');
+
+        // Get color config
+        const bgColor = COLORS[colors.background] || COLORS.sand;
+        const contrast = getContrastConfig(colors.background);
 
         const renderStatCard = (num, label, desc, numKey, labelKey, descKey) => {
             const showNum = visibility[numKey] !== false;
@@ -64,21 +69,21 @@ export default {
                         <div
                             contenteditable="true"
                             data-field="${numKey}"
-                            class="stat-number text-black mb-3"
+                            class="stat-number ${contrast.text} mb-3"
                         >${escapeHtml(num)}</div>
                     ` : ''}
                     ${showLabel ? `
                         <div
                             contenteditable="true"
                             data-field="${labelKey}"
-                            class="nav-heading text-black mb-2"
+                            class="nav-heading ${contrast.text} mb-2"
                         >${escapeHtml(label)}</div>
                     ` : ''}
                     ${showDesc ? `
                         <p
                             contenteditable="true"
                             data-field="${descKey}"
-                            class="text-sm text-black"
+                            class="text-sm ${contrast.text}"
                         >${escapeHtml(desc)}</p>
                     ` : ''}
                 </div>
@@ -86,9 +91,9 @@ export default {
         };
 
         return `
-            <section class="bg-sand py-24 relative overflow-hidden">
+            <section class="${bgColor.bgClass} py-24 relative overflow-hidden">
                 <!-- Halftone overlay -->
-                <div class="halftone-overlay absolute inset-0 pointer-events-none"></div>
+                ${contrast.showHalftone ? '<div class="halftone-overlay absolute inset-0 pointer-events-none"></div>' : ''}
 
                 <div class="container mx-auto px-8 text-center relative z-10">
 
@@ -96,7 +101,7 @@ export default {
                         <div
                             contenteditable="true"
                             data-field="badge"
-                            class="boxed-subhead bg-cardinal-800 text-white px-6 py-3 inline-block mb-6"
+                            class="boxed-subhead ${contrast.badgeBg} ${contrast.badgeText} px-6 py-3 inline-block mb-6"
                         >${escapeHtml(content.badge)}</div>
                     `)}
 
@@ -104,7 +109,7 @@ export default {
                         <h2
                             contenteditable="true"
                             data-field="headline"
-                            class="section-title text-black mb-12 section-header-center section-header-black"
+                            class="section-title ${contrast.text} mb-12 ${contrast.headerAccentCenter}"
                         >${headlineHtml}</h2>
                     `)}
 
@@ -112,7 +117,7 @@ export default {
                         <p
                             contenteditable="true"
                             data-field="body"
-                            class="body-text-large max-w-3xl mx-auto mb-16 text-black"
+                            class="body-text-large max-w-3xl mx-auto mb-16 ${contrast.text}"
                         >${content.body}</p>
                     `)}
 
@@ -127,36 +132,40 @@ export default {
         `;
     },
 
-    toMarkup(content) {
+    toMarkup(content, colors = { background: 'sand' }) {
         const headlineHtml = escapeHtml(content.headline).replace(/\n/g, '<br>');
 
+        // Get color config
+        const bgColor = COLORS[colors.background] || COLORS.sand;
+        const contrast = getContrastConfig(colors.background);
+
         return `
-<section class="bg-sand py-24 relative overflow-hidden">
-    <div class="halftone-overlay absolute inset-0 pointer-events-none"></div>
+<section class="${bgColor.bgClass} py-24 relative overflow-hidden">
+    ${contrast.showHalftone ? '<div class="halftone-overlay absolute inset-0 pointer-events-none"></div>' : ''}
     <div class="container mx-auto px-8 text-center relative z-10">
-        <div class="boxed-subhead bg-cardinal-800 text-white px-6 py-3 inline-block mb-6">${escapeHtml(content.badge)}</div>
-        <h2 class="section-title text-black mb-12 section-header-center section-header-black">${headlineHtml}</h2>
-        <p class="body-text-large max-w-3xl mx-auto mb-16 text-black">${content.body}</p>
+        <div class="boxed-subhead ${contrast.badgeBg} ${contrast.badgeText} px-6 py-3 inline-block mb-6">${escapeHtml(content.badge)}</div>
+        <h2 class="section-title ${contrast.text} mb-12 ${contrast.headerAccentCenter}">${headlineHtml}</h2>
+        <p class="body-text-large max-w-3xl mx-auto mb-16 ${contrast.text}">${content.body}</p>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div class="text-center py-8 px-4">
-                <div class="stat-number text-black mb-3">${escapeHtml(content.stat1Number)}</div>
-                <div class="nav-heading text-black mb-2">${escapeHtml(content.stat1Label)}</div>
-                <p class="text-sm text-black">${escapeHtml(content.stat1Description)}</p>
+                <div class="stat-number ${contrast.text} mb-3">${escapeHtml(content.stat1Number)}</div>
+                <div class="nav-heading ${contrast.text} mb-2">${escapeHtml(content.stat1Label)}</div>
+                <p class="text-sm ${contrast.text}">${escapeHtml(content.stat1Description)}</p>
             </div>
             <div class="text-center py-8 px-4">
-                <div class="stat-number text-black mb-3">${escapeHtml(content.stat2Number)}</div>
-                <div class="nav-heading text-black mb-2">${escapeHtml(content.stat2Label)}</div>
-                <p class="text-sm text-black">${escapeHtml(content.stat2Description)}</p>
+                <div class="stat-number ${contrast.text} mb-3">${escapeHtml(content.stat2Number)}</div>
+                <div class="nav-heading ${contrast.text} mb-2">${escapeHtml(content.stat2Label)}</div>
+                <p class="text-sm ${contrast.text}">${escapeHtml(content.stat2Description)}</p>
             </div>
             <div class="text-center py-8 px-4">
-                <div class="stat-number text-black mb-3">${escapeHtml(content.stat3Number)}</div>
-                <div class="nav-heading text-black mb-2">${escapeHtml(content.stat3Label)}</div>
-                <p class="text-sm text-black">${escapeHtml(content.stat3Description)}</p>
+                <div class="stat-number ${contrast.text} mb-3">${escapeHtml(content.stat3Number)}</div>
+                <div class="nav-heading ${contrast.text} mb-2">${escapeHtml(content.stat3Label)}</div>
+                <p class="text-sm ${contrast.text}">${escapeHtml(content.stat3Description)}</p>
             </div>
             <div class="text-center py-8 px-4">
-                <div class="stat-number text-black mb-3">${escapeHtml(content.stat4Number)}</div>
-                <div class="nav-heading text-black mb-2">${escapeHtml(content.stat4Label)}</div>
-                <p class="text-sm text-black">${escapeHtml(content.stat4Description)}</p>
+                <div class="stat-number ${contrast.text} mb-3">${escapeHtml(content.stat4Number)}</div>
+                <div class="nav-heading ${contrast.text} mb-2">${escapeHtml(content.stat4Label)}</div>
+                <p class="text-sm ${contrast.text}">${escapeHtml(content.stat4Description)}</p>
             </div>
         </div>
     </div>

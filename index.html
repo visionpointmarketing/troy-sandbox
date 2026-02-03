@@ -183,6 +183,22 @@
         </div>
     </div>
 
+    <!-- Color Popover Template -->
+    <div id="color-popover" class="hidden absolute z-40 bg-white rounded-lg shadow-xl border p-4 w-72">
+        <div class="flex justify-between items-center mb-3">
+            <span class="font-semibold text-sm">Background Colors</span>
+            <button id="color-close" class="text-gray-400 hover:text-gray-600">&times;</button>
+        </div>
+        <div class="mb-3">
+            <div class="text-xs text-gray-500 mb-2">Section Background</div>
+            <div id="section-color-swatches" class="flex flex-wrap gap-2"></div>
+        </div>
+        <div id="card-color-section" class="hidden pt-3 border-t">
+            <div class="text-xs text-gray-500 mb-2">Card Background</div>
+            <div id="card-color-swatches" class="flex flex-wrap gap-2"></div>
+        </div>
+    </div>
+
     <!-- App Scripts -->
     <script type="module" src="js/app.js"></script>
 </body>
