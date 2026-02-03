@@ -8,6 +8,7 @@ import { getAllTemplates, getTemplate, getTemplateMap } from './sections/index.j
 import { downloadFile, getTimestamp } from './utils.js';
 import { getAllImages, storeImage, clearAllImages } from './image-store.js';
 import { setViewportMode, updatePreviewContent } from './preview-iframe.js';
+import { getAllPageTemplates, getPageTemplate } from './page-templates.js';
 
 /**
  * Initialize UI components
@@ -16,6 +17,7 @@ export function initUI() {
     initSidebar();
     initSidebarToggle();
     initViewportToggle();
+    initTemplateDropdown();
     initExportImport();
     initUndoRedo();
     initKeyboardShortcuts();
@@ -106,6 +108,96 @@ function initViewportToggle() {
         // Save preference
         localStorage.setItem('troy-sandbox-viewport', viewport);
     }
+}
+
+/**
+ * Initialize template dropdown
+ */
+function initTemplateDropdown() {
+    const templatesBtn = document.getElementById('templates-btn');
+    const templatePopover = document.getElementById('template-popover');
+    const templateList = document.getElementById('template-list');
+    const templateClose = document.getElementById('template-close');
+
+    if (!templatesBtn || !templatePopover || !templateList) return;
+
+    const pageTemplates = getAllPageTemplates();
+    const sectionTemplates = getTemplateMap();
+
+    // Populate template list
+    templateList.innerHTML = pageTemplates.map(template => `
+        <button class="template-card" data-template-id="${template.id}">
+            <div class="template-card-header">
+                <span class="template-card-name">${template.name}</span>
+                <span class="template-card-badge">${template.sectionCount} sections</span>
+            </div>
+            <div class="template-card-description">${template.description}</div>
+        </button>
+    `).join('');
+
+    // Toggle popover
+    templatesBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isHidden = templatePopover.classList.contains('hidden');
+
+        if (isHidden) {
+            // Position popover below button
+            const btnRect = templatesBtn.getBoundingClientRect();
+            const toolbarRect = templatesBtn.closest('#toolbar').getBoundingClientRect();
+
+            templatePopover.style.top = `${btnRect.bottom - toolbarRect.top + 8}px`;
+            templatePopover.style.left = `${btnRect.left - toolbarRect.left}px`;
+
+            templatePopover.classList.remove('hidden');
+            templatesBtn.classList.add('active');
+        } else {
+            templatePopover.classList.add('hidden');
+            templatesBtn.classList.remove('active');
+        }
+    });
+
+    // Close button
+    if (templateClose) {
+        templateClose.addEventListener('click', () => {
+            templatePopover.classList.add('hidden');
+            templatesBtn.classList.remove('active');
+        });
+    }
+
+    // Handle template selection
+    templateList.addEventListener('click', (e) => {
+        const card = e.target.closest('.template-card');
+        if (!card) return;
+
+        const templateId = card.dataset.templateId;
+        const template = getPageTemplate(templateId);
+
+        if (!template) return;
+
+        // Check if there are existing sections
+        const currentSections = state.getSections();
+        if (currentSections.length > 0) {
+            const confirmed = confirm(
+                `Loading the "${template.name}" template will replace your current ${currentSections.length} section(s). Continue?`
+            );
+            if (!confirmed) return;
+        }
+
+        // Load the template
+        state.loadTemplate(template.sections, sectionTemplates);
+
+        // Close popover
+        templatePopover.classList.add('hidden');
+        templatesBtn.classList.remove('active');
+    });
+
+    // Close on outside click
+    document.addEventListener('click', (e) => {
+        if (!templatePopover.contains(e.target) && !templatesBtn.contains(e.target)) {
+            templatePopover.classList.add('hidden');
+            templatesBtn.classList.remove('active');
+        }
+    });
 }
 
 /**

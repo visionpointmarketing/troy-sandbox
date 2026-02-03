@@ -120,6 +120,22 @@
                             </svg>
                         </button>
                     </div>
+
+                    <!-- Templates Dropdown -->
+                    <div class="templates-dropdown-wrapper">
+                        <button id="templates-btn" class="templates-btn" title="Load a page template">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="3" width="7" height="7" rx="1"/>
+                                <rect x="14" y="3" width="7" height="7" rx="1"/>
+                                <rect x="3" y="14" width="7" height="7" rx="1"/>
+                                <rect x="14" y="14" width="7" height="7" rx="1"/>
+                            </svg>
+                            <span>Templates</span>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"/>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
                 <span id="section-count" class="text-xs text-gray-400">0 sections</span>
             </div>
@@ -197,6 +213,15 @@
             <div class="text-xs text-gray-500 mb-2">Card Background</div>
             <div id="card-color-swatches" class="flex flex-wrap gap-2"></div>
         </div>
+    </div>
+
+    <!-- Template Popover -->
+    <div id="template-popover" class="hidden absolute z-40 bg-white rounded-lg shadow-xl border p-4 w-80">
+        <div class="flex justify-between items-center mb-3">
+            <span class="font-semibold text-sm">Page Templates</span>
+            <button id="template-close" class="text-gray-400 hover:text-gray-600">&times;</button>
+        </div>
+        <div id="template-list" class="space-y-2"></div>
     </div>
 
     <!-- App Scripts -->

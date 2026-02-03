@@ -230,7 +230,7 @@
 
 .section-add-btn {
     width: 100%;
-    padding: 10px 12px;
+    padding: 12px;
     text-align: left;
     background: #f9fafb;
     border: 1px solid #e5e7eb;
@@ -246,14 +246,15 @@
 }
 
 .section-add-btn .section-name {
-    font-weight: 500;
+    font-weight: 600;
+    font-size: 14px;
     color: #374151;
+    margin-bottom: 4px;
 }
 
 .section-add-btn .section-desc {
-    font-size: 11px;
-    color: #9ca3af;
-    margin-top: 2px;
+    font-size: 12px;
+    color: #6b7280;
 }
 
 /* ============================================
@@ -507,4 +508,91 @@
 .section-control-btn.color:hover {
     background: #fef3c7;
     border-color: #f59e0b;
+}
+
+/* ============================================
+   Templates Dropdown
+   ============================================ */
+
+.templates-dropdown-wrapper {
+    position: relative;
+}
+
+.templates-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-size: 14px;
+    color: #374151;
+}
+
+.templates-btn:hover {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+}
+
+.templates-btn.active {
+    background: #910039;
+    color: white;
+    border-color: #910039;
+}
+
+.templates-btn svg {
+    stroke: currentColor;
+    flex-shrink: 0;
+}
+
+/* Template Popover */
+#template-popover {
+    min-width: 300px;
+    max-width: 320px;
+}
+
+.template-card {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-align: left;
+}
+
+.template-card:hover {
+    background: #f3f4f6;
+    border-color: #910039;
+}
+
+.template-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.template-card-name {
+    font-weight: 600;
+    font-size: 14px;
+    color: #374151;
+}
+
+.template-card-badge {
+    font-size: 11px;
+    padding: 2px 8px;
+    background: #910039;
+    color: white;
+    border-radius: 9999px;
+}
+
+.template-card-description {
+    font-size: 12px;
+    color: #6b7280;
 }

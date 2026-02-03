@@ -264,6 +264,56 @@ const state = {
         this._notifyChange();
     },
 
+    /**
+     * Load a page template
+     * @param {Array} templateSections - Array of section definitions from template
+     * @param {object} sectionTemplates - Map of section type to template module
+     */
+    loadTemplate(templateSections, sectionTemplates) {
+        // Clear existing sections
+        this.sections = [];
+
+        // Add each section from the template
+        templateSections.forEach(templateSection => {
+            const sectionModule = sectionTemplates[templateSection.type];
+            if (!sectionModule) {
+                console.warn(`Unknown section type: ${templateSection.type}`);
+                return;
+            }
+
+            // Merge template content over defaults
+            const content = {
+                ...deepClone(sectionModule.defaults),
+                ...deepClone(templateSection.content || {})
+            };
+
+            // Initialize visibility
+            const visibility = {};
+            sectionModule.fields.forEach(field => {
+                visibility[field.key] = true;
+            });
+
+            // Get colors (use template colors if provided, otherwise defaults)
+            const colors = templateSection.colors
+                ? deepClone(templateSection.colors)
+                : getDefaultColors(templateSection.type);
+
+            // Create the section
+            const section = {
+                id: generateId(),
+                type: templateSection.type,
+                content: content,
+                visibility: visibility,
+                colors: colors
+            };
+
+            this.sections.push(section);
+        });
+
+        this._saveToHistory();
+        this._notifyChange();
+    },
+
     // Private methods
 
     _saveToHistory() {
