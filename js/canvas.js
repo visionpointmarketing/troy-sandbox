@@ -41,13 +41,6 @@ export function initCanvas() {
         }
     });
 
-    // Drag and drop
-    sectionsContainer.addEventListener('dragstart', handleDragStart);
-    sectionsContainer.addEventListener('dragover', handleDragOver);
-    sectionsContainer.addEventListener('dragleave', handleDragLeave);
-    sectionsContainer.addEventListener('drop', handleDrop);
-    sectionsContainer.addEventListener('dragend', handleDragEnd);
-
     // Visibility popover
     document.getElementById('visibility-close').addEventListener('click', closeVisibilityPopover);
     document.getElementById('visibility-show-all').addEventListener('click', () => setAllVisibility(true));
@@ -98,6 +91,7 @@ export function render() {
     }).join('');
 
     updateSectionCount(sections.length);
+    updateMoveButtonStates();
 }
 
 /**
@@ -115,6 +109,21 @@ function updateSectionCount(count) {
  */
 function handleClick(e) {
     const target = e.target;
+
+    // Move buttons
+    const moveBtn = target.closest('.move-btn');
+    if (moveBtn) {
+        const action = moveBtn.dataset.action;
+        const wrapper = moveBtn.closest('.section-wrapper');
+        const index = Array.from(sectionsContainer.children).indexOf(wrapper);
+
+        if (action === 'move-up' && index > 0) {
+            state.moveSection(index, index - 1);
+        } else if (action === 'move-down' && index < sectionsContainer.children.length - 1) {
+            state.moveSection(index, index + 1);
+        }
+        return;
+    }
 
     // Control buttons
     const controlBtn = target.closest('.section-control-btn');
@@ -201,69 +210,16 @@ function handleBlur(e) {
     }
 }
 
-// Drag and drop state
-let draggedIndex = null;
-
-function handleDragStart(e) {
-    const handle = e.target.closest('.drag-handle');
-    if (!handle) {
-        e.preventDefault();
-        return;
-    }
-
-    const wrapper = handle.closest('.section-wrapper');
-    if (!wrapper) return;
-
-    draggedIndex = Array.from(sectionsContainer.children).indexOf(wrapper);
-    wrapper.classList.add('dragging');
-
-    e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/plain', wrapper.dataset.sectionId);
-}
-
-function handleDragOver(e) {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-
-    const wrapper = e.target.closest('.section-wrapper');
-    if (wrapper && !wrapper.classList.contains('dragging')) {
-        // Remove drag-over from all
-        sectionsContainer.querySelectorAll('.drag-over').forEach(el => {
-            el.classList.remove('drag-over');
-        });
-        wrapper.classList.add('drag-over');
-    }
-}
-
-function handleDragLeave(e) {
-    const wrapper = e.target.closest('.section-wrapper');
-    if (wrapper) {
-        wrapper.classList.remove('drag-over');
-    }
-}
-
-function handleDrop(e) {
-    e.preventDefault();
-
-    const wrapper = e.target.closest('.section-wrapper');
-    if (!wrapper || draggedIndex === null) return;
-
-    const dropIndex = Array.from(sectionsContainer.children).indexOf(wrapper);
-
-    if (draggedIndex !== dropIndex) {
-        state.moveSection(draggedIndex, dropIndex);
-    }
-
-    // Cleanup
-    sectionsContainer.querySelectorAll('.drag-over').forEach(el => {
-        el.classList.remove('drag-over');
-    });
-}
-
-function handleDragEnd() {
-    draggedIndex = null;
-    sectionsContainer.querySelectorAll('.dragging, .drag-over').forEach(el => {
-        el.classList.remove('dragging', 'drag-over');
+/**
+ * Update disabled state of move buttons based on position
+ */
+function updateMoveButtonStates() {
+    const wrappers = sectionsContainer.querySelectorAll('.section-wrapper');
+    wrappers.forEach((wrapper, index) => {
+        const upBtn = wrapper.querySelector('.move-up');
+        const downBtn = wrapper.querySelector('.move-down');
+        if (upBtn) upBtn.disabled = (index === 0);
+        if (downBtn) downBtn.disabled = (index === wrappers.length - 1);
     });
 }
 

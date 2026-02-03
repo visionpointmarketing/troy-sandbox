@@ -27,7 +27,8 @@ export function renderIfVisible(visibility, field, html) {
  * SVG Icons for section controls
  */
 const ICONS = {
-    drag: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5h6M9 9h6M9 13h6M9 17h6" stroke-linecap="round"/></svg>`,
+    moveUp: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 15l-6-6-6 6"/></svg>`,
+    moveDown: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>`,
     visibility: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`,
     duplicate: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`,
     delete: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`
@@ -35,12 +36,15 @@ const ICONS = {
 
 /**
  * Wrap section HTML with editor controls
- * Adds drag handle, duplicate/delete/visibility buttons
+ * Adds move buttons, duplicate/delete/visibility buttons
  */
 export function wrapSection(sectionId, sectionType, innerHtml) {
     return `
         <div class="section-wrapper" data-section-id="${sectionId}" data-section-type="${sectionType}">
-            <div class="drag-handle" draggable="true" title="Drag to reorder">${ICONS.drag}</div>
+            <div class="section-move-controls">
+                <button class="move-btn move-up" data-action="move-up" title="Move section up">${ICONS.moveUp}</button>
+                <button class="move-btn move-down" data-action="move-down" title="Move section down">${ICONS.moveDown}</button>
+            </div>
             <div class="section-controls">
                 <button class="section-control-btn visibility" data-action="visibility" title="Toggle field visibility">
                     ${ICONS.visibility}

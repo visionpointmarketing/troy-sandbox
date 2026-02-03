@@ -353,12 +353,6 @@ body {
     padding: 2rem;
     border-left: 4px solid #910039;
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-}
-
-.program-card:hover {
-    border-left-width: 8px;
-    padding-left: 1.5rem;
 }
 
 /* News card */

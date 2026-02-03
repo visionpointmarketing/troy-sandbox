@@ -19,61 +19,60 @@
     box-shadow: 0 0 0 2px #910039;
 }
 
-.section-wrapper.dragging {
-    opacity: 0.5;
-}
-
-.section-wrapper.drag-over {
-    box-shadow: 0 -3px 0 0 #efd19f;
-}
-
 /* Section Separator */
 .section-wrapper + .section-wrapper {
     border-top: 1px solid #e5e7eb;
 }
 
-/* Drag Handle */
-.drag-handle {
+/* Move Controls (up/down arrows) */
+.section-move-controls {
     position: absolute;
     left: 8px;
     top: 8px;
-    width: 28px;
-    height: 28px;
-    cursor: grab;
-    background: white;
-    border: 1px solid #e5e7eb;
-    border-radius: 4px;
-    opacity: 0;
-    transition: all 0.15s ease;
     display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-direction: column;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.15s ease;
     z-index: 10;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
-.section-wrapper:hover .drag-handle {
+.section-wrapper:hover .section-move-controls {
     opacity: 1;
 }
 
-.drag-handle:hover {
+.move-btn {
+    width: 28px;
+    height: 28px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    transition: all 0.15s ease;
+}
+
+.move-btn:hover:not(:disabled) {
     background: #910039;
     border-color: #910039;
 }
 
-.drag-handle:hover svg {
+.move-btn:hover:not(:disabled) svg {
     stroke: white;
 }
 
-.drag-handle:active {
-    cursor: grabbing;
+.move-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
 }
 
-.drag-handle svg {
+.move-btn svg {
     width: 16px;
     height: 16px;
     stroke: #6b7280;
-    transition: stroke 0.15s ease;
 }
 
 /* Section Controls (duplicate, delete, visibility) */
