@@ -4,7 +4,7 @@
  */
 
 import { escapeHtml, renderIfVisible } from '../utils.js';
-import { COLORS, getContrastConfig } from '../color-config.js';
+import { COLORS, getContrastConfig, getBackgroundStyle } from '../color-config.js';
 
 export default {
     type: 'latest-stories',
@@ -106,8 +106,10 @@ export default {
             `;
         };
 
+        const bgStyle = getBackgroundStyle(colors.background);
+
         return `
-            <section class="${bgColor.bgClass} py-24 relative overflow-hidden">
+            <section class="${bgColor.bgClass} py-24 relative overflow-hidden"${bgStyle ? ` style="${bgStyle}"` : ''}>
                 <!-- Halftone overlay -->
                 ${contrast.showHalftone ? '<div class="halftone-overlay absolute inset-0 pointer-events-none"></div>' : ''}
 
@@ -167,6 +169,7 @@ export default {
         const bgColor = COLORS[colors.background] || COLORS.sand;
         const cardBgColor = COLORS[colors.cardBackground] || COLORS.white;
         const contrast = getContrastConfig(colors.background);
+        const bgStyle = getBackgroundStyle(colors.background);
 
         const renderNewsMarkup = (image, category, title, desc, grayscale = false) => `
             <article class="news-card ${cardBgColor.bgClass}">
@@ -181,7 +184,7 @@ export default {
             </article>`;
 
         return `
-<section class="${bgColor.bgClass} py-24 relative overflow-hidden">
+<section class="${bgColor.bgClass} py-24 relative overflow-hidden"${bgStyle ? ` style="${bgStyle}"` : ''}>
     ${contrast.showHalftone ? '<div class="halftone-overlay absolute inset-0 pointer-events-none"></div>' : ''}
     <div class="container mx-auto px-8 relative z-10">
         <div class="text-center mb-16">

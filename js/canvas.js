@@ -331,12 +331,15 @@ function openColorPopover(sectionId, button) {
     sectionSwatches.innerHTML = getSectionBackgroundColors().map(color => {
         const isSelected = colors.background === color.key;
         const isDark = color.isDark;
+        const swatchStyle = color.bgImage
+            ? `background-image: url('${color.bgImage}'); background-size: cover;`
+            : `background-color: ${color.hex};`;
         return `
             <button
                 class="color-swatch ${isSelected ? 'selected' : ''} ${isDark ? 'dark' : 'light'}"
                 data-color-type="background"
                 data-color-key="${color.key}"
-                style="background-color: ${color.hex};"
+                style="${swatchStyle}"
                 title="${color.label}"
             ></button>
         `;

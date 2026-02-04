@@ -56,6 +56,14 @@ export const COLORS = {
         isDark: true,
         hasHalftone: false,
         label: 'Black'
+    },
+    'cardinal-halftone': {
+        hex: '#910039',
+        bgClass: 'bg-cardinal',
+        isDark: true,
+        hasHalftone: false,
+        label: 'Cardinal Halftone',
+        bgImage: 'images/wheat-on-cardinal-texture_left-aligned-scaled.jpg'
     }
 };
 
@@ -161,4 +169,19 @@ export function getDefaultColors(sectionType) {
 export function sectionHasCards(sectionType) {
     const sectionsWithCards = ['academic-excellence', 'latest-stories'];
     return sectionsWithCards.includes(sectionType);
+}
+
+/**
+ * Get inline background style for colors with background images
+ * @param {string} colorKey - The color key from COLORS
+ * @returns {string} Inline style string or empty string
+ */
+export function getBackgroundStyle(colorKey) {
+    const color = COLORS[colorKey];
+    if (!color) return '';
+
+    if (color.bgImage) {
+        return `background-color: #99192F; background-image: url('${color.bgImage}'); background-size: contain; background-position: top left; background-repeat: no-repeat;`;
+    }
+    return '';
 }

@@ -4,7 +4,7 @@
  */
 
 import { escapeHtml, renderIfVisible } from '../utils.js';
-import { COLORS, getContrastConfig } from '../color-config.js';
+import { COLORS, getContrastConfig, getBackgroundStyle } from '../color-config.js';
 
 export default {
     type: 'academic-excellence',
@@ -80,8 +80,10 @@ export default {
             `;
         };
 
+        const bgStyle = getBackgroundStyle(colors.background);
+
         return `
-            <section class="${bgColor.bgClass} py-24">
+            <section class="${bgColor.bgClass} py-24"${bgStyle ? ` style="${bgStyle}"` : ''}>
                 <div class="container mx-auto px-8">
 
                     <!-- Two-column layout -->
@@ -184,9 +186,10 @@ export default {
         const bgColor = COLORS[colors.background] || COLORS.white;
         const cardBgColor = COLORS[colors.cardBackground] || COLORS.white;
         const contrast = getContrastConfig(colors.background);
+        const bgStyle = getBackgroundStyle(colors.background);
 
         return `
-<section class="${bgColor.bgClass} py-24">
+<section class="${bgColor.bgClass} py-24"${bgStyle ? ` style="${bgStyle}"` : ''}>
     <div class="container mx-auto px-8">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-20">
             <div>
