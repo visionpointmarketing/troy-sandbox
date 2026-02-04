@@ -3,6 +3,8 @@
  * Renders sections in an iframe for true responsive preview
  */
 
+import { getDefaultColors } from './color-config.js';
+
 let iframe = null;
 let baseCssContent = null;
 let headerHtml = '';
@@ -105,12 +107,12 @@ export async function updatePreviewContent(sections, templates) {
 
     // Render sections using toMarkup() (clean HTML, no editor controls)
     const markup = sections
-        .filter(s => s.visibility !== false)
         .map(section => {
             const template = templates[section.type];
             if (!template || !template.toMarkup) return '';
-            // Pass colors to toMarkup for color-aware rendering
-            return template.toMarkup(section.content, section.colors);
+            // Pass visibility and colors to toMarkup for color-aware rendering
+            const colors = section.colors || getDefaultColors(section.type);
+            return template.toMarkup(section.content, section.visibility, colors);
         })
         .join('\n');
 

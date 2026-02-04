@@ -15,7 +15,7 @@ export default {
         backgroundImage: 'https://images.unsplash.com/photo-1562774053-701939374585?w=1200&q=80',
         tagline: 'All Ways Real. Always TROY.',
         headline: 'No Filters.\nJust Real Breakthroughs.',
-        body: 'Instead of just highlighting glossy, finished products, TROY differentiates itself by revealing the entire journey as a valuable, relatable experience. <strong>We show the proposals that didn\'t work, the setbacks overcome, and the people who inspired breakthrough moments.</strong>',
+        body: 'Instead of just highlighting glossy, finished products, TROY differentiates itself by revealing the entire journey as a valuable, relatable experience. We show the proposals that didn\'t work, the setbacks overcome, and the people who inspired breakthrough moments.',
         quote: '"Because here, we believe every step forward is a victory worth celebrating."',
         ctaText: 'Learn Our Story',
         image: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=900&q=80'
@@ -116,7 +116,7 @@ export default {
         `;
     },
 
-    toMarkup(content) {
+    toMarkup(content, visibility = {}, colors = {}) {
         const headlineHtml = escapeHtml(content.headline).replace(/\n/g, '<br>');
 
         const bgStyle = content.backgroundImage
@@ -128,17 +128,18 @@ export default {
     <div class="container mx-auto px-8 relative z-10">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
-                <div class="brand-tag-dark bg-cardinal-900 text-white px-6 py-3 inline-block mb-8">${escapeHtml(content.tagline)}</div>
-                <h2 class="section-title text-sand mb-10 section-header section-header-light">${headlineHtml}</h2>
-                <p class="text-base md:text-lg leading-[1.8] text-white mb-8">${escapeHtml(content.body)}</p>
-                <blockquote class="text-wheat italic text-base mb-10">${escapeHtml(content.quote)}</blockquote>
-                <a href="#" class="btn-blue">${escapeHtml(content.ctaText)}</a>
+                ${visibility.tagline !== false ? `<div class="brand-tag-dark bg-cardinal-900 text-white px-6 py-3 inline-block mb-8">${escapeHtml(content.tagline)}</div>` : ''}
+                ${visibility.headline !== false ? `<h2 class="section-title text-sand mb-10 section-header section-header-light">${headlineHtml}</h2>` : ''}
+                ${visibility.body !== false ? `<p class="text-base md:text-lg leading-[1.8] text-white mb-8">${escapeHtml(content.body)}</p>` : ''}
+                ${visibility.quote !== false ? `<blockquote class="text-wheat italic text-base mb-10">${escapeHtml(content.quote)}</blockquote>` : ''}
+                ${visibility.ctaText !== false ? `<a href="#" class="btn-blue">${escapeHtml(content.ctaText)}</a>` : ''}
             </div>
+            ${visibility.image !== false ? `
             <div class="overflow-hidden">
                 <div class="aspect-feature">
                     ${content.image ? `<img src="${content.image}" alt="TROY students collaborating" class="w-full h-full object-cover">` : ''}
                 </div>
-            </div>
+            </div>` : ''}
         </div>
     </div>
 </section>`.trim();

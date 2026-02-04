@@ -15,7 +15,7 @@ export default {
         backgroundImage: 'https://images.unsplash.com/photo-1562774053-701939374585?w=1200&q=80',
         badge: 'Ready to Start?',
         headline: 'Unlock the Real You.',
-        body: 'Your journey to real success starts here. Join a community that celebrates every step forward and believes that <strong>real work always wins</strong>.',
+        body: 'Your journey to real success starts here. Join a community that celebrates every step forward and believes that real work always wins.',
         tagline: 'And our students\' victories? They\'re ours, too.',
         ctaPrimary: 'Apply Today',
         ctaSecondary: 'Schedule Visit'
@@ -101,7 +101,7 @@ export default {
         `;
     },
 
-    toMarkup(content) {
+    toMarkup(content, visibility = {}, colors = {}) {
         const bgStyle = content.backgroundImage
             ? `background-image: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.9)), url('${content.backgroundImage}'); background-size: cover; background-position: center;`
             : 'background-color: #1f2937;';
@@ -109,13 +109,13 @@ export default {
         return `
 <section class="relative py-24" style="${bgStyle}">
     <div class="container mx-auto px-8 text-center relative z-10">
-        <div class="boxed-subhead bg-wheat text-black px-6 py-3 inline-block mb-10">${escapeHtml(content.badge)}</div>
-        <h2 class="section-title text-sand mb-12 section-header-center-light">${escapeHtml(content.headline)}</h2>
-        <p class="body-text-large max-w-3xl mx-auto mb-6 text-white">${escapeHtml(content.body)}</p>
-        <p class="text-wheat italic text-base max-w-2xl mx-auto mb-16">${escapeHtml(content.tagline)}</p>
+        ${visibility.badge !== false ? `<div class="boxed-subhead bg-wheat text-black px-6 py-3 inline-block mb-10">${escapeHtml(content.badge)}</div>` : ''}
+        ${visibility.headline !== false ? `<h2 class="section-title text-sand mb-12 section-header-center-light">${escapeHtml(content.headline)}</h2>` : ''}
+        ${visibility.body !== false ? `<p class="body-text-large max-w-3xl mx-auto mb-6 text-white">${escapeHtml(content.body)}</p>` : ''}
+        ${visibility.tagline !== false ? `<p class="text-wheat italic text-base max-w-2xl mx-auto mb-16">${escapeHtml(content.tagline)}</p>` : ''}
         <div class="flex flex-col md:flex-row gap-8 justify-center items-center">
-            <a href="#" class="btn-cardinal">${escapeHtml(content.ctaPrimary)}</a>
-            <a href="#" class="btn-bordered-white">${escapeHtml(content.ctaSecondary)}</a>
+            ${visibility.ctaPrimary !== false ? `<a href="#" class="btn-cardinal">${escapeHtml(content.ctaPrimary)}</a>` : ''}
+            ${visibility.ctaSecondary !== false ? `<a href="#" class="btn-bordered-white">${escapeHtml(content.ctaSecondary)}</a>` : ''}
         </div>
     </div>
 </section>`.trim();

@@ -101,7 +101,7 @@ export default {
         `;
     },
 
-    toMarkup(content) {
+    toMarkup(content, visibility = {}, colors = {}) {
         const bgStyle = content.backgroundImage
             ? `background-image: url('${content.backgroundImage}'); background-size: cover; background-position: center;`
             : 'background-color: #374151;';
@@ -113,12 +113,12 @@ export default {
     <div class="absolute inset-0 bg-gradient-to-r from-black/95 to-black/80"></div>
     <div class="container mx-auto px-8 relative z-10">
         <div class="w-full lg:max-w-[61.8%]">
-            <div class="brand-tagline bg-wheat text-black px-6 py-3 inline-block mb-8">${escapeHtml(content.tagline)}</div>
-            <h1 class="hero-headline text-sand mb-8">${headlineHtml}</h1>
-            <p class="body-text-large text-white mb-12 max-w-lg">${escapeHtml(content.body)}</p>
+            ${visibility.tagline !== false ? `<div class="brand-tagline bg-wheat text-black px-6 py-3 inline-block mb-8">${escapeHtml(content.tagline)}</div>` : ''}
+            ${visibility.headline !== false ? `<h1 class="hero-headline text-sand mb-8">${headlineHtml}</h1>` : ''}
+            ${visibility.body !== false ? `<p class="body-text-large text-white mb-12 max-w-lg">${escapeHtml(content.body)}</p>` : ''}
             <div class="flex flex-col sm:flex-row gap-4 sm:gap-8 items-start sm:items-center">
-                <a href="#" class="btn-bordered-white">${escapeHtml(content.ctaPrimary)}</a>
-                <a href="#" class="btn-blue">${escapeHtml(content.ctaSecondary)}</a>
+                ${visibility.ctaPrimary !== false ? `<a href="#" class="btn-bordered-white">${escapeHtml(content.ctaPrimary)}</a>` : ''}
+                ${visibility.ctaSecondary !== false ? `<a href="#" class="btn-blue">${escapeHtml(content.ctaSecondary)}</a>` : ''}
             </div>
         </div>
     </div>

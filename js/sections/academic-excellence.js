@@ -15,7 +15,7 @@ export default {
     defaults: {
         badge: 'Academic Excellence',
         headline: 'Real Experiences.\nReal Opportunities.',
-        body: 'Our programs are designed around real-world application and hands-on learning. From award-winning academic opportunities to exciting Division I athletics events, TROY provides students with <strong>top-notch learning opportunities</strong> that showcase the work, not just the results.',
+        body: 'Our programs are designed around real-world application and hands-on learning. From award-winning academic opportunities to exciting Division I athletics events, TROY provides students with top-notch learning opportunities that showcase the work, not just the results.',
         ctaText: 'Explore Programs',
         featuredImage: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=900&q=80',
         featuredTag: 'Featured Program',
@@ -179,7 +179,7 @@ export default {
         `;
     },
 
-    toMarkup(content, colors = { background: 'white', cardBackground: 'white' }) {
+    toMarkup(content, visibility = {}, colors = { background: 'white', cardBackground: 'white' }) {
         const headlineHtml = escapeHtml(content.headline).replace(/\n/g, '<br>');
 
         // Get color config
@@ -188,39 +188,44 @@ export default {
         const contrast = getContrastConfig(colors.background);
         const bgStyle = getBackgroundStyle(colors.background);
 
+        const renderProgramMarkup = (title, desc, titleKey, descKey) => {
+            const showTitle = visibility[titleKey] !== false;
+            const showDesc = visibility[descKey] !== false;
+
+            if (!showTitle && !showDesc) return '';
+
+            return `
+            <div class="program-card ${cardBgColor.bgClass}">
+                ${showTitle ? `<h3 class="program-title text-black mb-4">${escapeHtml(title)}</h3>` : ''}
+                ${showDesc ? `<p class="body-text text-black/80">${escapeHtml(desc)}</p>` : ''}
+            </div>`;
+        };
+
         return `
 <section class="${bgColor.bgClass} py-24"${bgStyle ? ` style="${bgStyle}"` : ''}>
     <div class="container mx-auto px-8">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-20">
             <div>
-                <div class="boxed-subhead ${contrast.badgeBg} ${contrast.badgeText} px-6 py-3 inline-block mb-6">${escapeHtml(content.badge)}</div>
-                <h2 class="section-title ${contrast.text} mb-8 ${contrast.headerAccent}">${headlineHtml}</h2>
-                <p class="body-text mb-10 ${contrast.text}">${escapeHtml(content.body)}</p>
-                <a href="#" class="btn-cardinal">${escapeHtml(content.ctaText)}</a>
+                ${visibility.badge !== false ? `<div class="boxed-subhead ${contrast.badgeBg} ${contrast.badgeText} px-6 py-3 inline-block mb-6">${escapeHtml(content.badge)}</div>` : ''}
+                ${visibility.headline !== false ? `<h2 class="section-title ${contrast.text} mb-8 ${contrast.headerAccent}">${headlineHtml}</h2>` : ''}
+                ${visibility.body !== false ? `<p class="body-text mb-10 ${contrast.text}">${escapeHtml(content.body)}</p>` : ''}
+                ${visibility.ctaText !== false ? `<a href="#" class="btn-cardinal">${escapeHtml(content.ctaText)}</a>` : ''}
             </div>
+            ${visibility.featuredImage !== false ? `
             <div class="relative overflow-hidden aspect-auto min-h-[280px] sm:aspect-feature">
                 ${content.featuredImage ? `<img src="${content.featuredImage}" alt="Featured Program" class="absolute inset-0 w-full h-full object-cover">` : ''}
                 <div class="absolute bottom-4 left-4 right-4 sm:bottom-8 sm:left-8 sm:right-8 text-white z-10">
-                    <div class="featured-tag bg-cardinal-800 text-white px-4 py-2 inline-block mb-4">${escapeHtml(content.featuredTag)}</div>
-                    <h3 class="program-title text-white mb-2">${escapeHtml(content.featuredTitle)}</h3>
-                    <p class="text-sm text-white/90">${escapeHtml(content.featuredDescription)}</p>
+                    ${visibility.featuredTag !== false ? `<div class="featured-tag bg-cardinal-800 text-white px-4 py-2 inline-block mb-4">${escapeHtml(content.featuredTag)}</div>` : ''}
+                    ${visibility.featuredTitle !== false ? `<h3 class="program-title text-white mb-2">${escapeHtml(content.featuredTitle)}</h3>` : ''}
+                    ${visibility.featuredDescription !== false ? `<p class="text-sm text-white/90">${escapeHtml(content.featuredDescription)}</p>` : ''}
                 </div>
                 <div class="absolute inset-0 bg-gradient-to-br from-cardinal-800 to-cardinal-900 mix-blend-multiply opacity-70"></div>
-            </div>
+            </div>` : ''}
         </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div class="program-card ${cardBgColor.bgClass}">
-                <h3 class="program-title text-black mb-4">${escapeHtml(content.program1Title)}</h3>
-                <p class="body-text text-black/80">${escapeHtml(content.program1Description)}</p>
-            </div>
-            <div class="program-card ${cardBgColor.bgClass}">
-                <h3 class="program-title text-black mb-4">${escapeHtml(content.program2Title)}</h3>
-                <p class="body-text text-black/80">${escapeHtml(content.program2Description)}</p>
-            </div>
-            <div class="program-card ${cardBgColor.bgClass}">
-                <h3 class="program-title text-black mb-4">${escapeHtml(content.program3Title)}</h3>
-                <p class="body-text text-black/80">${escapeHtml(content.program3Description)}</p>
-            </div>
+            ${renderProgramMarkup(content.program1Title, content.program1Description, 'program1Title', 'program1Description')}
+            ${renderProgramMarkup(content.program2Title, content.program2Description, 'program2Title', 'program2Description')}
+            ${renderProgramMarkup(content.program3Title, content.program3Description, 'program3Title', 'program3Description')}
         </div>
     </div>
 </section>`.trim();

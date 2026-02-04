@@ -15,7 +15,7 @@ export default {
     defaults: {
         badge: 'Latest Stories',
         headline: 'Real Stories.\nReal Impact.',
-        body: 'Stories that showcase the real work, real people, and real results that define TROY. We don\'t just highlight outcomes—<strong>we celebrate the entire journey</strong>.',
+        body: 'Stories that showcase the real work, real people, and real results that define TROY. We don\'t just highlight outcomes—we celebrate the entire journey.',
         story1Image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600&q=80',
         story1Category: 'Student in the Work',
         story1Title: 'Engineering Student\'s 47 Prototypes Lead to National Win',
@@ -162,7 +162,7 @@ export default {
         `;
     },
 
-    toMarkup(content, colors = { background: 'sand', cardBackground: 'white' }) {
+    toMarkup(content, visibility = {}, colors = { background: 'sand', cardBackground: 'white' }) {
         const headlineHtml = escapeHtml(content.headline).replace(/\n/g, '<br>');
 
         // Get color config
@@ -171,31 +171,41 @@ export default {
         const contrast = getContrastConfig(colors.background);
         const bgStyle = getBackgroundStyle(colors.background);
 
-        const renderNewsMarkup = (image, category, title, desc, grayscale = false) => `
+        const renderNewsMarkup = (image, category, title, desc, imageKey, categoryKey, titleKey, descKey, grayscale = false) => {
+            const showImage = visibility[imageKey] !== false;
+            const showCategory = visibility[categoryKey] !== false;
+            const showTitle = visibility[titleKey] !== false;
+            const showDesc = visibility[descKey] !== false;
+
+            if (!showImage && !showCategory && !showTitle && !showDesc) return '';
+
+            return `
             <article class="news-card ${cardBgColor.bgClass}">
+                ${showImage ? `
                 <div class="aspect-video">
                     ${image ? `<img src="${image}" alt="${escapeHtml(title || 'News story')}" class="w-full h-full object-cover ${grayscale ? 'grayscale' : ''}">` : ''}
-                </div>
+                </div>` : ''}
                 <div class="p-8">
-                    <div class="nav-heading text-cardinal-800 mb-3">${escapeHtml(category)}</div>
-                    <h3 class="news-title text-black mb-4">${escapeHtml(title)}</h3>
-                    <p class="body-text-small text-black/80">${escapeHtml(desc)}</p>
+                    ${showCategory ? `<div class="nav-heading text-cardinal-800 mb-3">${escapeHtml(category)}</div>` : ''}
+                    ${showTitle ? `<h3 class="news-title text-black mb-4">${escapeHtml(title)}</h3>` : ''}
+                    ${showDesc ? `<p class="body-text-small text-black/80">${escapeHtml(desc)}</p>` : ''}
                 </div>
             </article>`;
+        };
 
         return `
 <section class="${bgColor.bgClass} py-24 relative overflow-hidden"${bgStyle ? ` style="${bgStyle}"` : ''}>
     ${contrast.showHalftone ? '<div class="halftone-overlay absolute inset-0 pointer-events-none"></div>' : ''}
     <div class="container mx-auto px-8 relative z-10">
         <div class="text-center mb-16">
-            <div class="boxed-subhead ${contrast.badgeBg} ${contrast.badgeText} px-6 py-3 inline-block mb-6">${escapeHtml(content.badge)}</div>
-            <h2 class="section-title ${contrast.text} mb-8 ${contrast.headerAccentCenter}">${headlineHtml}</h2>
-            <p class="body-text max-w-3xl mx-auto ${contrast.text}">${escapeHtml(content.body)}</p>
+            ${visibility.badge !== false ? `<div class="boxed-subhead ${contrast.badgeBg} ${contrast.badgeText} px-6 py-3 inline-block mb-6">${escapeHtml(content.badge)}</div>` : ''}
+            ${visibility.headline !== false ? `<h2 class="section-title ${contrast.text} mb-8 ${contrast.headerAccentCenter}">${headlineHtml}</h2>` : ''}
+            ${visibility.body !== false ? `<p class="body-text max-w-3xl mx-auto ${contrast.text}">${escapeHtml(content.body)}</p>` : ''}
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            ${renderNewsMarkup(content.story1Image, content.story1Category, content.story1Title, content.story1Description, true)}
-            ${renderNewsMarkup(content.story2Image, content.story2Category, content.story2Title, content.story2Description)}
-            ${renderNewsMarkup(content.story3Image, content.story3Category, content.story3Title, content.story3Description)}
+            ${renderNewsMarkup(content.story1Image, content.story1Category, content.story1Title, content.story1Description, 'story1Image', 'story1Category', 'story1Title', 'story1Description', true)}
+            ${renderNewsMarkup(content.story2Image, content.story2Category, content.story2Title, content.story2Description, 'story2Image', 'story2Category', 'story2Title', 'story2Description')}
+            ${renderNewsMarkup(content.story3Image, content.story3Category, content.story3Title, content.story3Description, 'story3Image', 'story3Category', 'story3Title', 'story3Description')}
         </div>
     </div>
 </section>`.trim();

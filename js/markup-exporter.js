@@ -8,6 +8,7 @@
 
 import state from './state.js';
 import { getTemplate } from './sections/index.js';
+import { getDefaultColors } from './color-config.js';
 
 /**
  * Export all sections as clean HTML markup
@@ -22,7 +23,8 @@ export function exportMarkup() {
             console.warn(`No toMarkup method for section type: ${section.type}`);
             return '';
         }
-        return template.toMarkup(section.content);
+        const colors = section.colors || getDefaultColors(section.type);
+        return template.toMarkup(section.content, section.visibility, colors);
     }).join('\n\n');
 
     return sectionsMarkup;

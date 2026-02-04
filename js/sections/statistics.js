@@ -15,7 +15,7 @@ export default {
     defaults: {
         badge: 'Student Success',
         headline: 'Real Innovation.\nReal Progress.',
-        body: 'Troy University stands out with authentic achievements that demonstrate our commitment to student success and community impact. <strong>Real work always wins.</strong>',
+        body: 'Troy University stands out with authentic achievements that demonstrate our commitment to student success and community impact. Real work always wins.',
         stat1Number: '95%',
         stat1Label: 'Job Placement Rate',
         stat1Description: 'Within 6 months of graduation',
@@ -134,7 +134,7 @@ export default {
         `;
     },
 
-    toMarkup(content, colors = { background: 'sand' }) {
+    toMarkup(content, visibility = {}, colors = { background: 'sand' }) {
         const headlineHtml = escapeHtml(content.headline).replace(/\n/g, '<br>');
 
         // Get color config
@@ -142,34 +142,33 @@ export default {
         const contrast = getContrastConfig(colors.background);
         const bgStyle = getBackgroundStyle(colors.background);
 
+        const renderStatMarkup = (num, label, desc, numKey, labelKey, descKey) => {
+            const showNum = visibility[numKey] !== false;
+            const showLabel = visibility[labelKey] !== false;
+            const showDesc = visibility[descKey] !== false;
+
+            if (!showNum && !showLabel && !showDesc) return '';
+
+            return `
+            <div class="text-center py-8 px-4">
+                ${showNum ? `<div class="stat-number ${contrast.text} mb-3">${escapeHtml(num)}</div>` : ''}
+                ${showLabel ? `<div class="nav-heading ${contrast.text} mb-2">${escapeHtml(label)}</div>` : ''}
+                ${showDesc ? `<p class="text-sm ${contrast.text}">${escapeHtml(desc)}</p>` : ''}
+            </div>`;
+        };
+
         return `
 <section class="${bgColor.bgClass} py-24 relative overflow-hidden"${bgStyle ? ` style="${bgStyle}"` : ''}>
     ${contrast.showHalftone ? '<div class="halftone-overlay absolute inset-0 pointer-events-none"></div>' : ''}
     <div class="container mx-auto px-8 text-center relative z-10">
-        <div class="boxed-subhead ${contrast.badgeBg} ${contrast.badgeText} px-6 py-3 inline-block mb-6">${escapeHtml(content.badge)}</div>
-        <h2 class="section-title ${contrast.text} mb-12 ${contrast.headerAccentCenter}">${headlineHtml}</h2>
-        <p class="body-text-large max-w-3xl mx-auto mb-16 ${contrast.text}">${escapeHtml(content.body)}</p>
+        ${visibility.badge !== false ? `<div class="boxed-subhead ${contrast.badgeBg} ${contrast.badgeText} px-6 py-3 inline-block mb-6">${escapeHtml(content.badge)}</div>` : ''}
+        ${visibility.headline !== false ? `<h2 class="section-title ${contrast.text} mb-12 ${contrast.headerAccentCenter}">${headlineHtml}</h2>` : ''}
+        ${visibility.body !== false ? `<p class="body-text-large max-w-3xl mx-auto mb-16 ${contrast.text}">${escapeHtml(content.body)}</p>` : ''}
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div class="text-center py-8 px-4">
-                <div class="stat-number ${contrast.text} mb-3">${escapeHtml(content.stat1Number)}</div>
-                <div class="nav-heading ${contrast.text} mb-2">${escapeHtml(content.stat1Label)}</div>
-                <p class="text-sm ${contrast.text}">${escapeHtml(content.stat1Description)}</p>
-            </div>
-            <div class="text-center py-8 px-4">
-                <div class="stat-number ${contrast.text} mb-3">${escapeHtml(content.stat2Number)}</div>
-                <div class="nav-heading ${contrast.text} mb-2">${escapeHtml(content.stat2Label)}</div>
-                <p class="text-sm ${contrast.text}">${escapeHtml(content.stat2Description)}</p>
-            </div>
-            <div class="text-center py-8 px-4">
-                <div class="stat-number ${contrast.text} mb-3">${escapeHtml(content.stat3Number)}</div>
-                <div class="nav-heading ${contrast.text} mb-2">${escapeHtml(content.stat3Label)}</div>
-                <p class="text-sm ${contrast.text}">${escapeHtml(content.stat3Description)}</p>
-            </div>
-            <div class="text-center py-8 px-4">
-                <div class="stat-number ${contrast.text} mb-3">${escapeHtml(content.stat4Number)}</div>
-                <div class="nav-heading ${contrast.text} mb-2">${escapeHtml(content.stat4Label)}</div>
-                <p class="text-sm ${contrast.text}">${escapeHtml(content.stat4Description)}</p>
-            </div>
+            ${renderStatMarkup(content.stat1Number, content.stat1Label, content.stat1Description, 'stat1Number', 'stat1Label', 'stat1Description')}
+            ${renderStatMarkup(content.stat2Number, content.stat2Label, content.stat2Description, 'stat2Number', 'stat2Label', 'stat2Description')}
+            ${renderStatMarkup(content.stat3Number, content.stat3Label, content.stat3Description, 'stat3Number', 'stat3Label', 'stat3Description')}
+            ${renderStatMarkup(content.stat4Number, content.stat4Label, content.stat4Description, 'stat4Number', 'stat4Label', 'stat4Description')}
         </div>
     </div>
 </section>`.trim();
