@@ -4,7 +4,7 @@
  */
 
 import { escapeHtml, renderIfVisible } from '../utils.js';
-import { COLORS, getContrastConfig, getBackgroundStyle } from '../color-config.js';
+import { COLORS, getContrastConfig, getBackgroundStyle, getHalftoneClasses } from '../color-config.js';
 
 export default {
     type: 'latest-stories',
@@ -107,12 +107,10 @@ export default {
         };
 
         const bgStyle = getBackgroundStyle(colors.background);
+        const halftoneClasses = getHalftoneClasses(colors.background);
 
         return `
-            <section class="${bgColor.bgClass} py-24 relative overflow-hidden"${bgStyle ? ` style="${bgStyle}"` : ''}>
-                <!-- Halftone overlay -->
-                ${contrast.showHalftone ? '<div class="halftone-overlay absolute inset-0 pointer-events-none"></div>' : ''}
-
+            <section class="${bgColor.bgClass} ${halftoneClasses} py-24 relative overflow-hidden"${bgStyle ? ` style="${bgStyle}"` : ''}>
                 <div class="container mx-auto px-8 relative z-10">
 
                     <!-- Centered header -->
@@ -170,6 +168,7 @@ export default {
         const cardBgColor = COLORS[colors.cardBackground] || COLORS.white;
         const contrast = getContrastConfig(colors.background);
         const bgStyle = getBackgroundStyle(colors.background);
+        const halftoneClasses = getHalftoneClasses(colors.background);
 
         const renderNewsMarkup = (image, category, title, desc, imageKey, categoryKey, titleKey, descKey, grayscale = false) => {
             const showImage = visibility[imageKey] !== false;
@@ -194,8 +193,7 @@ export default {
         };
 
         return `
-<section class="${bgColor.bgClass} py-24 relative overflow-hidden"${bgStyle ? ` style="${bgStyle}"` : ''}>
-    ${contrast.showHalftone ? '<div class="halftone-overlay absolute inset-0 pointer-events-none"></div>' : ''}
+<section class="${bgColor.bgClass} ${halftoneClasses} py-24 relative overflow-hidden"${bgStyle ? ` style="${bgStyle}"` : ''}>
     <div class="container mx-auto px-8 relative z-10">
         <div class="text-center mb-16">
             ${visibility.badge !== false ? `<div class="boxed-subhead ${contrast.badgeBg} ${contrast.badgeText} px-6 py-3 inline-block mb-6">${escapeHtml(content.badge)}</div>` : ''}

@@ -4,7 +4,7 @@
  */
 
 import { escapeHtml, renderIfVisible } from '../utils.js';
-import { COLORS, getContrastConfig, getBackgroundStyle } from '../color-config.js';
+import { COLORS, getContrastConfig, getBackgroundStyle, getHalftoneClasses } from '../color-config.js';
 
 export default {
     type: 'academic-excellence',
@@ -81,10 +81,11 @@ export default {
         };
 
         const bgStyle = getBackgroundStyle(colors.background);
+        const halftoneClasses = getHalftoneClasses(colors.background);
 
         return `
-            <section class="${bgColor.bgClass} py-24"${bgStyle ? ` style="${bgStyle}"` : ''}>
-                <div class="container mx-auto px-8">
+            <section class="${bgColor.bgClass} ${halftoneClasses} py-24"${bgStyle ? ` style="${bgStyle}"` : ''}>
+                <div class="container mx-auto px-8 relative z-10">
 
                     <!-- Two-column layout -->
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-20">
@@ -187,6 +188,7 @@ export default {
         const cardBgColor = COLORS[colors.cardBackground] || COLORS.white;
         const contrast = getContrastConfig(colors.background);
         const bgStyle = getBackgroundStyle(colors.background);
+        const halftoneClasses = getHalftoneClasses(colors.background);
 
         const renderProgramMarkup = (title, desc, titleKey, descKey) => {
             const showTitle = visibility[titleKey] !== false;
@@ -202,8 +204,8 @@ export default {
         };
 
         return `
-<section class="${bgColor.bgClass} py-24"${bgStyle ? ` style="${bgStyle}"` : ''}>
-    <div class="container mx-auto px-8">
+<section class="${bgColor.bgClass} ${halftoneClasses} py-24"${bgStyle ? ` style="${bgStyle}"` : ''}>
+    <div class="container mx-auto px-8 relative z-10">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-20">
             <div>
                 ${visibility.badge !== false ? `<div class="boxed-subhead ${contrast.badgeBg} ${contrast.badgeText} px-6 py-3 inline-block mb-6">${escapeHtml(content.badge)}</div>` : ''}

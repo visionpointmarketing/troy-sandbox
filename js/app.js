@@ -5,7 +5,7 @@
 
 import state from './state.js';
 import { initCanvas, render } from './canvas.js';
-import { initUI } from './ui.js';
+import { initUI, updateDesignStatus } from './ui.js';
 import { initImageStore } from './image-store.js';
 import { initImageModal } from './image-upload-modal.js';
 import { initPreviewIframe, setStaticContent, updatePreviewContent } from './preview-iframe.js';
@@ -62,8 +62,11 @@ async function init() {
         state.init();
 
         // Connect state changes to canvas rendering
-        state.onChange = () => {
+        state.onChange = (sections) => {
             render();
+
+            // Update design rules validation
+            updateDesignStatus(sections);
 
             // Also update iframe preview if in tablet/mobile mode
             const currentViewport = localStorage.getItem('troy-sandbox-viewport') || 'desktop';

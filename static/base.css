@@ -22,10 +22,10 @@ body {
    TYPOGRAPHY COMPONENTS
    ============================================ */
 
-/* Primary Hero Headline - Pressio X-Compressed */
+/* Primary Hero Headline - Pressio Compressed (per Troy VP Reskin V2 design rules) */
 .hero-headline {
-    font-family: 'pressio-x-compressed', sans-serif;
-    font-size: clamp(3rem, 8vw, 6rem);
+    font-family: 'pressio-compressed', sans-serif;
+    font-size: clamp(4.167rem, 8vw, 6rem); /* Min 50pt (4.167rem) per design rules */
     line-height: 0.8;
     text-transform: uppercase;
 }
@@ -372,7 +372,52 @@ body {
    OVERLAY & EFFECTS
    ============================================ */
 
-/* Halftone pattern overlay */
+/* ============================================
+   HALFTONE TEXTURE SYSTEM (Troy VP Reskin V2)
+   Uses SVG textures instead of CSS patterns
+   ============================================ */
+
+/* Base halftone overlay - positioned container */
+.vp-halftone-overlay {
+    position: relative;
+    overflow: hidden;
+}
+
+.vp-halftone-overlay::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-size: cover;
+    background-repeat: no-repeat;
+    z-index: 1;
+}
+
+/* Light halftone - wheat dots on sand background */
+.vp-halftone-light::before {
+    background-image: url('../assets/textures/wheat_texture_rgb.svg');
+    background-position: left top;
+}
+
+/* Dark halftone - cardinal texture */
+.vp-halftone-dark::before {
+    background-image: url('../assets/textures/cardinal_texture_rgb.svg');
+    background-position: left top;
+}
+
+/* Wheat on cardinal halftone */
+.vp-halftone-wheat-cardinal::before {
+    background-image: url('../assets/textures/wheat_texture_on_cardinal_rgb.svg');
+    background-position: left top;
+}
+
+/* Ensure content stays above halftone overlay */
+.vp-halftone-overlay > * {
+    position: relative;
+    z-index: 2;
+}
+
+/* Legacy halftone-overlay class (CSS gradient fallback) */
 .halftone-overlay {
     position: relative;
 }
@@ -731,7 +776,7 @@ body {
 
 @media (max-width: 768px) {
     .hero-headline {
-        font-size: clamp(3rem, 12vw, 4.5rem);  /* 48px min, 72px max - larger for compressed font */
+        font-size: clamp(2.5rem, 12vw, 4.167rem); /* Scaled down for mobile, max 50pt */
     }
 
     .section-title {

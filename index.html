@@ -14,7 +14,7 @@
         tailwind.config = {
             theme: {
                 fontFamily: {
-                    'headline-primary': ['pressio-x-compressed', 'sans-serif'],
+                    'headline-primary': ['pressio-compressed', 'sans-serif'], /* Per Troy VP Reskin V2 design rules */
                     'headline-secondary': ['pressio-compressed', 'sans-serif'],
                     'subhead': ['avenir-lt-pro', 'sans-serif'],
                     'body': ['avenir-lt-pro', 'sans-serif'],
@@ -136,6 +136,14 @@
                             </svg>
                         </button>
                     </div>
+
+                    <!-- Design Rules Status -->
+                    <div id="design-status" class="design-status design-status-ok" title="Design rules validation">
+                        <svg class="status-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                        <span class="status-text">Design rules: OK</span>
+                    </div>
                 </div>
                 <span id="section-count" class="text-xs text-gray-400">0 sections</span>
             </div>
@@ -222,6 +230,16 @@
             <button id="template-close" class="text-gray-400 hover:text-gray-600">&times;</button>
         </div>
         <div id="template-list" class="space-y-2"></div>
+    </div>
+
+    <!-- Design Status Popover -->
+    <div id="design-status-popover" class="hidden absolute z-40 bg-white rounded-lg shadow-xl border p-4">
+        <div class="flex justify-between items-center mb-3">
+            <span class="font-semibold text-sm">Design Rules</span>
+            <button id="design-status-close" class="text-gray-400 hover:text-gray-600">&times;</button>
+        </div>
+        <div id="design-status-warnings" class="space-y-1"></div>
+        <div id="design-status-counts" class="status-counts"></div>
     </div>
 
     <!-- App Scripts -->

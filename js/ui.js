@@ -9,6 +9,7 @@ import { downloadFile, getTimestamp } from './utils.js';
 import { getAllImages, storeImage, clearAllImages } from './image-store.js';
 import { setViewportMode, updatePreviewContent } from './preview-iframe.js';
 import { getAllPageTemplates, getPageTemplate } from './page-templates.js';
+import { validateDesignRules, getStatusMessage } from './design-rules.js';
 
 /**
  * Initialize UI components
@@ -21,6 +22,10 @@ export function initUI() {
     initExportImport();
     initUndoRedo();
     initKeyboardShortcuts();
+    initDesignStatusPopover();
+
+    // Run initial validation
+    updateDesignStatus(state.getSections());
 }
 
 /**
@@ -318,4 +323,114 @@ function initKeyboardShortcuts() {
     });
 }
 
-export default { initUI };
+/**
+ * Initialize design status popover
+ */
+function initDesignStatusPopover() {
+    const statusBtn = document.getElementById('design-status');
+    const popover = document.getElementById('design-status-popover');
+    const closeBtn = document.getElementById('design-status-close');
+
+    if (!statusBtn || !popover) return;
+
+    // Toggle popover on click
+    statusBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isHidden = popover.classList.contains('hidden');
+
+        if (isHidden) {
+            // Position popover below button
+            const btnRect = statusBtn.getBoundingClientRect();
+            const toolbarRect = statusBtn.closest('#toolbar').getBoundingClientRect();
+
+            popover.style.top = `${btnRect.bottom - toolbarRect.top + 8}px`;
+            popover.style.left = `${btnRect.left - toolbarRect.left}px`;
+
+            popover.classList.remove('hidden');
+        } else {
+            popover.classList.add('hidden');
+        }
+    });
+
+    // Close button
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            popover.classList.add('hidden');
+        });
+    }
+
+    // Close on outside click
+    document.addEventListener('click', (e) => {
+        if (!popover.contains(e.target) && !statusBtn.contains(e.target)) {
+            popover.classList.add('hidden');
+        }
+    });
+}
+
+/**
+ * Update design status based on current sections
+ * @param {Array} sections - Array of section objects
+ */
+export function updateDesignStatus(sections) {
+    const statusEl = document.getElementById('design-status');
+    const warningsEl = document.getElementById('design-status-warnings');
+    const countsEl = document.getElementById('design-status-counts');
+
+    if (!statusEl) return;
+
+    const result = validateDesignRules(sections);
+    const status = getStatusMessage(result);
+
+    // Update status badge
+    statusEl.className = `design-status design-status-${status.type === 'success' ? 'ok' : 'warning'}`;
+
+    // Update icon
+    const iconSvg = status.type === 'success'
+        ? '<polyline points="20 6 9 17 4 12"/>'
+        : '<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>';
+
+    statusEl.querySelector('.status-icon').innerHTML = iconSvg;
+    statusEl.querySelector('.status-text').textContent = status.message;
+
+    // Update popover content
+    if (warningsEl) {
+        if (result.warnings.length > 0) {
+            warningsEl.innerHTML = result.warnings.map(w => `
+                <div class="status-warning-item">
+                    <svg class="status-warning-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                        <line x1="12" y1="9" x2="12" y2="13"/>
+                        <line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                    <span class="status-warning-text">${w.message}</span>
+                </div>
+            `).join('');
+        } else {
+            warningsEl.innerHTML = `
+                <div class="text-sm text-green-700 flex items-center gap-2">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                    All design rules are satisfied
+                </div>
+            `;
+        }
+    }
+
+    // Update counts
+    if (countsEl && result.counts) {
+        const limits = { sand: 2, dark: 1, halftone: 1 };
+        countsEl.innerHTML = Object.entries(result.counts).map(([key, count]) => {
+            const limit = limits[key];
+            const statusClass = count > limit ? 'over-limit' : (count === limit ? 'at-limit' : '');
+            return `
+                <div class="status-count-item ${statusClass}">
+                    <span class="status-count-number">${count}/${limit}</span>
+                    <span class="status-count-label">${key}</span>
+                </div>
+            `;
+        }).join('');
+    }
+}
+
+export default { initUI, updateDesignStatus };

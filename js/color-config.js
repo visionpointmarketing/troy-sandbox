@@ -1,7 +1,15 @@
 /**
  * TROY Sandbox — Color Configuration
  * Central color definitions and contrast logic for section backgrounds
+ * Updated to align with Troy VP Reskin V2 design rules
  */
+
+// Color family groupings for design rule validation
+export const COLOR_FAMILIES = {
+    sand: ['sand', 'sand-300', 'sand-halftone'],
+    dark: ['cardinal', 'cardinal-900', 'black', 'cardinal-halftone', 'cardinal-wheat-halftone'],
+    halftone: ['sand-halftone', 'cardinal-halftone', 'cardinal-wheat-halftone']
+};
 
 // Available background colors with their properties
 export const COLORS = {
@@ -11,13 +19,17 @@ export const COLORS = {
         bgClass: 'bg-white',
         isDark: false,
         hasHalftone: false,
+        halftoneClass: null,
+        colorFamily: 'neutral',
         label: 'White'
     },
     sand: {
         hex: '#f1efe3',
         bgClass: 'bg-sand',
         isDark: false,
-        hasHalftone: true,
+        hasHalftone: false,
+        halftoneClass: null,
+        colorFamily: 'sand',
         label: 'Sand'
     },
     'sand-300': {
@@ -25,13 +37,26 @@ export const COLORS = {
         bgClass: 'bg-sand-300',
         isDark: false,
         hasHalftone: false,
+        halftoneClass: null,
+        colorFamily: 'sand',
         label: 'Sand Dark'
+    },
+    'sand-halftone': {
+        hex: '#f1efe3',
+        bgClass: 'bg-sand',
+        isDark: false,
+        hasHalftone: true,
+        halftoneClass: 'vp-halftone-overlay vp-halftone-light',
+        colorFamily: 'sand',
+        label: 'Sand Halftone'
     },
     wheat: {
         hex: '#efd19f',
         bgClass: 'bg-wheat',
         isDark: false,
         hasHalftone: false,
+        halftoneClass: null,
+        colorFamily: 'neutral',
         label: 'Wheat'
     },
 
@@ -41,6 +66,8 @@ export const COLORS = {
         bgClass: 'bg-cardinal',
         isDark: true,
         hasHalftone: false,
+        halftoneClass: null,
+        colorFamily: 'dark',
         label: 'Cardinal'
     },
     'cardinal-900': {
@@ -48,6 +75,8 @@ export const COLORS = {
         bgClass: 'bg-cardinal-900',
         isDark: true,
         hasHalftone: false,
+        halftoneClass: null,
+        colorFamily: 'dark',
         label: 'Cardinal Dark'
     },
     black: {
@@ -55,15 +84,27 @@ export const COLORS = {
         bgClass: 'bg-[#1a1a1a]',
         isDark: true,
         hasHalftone: false,
+        halftoneClass: null,
+        colorFamily: 'dark',
         label: 'Black'
     },
     'cardinal-halftone': {
         hex: '#910039',
         bgClass: 'bg-cardinal',
         isDark: true,
-        hasHalftone: false,
-        label: 'Cardinal Halftone',
-        bgImage: 'images/wheat-on-cardinal-texture_left-aligned-scaled.jpg'
+        hasHalftone: true,
+        halftoneClass: 'vp-halftone-overlay vp-halftone-dark',
+        colorFamily: 'dark',
+        label: 'Cardinal Halftone'
+    },
+    'cardinal-wheat-halftone': {
+        hex: '#910039',
+        bgClass: 'bg-cardinal',
+        isDark: true,
+        hasHalftone: true,
+        halftoneClass: 'vp-halftone-overlay vp-halftone-wheat-cardinal',
+        colorFamily: 'dark',
+        label: 'Cardinal + Wheat Halftone'
     }
 };
 
@@ -180,8 +221,44 @@ export function getBackgroundStyle(colorKey) {
     const color = COLORS[colorKey];
     if (!color) return '';
 
-    if (color.bgImage) {
-        return `background-color: #99192F; background-image: url('${color.bgImage}'); background-size: contain; background-position: top left; background-repeat: no-repeat;`;
-    }
+    // No longer using bgImage - halftone handled via CSS classes
     return '';
+}
+
+/**
+ * Get halftone classes for a color
+ * @param {string} colorKey - The color key from COLORS
+ * @returns {string} Halftone classes or empty string
+ */
+export function getHalftoneClasses(colorKey) {
+    const color = COLORS[colorKey];
+    if (!color) return '';
+    return color.halftoneClass || '';
+}
+
+/**
+ * Check if a color is in the sand family
+ * @param {string} colorKey - The color key from COLORS
+ * @returns {boolean}
+ */
+export function isSandFamily(colorKey) {
+    return COLOR_FAMILIES.sand.includes(colorKey);
+}
+
+/**
+ * Check if a color is in the dark/emphasis family
+ * @param {string} colorKey - The color key from COLORS
+ * @returns {boolean}
+ */
+export function isDarkFamily(colorKey) {
+    return COLOR_FAMILIES.dark.includes(colorKey);
+}
+
+/**
+ * Check if a color has halftone texture
+ * @param {string} colorKey - The color key from COLORS
+ * @returns {boolean}
+ */
+export function isHalftone(colorKey) {
+    return COLOR_FAMILIES.halftone.includes(colorKey);
 }
