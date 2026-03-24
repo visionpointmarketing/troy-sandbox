@@ -55,7 +55,7 @@ export default {
                             <h1
                                 contenteditable="true"
                                 data-field="headline"
-                                class="hero-headline text-sand mb-8"
+                                class="hero-headline text-white mb-8"
                             >${headlineHtml}</h1>
                         `)}
 
@@ -103,7 +103,7 @@ export default {
     <div class="absolute inset-0 bg-gradient-to-r from-black/95 to-black/80"></div>
     <div class="container mx-auto px-8 relative z-10">
         <div class="w-full lg:max-w-[61.8%]">
-            ${visibility.headline !== false ? `<h1 class="hero-headline text-sand mb-8">${headlineHtml}</h1>` : ''}
+            ${visibility.headline !== false ? `<h1 class="hero-headline text-white mb-8">${headlineHtml}</h1>` : ''}
             ${visibility.body !== false ? `<p class="body-text-large text-white mb-12 max-w-lg">${escapeHtml(content.body)}</p>` : ''}
             <div class="flex flex-col sm:flex-row gap-4 sm:gap-8 items-start sm:items-center">
                 ${visibility.ctaPrimary !== false ? `<a href="#" class="btn-bordered-white">${escapeHtml(content.ctaPrimary)}</a>` : ''}

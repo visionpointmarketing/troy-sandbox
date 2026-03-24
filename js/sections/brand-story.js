@@ -54,7 +54,7 @@ export default {
                                 <h2
                                     contenteditable="true"
                                     data-field="headline"
-                                    class="section-title text-sand mb-10"
+                                    class="section-title text-white mb-10"
                                 >${headlineHtml}</h2>
                             `)}
 
@@ -118,7 +118,7 @@ export default {
     <div class="container mx-auto px-8 relative z-10">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
-                ${visibility.headline !== false ? `<h2 class="section-title text-sand mb-10">${headlineHtml}</h2>` : ''}
+                ${visibility.headline !== false ? `<h2 class="section-title text-white mb-10">${headlineHtml}</h2>` : ''}
                 ${visibility.body !== false ? `<p class="text-base md:text-lg leading-[1.8] text-white mb-8">${escapeHtml(content.body)}</p>` : ''}
                 ${visibility.quote !== false ? `<blockquote class="text-wheat italic text-base mb-10">${escapeHtml(content.quote)}</blockquote>` : ''}
                 ${visibility.ctaText !== false ? `<a href="#" class="btn-blue">${escapeHtml(content.ctaText)}</a>` : ''}

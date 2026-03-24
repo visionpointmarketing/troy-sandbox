@@ -46,7 +46,7 @@ export default {
                         <h2
                             contenteditable="true"
                             data-field="headline"
-                            class="section-title text-sand mb-12"
+                            class="section-title text-white mb-12"
                         >${escapeHtml(content.headline)}</h2>
                     `)}
 
@@ -89,7 +89,7 @@ export default {
         return `
 <section class="relative py-24" style="${bgStyle}">
     <div class="container mx-auto px-8 text-center relative z-10">
-        ${visibility.headline !== false ? `<h2 class="section-title text-sand mb-12">${escapeHtml(content.headline)}</h2>` : ''}
+        ${visibility.headline !== false ? `<h2 class="section-title text-white mb-12">${escapeHtml(content.headline)}</h2>` : ''}
         ${visibility.body !== false ? `<p class="body-text-large max-w-3xl mx-auto mb-16 text-white">${escapeHtml(content.body)}</p>` : ''}
         <div class="flex flex-col md:flex-row gap-8 justify-center items-center">
             ${visibility.ctaPrimary !== false ? `<a href="#" class="btn-cardinal">${escapeHtml(content.ctaPrimary)}</a>` : ''}
