@@ -13,12 +13,10 @@ export default {
     description: 'Featured program + 3 program cards',
 
     defaults: {
-        badge: 'Academic Excellence',
         headline: 'Real Experiences.\nReal Opportunities.',
         body: 'Our programs are designed around real-world application and hands-on learning. From award-winning academic opportunities to exciting Division I athletics events, TROY provides students with top-notch learning opportunities that showcase the work, not just the results.',
         ctaText: 'Explore Programs',
         featuredImage: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=900&q=80',
-        featuredTag: 'Featured Program',
         featuredTitle: 'Business Administration',
         featuredDescription: 'Real business challenges, real solutions',
         program1Title: 'Engineering',
@@ -30,12 +28,10 @@ export default {
     },
 
     fields: [
-        { key: 'badge', label: 'Section Badge', type: 'text' },
         { key: 'headline', label: 'Headline', type: 'text' },
         { key: 'body', label: 'Body', type: 'textarea' },
         { key: 'ctaText', label: 'CTA Text', type: 'text' },
         { key: 'featuredImage', label: 'Featured Image', type: 'image' },
-        { key: 'featuredTag', label: 'Featured Tag', type: 'text' },
         { key: 'featuredTitle', label: 'Featured Title', type: 'text' },
         { key: 'featuredDescription', label: 'Featured Description', type: 'text' },
         { key: 'program1Title', label: 'Program 1 Title', type: 'text' },
@@ -46,13 +42,12 @@ export default {
         { key: 'program3Description', label: 'Program 3 Description', type: 'text' }
     ],
 
-    render(content, visibility, colors = { background: 'white', cardBackground: 'white' }) {
+    render(content, visibility, colors = { background: 'white' }) {
         const headlineHtml = escapeHtml(content.headline).replace(/\n/g, '<br>');
 
         // Get color config
         const bgColor = COLORS[colors.background] || COLORS.white;
-        const cardBgColor = COLORS[colors.cardBackground] || COLORS.white;
-        const contrast = getContrastConfig(colors.background);
+                const contrast = getContrastConfig(colors.background);
 
         const renderProgramCard = (title, desc, titleKey, descKey) => {
             const showTitle = visibility[titleKey] !== false;
@@ -61,7 +56,7 @@ export default {
             if (!showTitle && !showDesc) return '';
 
             return `
-                <div class="program-card ${cardBgColor.bgClass}">
+                <div class="program-card">
                     ${showTitle ? `
                         <h3
                             contenteditable="true"
@@ -92,19 +87,11 @@ export default {
 
                         <!-- Left column: Content -->
                         <div>
-                            ${renderIfVisible(visibility, 'badge', `
-                                <div
-                                    contenteditable="true"
-                                    data-field="badge"
-                                    class="boxed-subhead ${contrast.badgeBg} ${contrast.badgeText} px-6 py-3 inline-block mb-6"
-                                >${escapeHtml(content.badge)}</div>
-                            `)}
-
                             ${renderIfVisible(visibility, 'headline', `
                                 <h2
                                     contenteditable="true"
                                     data-field="headline"
-                                    class="section-title ${contrast.text} mb-8 ${contrast.headerAccent}"
+                                    class="section-title ${contrast.text} mb-8"
                                 >${headlineHtml}</h2>
                             `)}
 
@@ -140,13 +127,6 @@ export default {
 
                                 <!-- Content overlay -->
                                 <div class="absolute bottom-4 left-4 right-4 sm:bottom-8 sm:left-8 sm:right-8 text-white z-10">
-                                    ${renderIfVisible(visibility, 'featuredTag', `
-                                        <div
-                                            contenteditable="true"
-                                            data-field="featuredTag"
-                                            class="featured-tag bg-cardinal-800 text-white px-4 py-2 inline-block mb-4"
-                                        >${escapeHtml(content.featuredTag)}</div>
-                                    `)}
                                     ${renderIfVisible(visibility, 'featuredTitle', `
                                         <h3
                                             contenteditable="true"
@@ -180,13 +160,12 @@ export default {
         `;
     },
 
-    toMarkup(content, visibility = {}, colors = { background: 'white', cardBackground: 'white' }) {
+    toMarkup(content, visibility = {}, colors = { background: 'white' }) {
         const headlineHtml = escapeHtml(content.headline).replace(/\n/g, '<br>');
 
         // Get color config
         const bgColor = COLORS[colors.background] || COLORS.white;
-        const cardBgColor = COLORS[colors.cardBackground] || COLORS.white;
-        const contrast = getContrastConfig(colors.background);
+                const contrast = getContrastConfig(colors.background);
         const bgStyle = getBackgroundStyle(colors.background);
         const halftoneClasses = getHalftoneClasses(colors.background);
 
@@ -197,7 +176,7 @@ export default {
             if (!showTitle && !showDesc) return '';
 
             return `
-            <div class="program-card ${cardBgColor.bgClass}">
+            <div class="program-card">
                 ${showTitle ? `<h3 class="program-title text-black mb-4">${escapeHtml(title)}</h3>` : ''}
                 ${showDesc ? `<p class="body-text text-black/80">${escapeHtml(desc)}</p>` : ''}
             </div>`;
@@ -208,8 +187,7 @@ export default {
     <div class="container mx-auto px-8 relative z-10">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-20">
             <div>
-                ${visibility.badge !== false ? `<div class="boxed-subhead ${contrast.badgeBg} ${contrast.badgeText} px-6 py-3 inline-block mb-6">${escapeHtml(content.badge)}</div>` : ''}
-                ${visibility.headline !== false ? `<h2 class="section-title ${contrast.text} mb-8 ${contrast.headerAccent}">${headlineHtml}</h2>` : ''}
+                ${visibility.headline !== false ? `<h2 class="section-title ${contrast.text} mb-8">${headlineHtml}</h2>` : ''}
                 ${visibility.body !== false ? `<p class="body-text mb-10 ${contrast.text}">${escapeHtml(content.body)}</p>` : ''}
                 ${visibility.ctaText !== false ? `<a href="#" class="btn-cardinal">${escapeHtml(content.ctaText)}</a>` : ''}
             </div>
@@ -217,7 +195,6 @@ export default {
             <div class="relative overflow-hidden aspect-auto min-h-[280px] sm:aspect-feature">
                 ${content.featuredImage ? `<img src="${content.featuredImage}" alt="Featured Program" class="absolute inset-0 w-full h-full object-cover">` : ''}
                 <div class="absolute bottom-4 left-4 right-4 sm:bottom-8 sm:left-8 sm:right-8 text-white z-10">
-                    ${visibility.featuredTag !== false ? `<div class="featured-tag bg-cardinal-800 text-white px-4 py-2 inline-block mb-4">${escapeHtml(content.featuredTag)}</div>` : ''}
                     ${visibility.featuredTitle !== false ? `<h3 class="program-title text-white mb-2">${escapeHtml(content.featuredTitle)}</h3>` : ''}
                     ${visibility.featuredDescription !== false ? `<p class="text-sm text-white/90">${escapeHtml(content.featuredDescription)}</p>` : ''}
                 </div>

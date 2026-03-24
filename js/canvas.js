@@ -8,7 +8,7 @@ import { getTemplate } from './sections/index.js';
 import { wrapSection } from './utils.js';
 import { openImageModal } from './image-upload-modal.js';
 import { storeImage } from './image-store.js';
-import { COLORS, getSectionBackgroundColors, getCardBackgroundColors, sectionHasCards, getDefaultColors } from './color-config.js';
+import { COLORS, getSectionBackgroundColors, getDefaultColors } from './color-config.js';
 
 let sectionsContainer = null;
 let visibilityPopover = null;
@@ -324,7 +324,6 @@ function openColorPopover(sectionId, button) {
 
     currentColorSection = sectionId;
     const colors = section.colors || getDefaultColors(section.type);
-    const hasCards = sectionHasCards(section.type);
 
     // Build section background swatches (event delegation handles clicks)
     const sectionSwatches = document.getElementById('section-color-swatches');
@@ -345,28 +344,9 @@ function openColorPopover(sectionId, button) {
         `;
     }).join('');
 
-    // Show/hide card color section
+    // Card color section is always hidden (feature removed)
     const cardSection = document.getElementById('card-color-section');
-    if (hasCards) {
-        cardSection.classList.remove('hidden');
-
-        // Build card background swatches (event delegation handles clicks)
-        const cardSwatches = document.getElementById('card-color-swatches');
-        cardSwatches.innerHTML = getCardBackgroundColors().map(color => {
-            const isSelected = colors.cardBackground === color.key;
-            return `
-                <button
-                    class="color-swatch ${isSelected ? 'selected' : ''} light"
-                    data-color-type="cardBackground"
-                    data-color-key="${color.key}"
-                    style="background-color: ${color.hex};"
-                    title="${color.label}"
-                ></button>
-            `;
-        }).join('');
-    } else {
-        cardSection.classList.add('hidden');
-    }
+    cardSection.classList.add('hidden');
 
     // Position popover (account for scroll offset)
     const rect = button.getBoundingClientRect();

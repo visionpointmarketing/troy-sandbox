@@ -63,28 +63,11 @@ body {
     line-height: 1.6;
 }
 
-/* Label/Tag Styles */
-.boxed-subhead {
-    font-family: 'avenir-lt-pro', sans-serif;
-    font-weight: 900;
-    font-size: 0.75rem;
-    letter-spacing: 0.25em;
-    text-transform: uppercase;
-}
-
 .nav-heading {
     font-family: 'avenir-lt-pro', sans-serif;
     font-weight: 900;
     font-size: 0.875rem;
     letter-spacing: 0.2em;
-    text-transform: uppercase;
-}
-
-.brand-tagline {
-    font-family: 'avenir-lt-pro', sans-serif;
-    font-weight: 900;
-    font-size: 0.75rem;
-    letter-spacing: 0.3em;
     text-transform: uppercase;
 }
 
@@ -94,15 +77,6 @@ body {
     font-size: clamp(3rem, 5vw, 3.75rem);
     font-weight: bold;
     line-height: 1;
-}
-
-/* Featured program tag */
-.featured-tag {
-    font-family: 'avenir-lt-pro', sans-serif;
-    font-weight: 900;
-    font-size: 0.75rem;
-    letter-spacing: 0.3em;
-    text-transform: uppercase;
 }
 
 /* Card/program title */
@@ -118,15 +92,6 @@ body {
     font-size: 1.5rem;
     font-weight: 700;
     line-height: 1.3;
-}
-
-/* Brand tagline (dark bg variant) */
-.brand-tag-dark {
-    font-family: 'avenir-lt-pro', sans-serif;
-    font-weight: 900;
-    font-size: 0.75rem;
-    letter-spacing: 0.3em;
-    text-transform: uppercase;
 }
 
 /* ============================================
@@ -274,98 +239,22 @@ body {
 
 /* ============================================
    SECTION HEADER COMPONENTS
+   (Accent bars removed per Troy aesthetic cleanup)
    ============================================ */
-
-/* Section header with left-aligned accent bar */
-.section-header {
-    position: relative;
-}
-
-.section-header::before {
-    content: '';
-    display: block;
-    width: 60px;
-    height: 4px;
-    background-color: #910039;
-    margin-bottom: 0.5rem;
-}
-
-/* Section header with centered accent bar */
-.section-header-center {
-    position: relative;
-}
-
-.section-header-center::before {
-    content: '';
-    display: block;
-    width: 60px;
-    height: 4px;
-    background-color: #910039;
-    margin-left: auto;
-    margin-right: auto;
-    margin-bottom: 1.5rem;
-}
-
-/* Light accent bar for dark backgrounds */
-.section-header-light::before {
-    background-color: #f1efe3;
-}
-
-.section-header-center-light {
-    position: relative;
-}
-
-.section-header-center-light::before {
-    content: '';
-    display: block;
-    width: 60px;
-    height: 4px;
-    background-color: #f1efe3;
-    margin-left: auto;
-    margin-right: auto;
-    margin-bottom: 1.5rem;
-}
-
-/* Black accent bar */
-.section-header-black::before {
-    background-color: black;
-}
 
 /* ============================================
    CARD COMPONENTS
+   (Minimal styling per Troy aesthetic cleanup)
    ============================================ */
 
-/* Brand card with shadow and hover */
-.brand-card {
-    background-color: white;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-}
-
-.brand-card:hover {
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-    transform: translateY(-4px);
-}
-
-/* Program card with left border accent */
+/* Program card - minimal styling */
 .program-card {
-    background-color: white;
     padding: 2rem;
-    border-left: 4px solid #910039;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
 }
 
-/* News card */
+/* News card - minimal styling */
 .news-card {
-    background-color: white;
-    border-bottom-right-radius: 1rem;
     overflow: hidden;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
-    transition: box-shadow 0.3s ease;
-}
-
-.news-card:hover {
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
 }
 
 /* ============================================

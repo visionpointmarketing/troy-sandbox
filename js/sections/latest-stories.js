@@ -13,7 +13,6 @@ export default {
     description: '3 news cards with images',
 
     defaults: {
-        badge: 'Latest Stories',
         headline: 'Real Stories.\nReal Impact.',
         body: 'Stories that showcase the real work, real people, and real results that define TROY. We don\'t just highlight outcomes—we celebrate the entire journey.',
         story1Image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600&q=80',
@@ -31,7 +30,6 @@ export default {
     },
 
     fields: [
-        { key: 'badge', label: 'Section Badge', type: 'text' },
         { key: 'headline', label: 'Headline', type: 'text' },
         { key: 'body', label: 'Body', type: 'textarea' },
         { key: 'story1Image', label: 'Story 1 Image', type: 'image' },
@@ -48,12 +46,11 @@ export default {
         { key: 'story3Description', label: 'Story 3 Description', type: 'text' }
     ],
 
-    render(content, visibility, colors = { background: 'sand', cardBackground: 'white' }) {
+    render(content, visibility, colors = { background: 'sand' }) {
         const headlineHtml = escapeHtml(content.headline).replace(/\n/g, '<br>');
 
         // Get color config
         const bgColor = COLORS[colors.background] || COLORS.sand;
-        const cardBgColor = COLORS[colors.cardBackground] || COLORS.white;
         const contrast = getContrastConfig(colors.background);
 
         const renderNewsCard = (image, category, title, desc, imageKey, categoryKey, titleKey, descKey, grayscale = false) => {
@@ -65,7 +62,7 @@ export default {
             if (!showImage && !showCategory && !showTitle && !showDesc) return '';
 
             return `
-                <article class="news-card ${cardBgColor.bgClass}">
+                <article class="news-card">
                     ${showImage ? `
                         <div class="aspect-video cursor-pointer" data-field="${imageKey}" data-image-field="true">
                             ${image ? `
@@ -79,7 +76,7 @@ export default {
                             `}
                         </div>
                     ` : ''}
-                    <div class="p-8">
+                    <div class="py-8">
                         ${showCategory ? `
                             <div
                                 contenteditable="true"
@@ -115,19 +112,11 @@ export default {
 
                     <!-- Centered header -->
                     <div class="text-center mb-16">
-                        ${renderIfVisible(visibility, 'badge', `
-                            <div
-                                contenteditable="true"
-                                data-field="badge"
-                                class="boxed-subhead ${contrast.badgeBg} ${contrast.badgeText} px-6 py-3 inline-block mb-6"
-                            >${escapeHtml(content.badge)}</div>
-                        `)}
-
                         ${renderIfVisible(visibility, 'headline', `
                             <h2
                                 contenteditable="true"
                                 data-field="headline"
-                                class="section-title ${contrast.text} mb-8 ${contrast.headerAccentCenter}"
+                                class="section-title ${contrast.text} mb-8"
                             >${headlineHtml}</h2>
                         `)}
 
@@ -160,12 +149,11 @@ export default {
         `;
     },
 
-    toMarkup(content, visibility = {}, colors = { background: 'sand', cardBackground: 'white' }) {
+    toMarkup(content, visibility = {}, colors = { background: 'sand' }) {
         const headlineHtml = escapeHtml(content.headline).replace(/\n/g, '<br>');
 
         // Get color config
         const bgColor = COLORS[colors.background] || COLORS.sand;
-        const cardBgColor = COLORS[colors.cardBackground] || COLORS.white;
         const contrast = getContrastConfig(colors.background);
         const bgStyle = getBackgroundStyle(colors.background);
         const halftoneClasses = getHalftoneClasses(colors.background);
@@ -179,12 +167,12 @@ export default {
             if (!showImage && !showCategory && !showTitle && !showDesc) return '';
 
             return `
-            <article class="news-card ${cardBgColor.bgClass}">
+            <article class="news-card">
                 ${showImage ? `
                 <div class="aspect-video">
                     ${image ? `<img src="${image}" alt="${escapeHtml(title || 'News story')}" class="w-full h-full object-cover ${grayscale ? 'grayscale' : ''}">` : ''}
                 </div>` : ''}
-                <div class="p-8">
+                <div class="py-8">
                     ${showCategory ? `<div class="nav-heading text-cardinal-800 mb-3">${escapeHtml(category)}</div>` : ''}
                     ${showTitle ? `<h3 class="news-title text-black mb-4">${escapeHtml(title)}</h3>` : ''}
                     ${showDesc ? `<p class="body-text-small text-black/80">${escapeHtml(desc)}</p>` : ''}
@@ -196,8 +184,7 @@ export default {
 <section class="${bgColor.bgClass} ${halftoneClasses} py-24 relative overflow-hidden"${bgStyle ? ` style="${bgStyle}"` : ''}>
     <div class="container mx-auto px-8 relative z-10">
         <div class="text-center mb-16">
-            ${visibility.badge !== false ? `<div class="boxed-subhead ${contrast.badgeBg} ${contrast.badgeText} px-6 py-3 inline-block mb-6">${escapeHtml(content.badge)}</div>` : ''}
-            ${visibility.headline !== false ? `<h2 class="section-title ${contrast.text} mb-8 ${contrast.headerAccentCenter}">${headlineHtml}</h2>` : ''}
+            ${visibility.headline !== false ? `<h2 class="section-title ${contrast.text} mb-8">${headlineHtml}</h2>` : ''}
             ${visibility.body !== false ? `<p class="body-text max-w-3xl mx-auto ${contrast.text}">${escapeHtml(content.body)}</p>` : ''}
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

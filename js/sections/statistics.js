@@ -13,7 +13,6 @@ export default {
     description: 'Stats grid with numbers and labels',
 
     defaults: {
-        badge: 'Student Success',
         headline: 'Real Innovation.\nReal Progress.',
         body: 'Troy University stands out with authentic achievements that demonstrate our commitment to student success and community impact. Real work always wins.',
         stat1Number: '95%',
@@ -31,7 +30,6 @@ export default {
     },
 
     fields: [
-        { key: 'badge', label: 'Section Badge', type: 'text' },
         { key: 'headline', label: 'Headline', type: 'text' },
         { key: 'body', label: 'Body', type: 'textarea' },
         { key: 'stat1Number', label: 'Stat 1 Number', type: 'text' },
@@ -98,19 +96,11 @@ export default {
 
                 <div class="container mx-auto px-8 text-center relative z-10">
 
-                    ${renderIfVisible(visibility, 'badge', `
-                        <div
-                            contenteditable="true"
-                            data-field="badge"
-                            class="boxed-subhead ${contrast.badgeBg} ${contrast.badgeText} px-6 py-3 inline-block mb-6"
-                        >${escapeHtml(content.badge)}</div>
-                    `)}
-
                     ${renderIfVisible(visibility, 'headline', `
                         <h2
                             contenteditable="true"
                             data-field="headline"
-                            class="section-title ${contrast.text} mb-12 ${contrast.headerAccentCenter}"
+                            class="section-title ${contrast.text} mb-12"
                         >${headlineHtml}</h2>
                     `)}
 
@@ -160,8 +150,7 @@ export default {
         return `
 <section class="${bgColor.bgClass} ${halftoneClasses} py-24 relative overflow-hidden"${bgStyle ? ` style="${bgStyle}"` : ''}>
     <div class="container mx-auto px-8 text-center relative z-10">
-        ${visibility.badge !== false ? `<div class="boxed-subhead ${contrast.badgeBg} ${contrast.badgeText} px-6 py-3 inline-block mb-6">${escapeHtml(content.badge)}</div>` : ''}
-        ${visibility.headline !== false ? `<h2 class="section-title ${contrast.text} mb-12 ${contrast.headerAccentCenter}">${headlineHtml}</h2>` : ''}
+        ${visibility.headline !== false ? `<h2 class="section-title ${contrast.text} mb-12">${headlineHtml}</h2>` : ''}
         ${visibility.body !== false ? `<p class="body-text-large max-w-3xl mx-auto mb-16 ${contrast.text}">${escapeHtml(content.body)}</p>` : ''}
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             ${renderStatMarkup(content.stat1Number, content.stat1Label, content.stat1Description, 'stat1Number', 'stat1Label', 'stat1Description')}

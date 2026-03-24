@@ -3,7 +3,7 @@
  * Manages section state with undo/redo history
  */
 
-import { getDefaultColors, sectionHasCards } from './color-config.js';
+import { getDefaultColors } from './color-config.js';
 import { deleteImage } from './image-store.js';
 
 // Generate unique IDs

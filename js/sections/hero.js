@@ -13,7 +13,6 @@ export default {
 
     defaults: {
         backgroundImage: 'https://images.unsplash.com/photo-1562774053-701939374585?w=2000&q=80',
-        tagline: 'All Ways Real. Always TROY.',
         headline: 'Real People.\nReal Success.',
         body: 'At TROY, no one works alone. Every challenge you face is met with a team behind you, ready to lift you up, push you forward and celebrate your every breakthrough.',
         ctaPrimary: 'Visit Campus',
@@ -22,7 +21,6 @@ export default {
 
     fields: [
         { key: 'backgroundImage', label: 'Background Image', type: 'image' },
-        { key: 'tagline', label: 'Brand Tagline', type: 'text' },
         { key: 'headline', label: 'Headline', type: 'text' },
         { key: 'body', label: 'Body', type: 'textarea' },
         { key: 'ctaPrimary', label: 'Primary CTA', type: 'text' },
@@ -52,14 +50,6 @@ export default {
                 <!-- Content container -->
                 <div class="container mx-auto px-8 relative z-10">
                     <div class="w-full lg:max-w-[61.8%]">
-
-                        ${renderIfVisible(visibility, 'tagline', `
-                            <div
-                                contenteditable="true"
-                                data-field="tagline"
-                                class="brand-tagline bg-wheat text-black px-6 py-3 inline-block mb-8"
-                            >${escapeHtml(content.tagline)}</div>
-                        `)}
 
                         ${renderIfVisible(visibility, 'headline', `
                             <h1
@@ -113,7 +103,6 @@ export default {
     <div class="absolute inset-0 bg-gradient-to-r from-black/95 to-black/80"></div>
     <div class="container mx-auto px-8 relative z-10">
         <div class="w-full lg:max-w-[61.8%]">
-            ${visibility.tagline !== false ? `<div class="brand-tagline bg-wheat text-black px-6 py-3 inline-block mb-8">${escapeHtml(content.tagline)}</div>` : ''}
             ${visibility.headline !== false ? `<h1 class="hero-headline text-sand mb-8">${headlineHtml}</h1>` : ''}
             ${visibility.body !== false ? `<p class="body-text-large text-white mb-12 max-w-lg">${escapeHtml(content.body)}</p>` : ''}
             <div class="flex flex-col sm:flex-row gap-4 sm:gap-8 items-start sm:items-center">

@@ -126,8 +126,8 @@ export function getContrastConfig(colorKey, _depth = 0) {
                 textMuted: 'text-black/80',
                 badgeBg: 'bg-cardinal-800',
                 badgeText: 'text-white',
-                headerAccent: 'section-header section-header-black',
-                headerAccentCenter: 'section-header-center section-header-black',
+                headerAccent: '',
+                headerAccentCenter: '',
                 categoryText: 'text-cardinal-800',
                 showHalftone: false
             };
@@ -143,8 +143,8 @@ export function getContrastConfig(colorKey, _depth = 0) {
             textMuted: 'text-white/80',
             badgeBg: 'bg-wheat',
             badgeText: 'text-black',
-            headerAccent: 'section-header section-header-light',
-            headerAccentCenter: 'section-header-center-light',
+            headerAccent: '',
+            headerAccentCenter: '',
             categoryText: 'text-wheat',
             showHalftone: false
         };
@@ -155,8 +155,8 @@ export function getContrastConfig(colorKey, _depth = 0) {
             textMuted: 'text-black/80',
             badgeBg: 'bg-cardinal-800',
             badgeText: 'text-white',
-            headerAccent: 'section-header section-header-black',
-            headerAccentCenter: 'section-header-center section-header-black',
+            headerAccent: '',
+            headerAccentCenter: '',
             categoryText: 'text-cardinal-800',
             showHalftone: color.hasHalftone
         };
@@ -175,19 +175,6 @@ export function getSectionBackgroundColors() {
 }
 
 /**
- * Get available colors for card backgrounds (light colors only)
- * @returns {Array} Array of light color objects
- */
-export function getCardBackgroundColors() {
-    return Object.entries(COLORS)
-        .filter(([_, value]) => !value.isDark)
-        .map(([key, value]) => ({
-            key,
-            ...value
-        }));
-}
-
-/**
  * Get default colors for a section type
  * @param {string} sectionType - The section type
  * @returns {object} Default colors object
@@ -195,21 +182,11 @@ export function getCardBackgroundColors() {
 export function getDefaultColors(sectionType) {
     const defaults = {
         'statistics': { background: 'sand' },
-        'academic-excellence': { background: 'white', cardBackground: 'white' },
-        'latest-stories': { background: 'sand', cardBackground: 'white' }
+        'academic-excellence': { background: 'white' },
+        'latest-stories': { background: 'sand' }
     };
 
     return defaults[sectionType] || { background: 'white' };
-}
-
-/**
- * Check if a section type has cards
- * @param {string} sectionType - The section type
- * @returns {boolean}
- */
-export function sectionHasCards(sectionType) {
-    const sectionsWithCards = ['academic-excellence', 'latest-stories'];
-    return sectionsWithCards.includes(sectionType);
 }
 
 /**

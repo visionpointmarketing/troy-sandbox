@@ -13,7 +13,6 @@ export default {
 
     defaults: {
         backgroundImage: 'https://images.unsplash.com/photo-1562774053-701939374585?w=1200&q=80',
-        tagline: 'All Ways Real. Always TROY.',
         headline: 'No Filters.\nJust Real Breakthroughs.',
         body: 'Instead of just highlighting glossy, finished products, TROY differentiates itself by revealing the entire journey as a valuable, relatable experience. We show the proposals that didn\'t work, the setbacks overcome, and the people who inspired breakthrough moments.',
         quote: '"Because here, we believe every step forward is a victory worth celebrating."',
@@ -23,7 +22,6 @@ export default {
 
     fields: [
         { key: 'backgroundImage', label: 'Background Image', type: 'image' },
-        { key: 'tagline', label: 'Brand Tagline', type: 'text' },
         { key: 'headline', label: 'Headline', type: 'text' },
         { key: 'body', label: 'Body', type: 'textarea' },
         { key: 'quote', label: 'Quote', type: 'textarea' },
@@ -52,19 +50,11 @@ export default {
 
                         <!-- Left column: Content -->
                         <div>
-                            ${renderIfVisible(visibility, 'tagline', `
-                                <div
-                                    contenteditable="true"
-                                    data-field="tagline"
-                                    class="brand-tag-dark bg-cardinal-900 text-white px-6 py-3 inline-block mb-8"
-                                >${escapeHtml(content.tagline)}</div>
-                            `)}
-
                             ${renderIfVisible(visibility, 'headline', `
                                 <h2
                                     contenteditable="true"
                                     data-field="headline"
-                                    class="section-title text-sand mb-10 section-header section-header-light"
+                                    class="section-title text-sand mb-10"
                                 >${headlineHtml}</h2>
                             `)}
 
@@ -128,8 +118,7 @@ export default {
     <div class="container mx-auto px-8 relative z-10">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
-                ${visibility.tagline !== false ? `<div class="brand-tag-dark bg-cardinal-900 text-white px-6 py-3 inline-block mb-8">${escapeHtml(content.tagline)}</div>` : ''}
-                ${visibility.headline !== false ? `<h2 class="section-title text-sand mb-10 section-header section-header-light">${headlineHtml}</h2>` : ''}
+                ${visibility.headline !== false ? `<h2 class="section-title text-sand mb-10">${headlineHtml}</h2>` : ''}
                 ${visibility.body !== false ? `<p class="text-base md:text-lg leading-[1.8] text-white mb-8">${escapeHtml(content.body)}</p>` : ''}
                 ${visibility.quote !== false ? `<blockquote class="text-wheat italic text-base mb-10">${escapeHtml(content.quote)}</blockquote>` : ''}
                 ${visibility.ctaText !== false ? `<a href="#" class="btn-blue">${escapeHtml(content.ctaText)}</a>` : ''}
