@@ -72,7 +72,7 @@ body {
 
 /* Stat number styling */
 .stat-number {
-    font-family: 'pressio-compressed', sans-serif;
+    font-family: 'avenir-lt-pro', sans-serif;
     font-size: clamp(3rem, 5vw, 3.75rem);
     font-weight: bold;
     line-height: 1;
