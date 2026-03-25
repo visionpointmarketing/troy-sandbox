@@ -74,14 +74,14 @@ export default {
                         <div
                             contenteditable="true"
                             data-field="${labelKey}"
-                            class="nav-heading ${contrast.text} mb-2"
+                            class="program-title ${contrast.text} mb-2"
                         >${escapeHtml(label)}</div>
                     ` : ''}
                     ${showDesc ? `
                         <p
                             contenteditable="true"
                             data-field="${descKey}"
-                            class="text-sm ${contrast.text}"
+                            class="body-text-small ${contrast.text}"
                         >${escapeHtml(desc)}</p>
                     ` : ''}
                 </div>
@@ -142,8 +142,8 @@ export default {
             return `
             <div class="text-center py-8 px-4">
                 ${showNum ? `<div class="stat-number ${contrast.text} mb-3">${escapeHtml(num)}</div>` : ''}
-                ${showLabel ? `<div class="nav-heading ${contrast.text} mb-2">${escapeHtml(label)}</div>` : ''}
-                ${showDesc ? `<p class="text-sm ${contrast.text}">${escapeHtml(desc)}</p>` : ''}
+                ${showLabel ? `<div class="program-title ${contrast.text} mb-2">${escapeHtml(label)}</div>` : ''}
+                ${showDesc ? `<p class="body-text-small ${contrast.text}">${escapeHtml(desc)}</p>` : ''}
             </div>`;
         };
 
