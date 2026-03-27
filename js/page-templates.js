@@ -25,7 +25,7 @@ const pageTemplates = [
                 type: 'statistics',
                 content: {
                     headline: 'Real Results.\nReal Success.',
-                    body: 'Troy University delivers authentic achievements that demonstrate our commitment to student success. <strong>Real work always wins.</strong>',
+                    body: 'Troy University delivers authentic achievements that demonstrate our commitment to student success. Real work always wins.',
                     stat1Number: '15,000+',
                     stat1Label: 'Students',
                     stat1Description: 'Across 4 Alabama campuses',
@@ -45,7 +45,7 @@ const pageTemplates = [
                 type: 'academic-excellence',
                 content: {
                     headline: 'Five Colleges.\nEndless Possibilities.',
-                    body: 'From AACSB-accredited business programs to cutting-edge nursing education, TROY offers <strong>real-world preparation</strong> across every field of study.',
+                    body: 'From AACSB-accredited business programs to cutting-edge nursing education, TROY offers real-world preparation across every field of study.',
                     ctaText: 'Explore Programs',
                     featuredImage: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=900&q=80',
                     featuredTitle: 'Sorrell College of Business',
@@ -63,7 +63,7 @@ const pageTemplates = [
                 type: 'latest-stories',
                 content: {
                     headline: 'Real Stories.\nReal Achievements.',
-                    body: 'Our students don\'t just learn—they lead, innovate, and make a difference. <strong>Their victories are our victories.</strong>',
+                    body: 'Our students don\'t just learn—they lead, innovate, and make a difference. Their victories are our victories.',
                     story1Image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600&q=80',
                     story1Category: 'Student Achievement',
                     story1Title: 'First-Generation Graduate Earns Prestigious Fellowship',
@@ -84,7 +84,7 @@ const pageTemplates = [
                 content: {
                     backgroundImage: 'https://images.unsplash.com/photo-1562774053-701939374585?w=1200&q=80',
                     headline: 'Your TROY Story\nStarts Now.',
-                    body: 'Join 15,000+ students who chose to be part of something real. At TROY, <strong>real work always wins</strong>.',
+                    body: 'Join 15,000+ students who chose to be part of something real. At TROY, real work always wins.',
                     ctaPrimary: 'Apply Today',
                     ctaSecondary: 'Request Info'
                 }
@@ -111,7 +111,7 @@ const pageTemplates = [
                 type: 'academic-excellence',
                 content: {
                     headline: 'Real Experiences.\nReal Opportunities.',
-                    body: 'Our programs combine rigorous academics with practical application. From AACSB-accredited business degrees to award-winning nursing programs, <strong>TROY delivers real-world preparation</strong>.',
+                    body: 'Our programs combine rigorous academics with practical application. From AACSB-accredited business degrees to award-winning nursing programs, TROY delivers real-world preparation.',
                     ctaText: 'View All Programs',
                     featuredImage: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=900&q=80',
                     featuredTitle: 'Sorrell College of Business',
@@ -179,7 +179,7 @@ const pageTemplates = [
                 content: {
                     backgroundImage: 'https://images.unsplash.com/photo-1562774053-701939374585?w=1200&q=80',
                     headline: 'No Filters.\nJust Real\nBreakthroughs.',
-                    body: 'At TROY, we celebrate the entire journey—not just the destination. We show the proposals that didn\'t work, the setbacks overcome, and the people who inspired breakthrough moments. <strong>Because real work always wins.</strong>',
+                    body: 'At TROY, we celebrate the entire journey—not just the destination. We show the proposals that didn\'t work, the setbacks overcome, and the people who inspired breakthrough moments. Because real work always wins.',
                     quote: '"Every step forward is a victory worth celebrating. Your journey matters as much as your destination."',
                     ctaText: 'Learn More',
                     image: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=900&q=80'
@@ -210,7 +210,7 @@ const pageTemplates = [
                 content: {
                     backgroundImage: 'https://images.unsplash.com/photo-1562774053-701939374585?w=1200&q=80',
                     headline: 'Become Part of\nSomething Real.',
-                    body: 'Whether you\'re a prospective student, alumnus, or community partner, there\'s a place for you at TROY. <strong>Real connections. Real community. Real impact.</strong>',
+                    body: 'Whether you\'re a prospective student, alumnus, or community partner, there\'s a place for you at TROY. Real connections. Real community. Real impact.',
                     ctaPrimary: 'Get Started',
                     ctaSecondary: 'Contact Us'
                 }

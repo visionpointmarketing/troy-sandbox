@@ -82,6 +82,22 @@ const state = {
             section.visibility[field.key] = true;
         });
 
+        // Hide stats by default for content-spotlight and split-layout
+        if (type === 'content-spotlight' || type === 'split-layout') {
+            section.visibility.stat1Number = false;
+            section.visibility.stat1Label = false;
+            section.visibility.stat2Number = false;
+            section.visibility.stat2Label = false;
+            section.visibility.stat3Number = false;
+            section.visibility.stat3Label = false;
+            section.visibility.stat4Number = false;
+            section.visibility.stat4Label = false;
+            section.visibility.stat5Number = false;
+            section.visibility.stat5Label = false;
+            section.visibility.stat6Number = false;
+            section.visibility.stat6Label = false;
+        }
+
         this.sections.push(section);
         this._saveToHistory();
         this._notifyChange();

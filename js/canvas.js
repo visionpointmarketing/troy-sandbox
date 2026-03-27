@@ -412,6 +412,10 @@ const VARIANT_OPTIONS = {
     'split-layout': [
         { key: 'content-left', label: 'Content Left' },
         { key: 'content-right', label: 'Content Right' }
+    ],
+    'content-spotlight': [
+        { key: 'content-left', label: 'Content Left' },
+        { key: 'content-right', label: 'Content Right' }
     ]
 };
 

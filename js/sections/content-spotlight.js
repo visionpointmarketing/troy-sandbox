@@ -1,6 +1,6 @@
 /**
- * TROY Sandbox — Split Layout Section
- * 50/50 content and image split with flexible positioning
+ * TROY Sandbox — Content Spotlight Section
+ * 50/50 content and image split with optional stats grid
  * Supports content-left and content-right variants
  */
 
@@ -51,57 +51,17 @@ function hasVisibleStats(visibility) {
     return false;
 }
 
-/**
- * Render a detail row (label + value pair)
- */
-function renderDetailRow(content, visibility, labelKey, valueKey, labelClass, textClass) {
-    const label = content[labelKey];
-    const value = content[valueKey];
-
-    // Skip if both are empty
-    if (!label && !value) return '';
-
-    // Check visibility for both fields
-    const labelVisible = visibility[labelKey] !== false;
-    const valueVisible = visibility[valueKey] !== false;
-
-    if (!labelVisible && !valueVisible) return '';
-
-    return `
-        <div class="flex flex-wrap gap-x-2">
-            ${labelVisible && label ? `
-                <span
-                    contenteditable="true"
-                    data-field="${labelKey}"
-                    class="${labelClass}"
-                >${escapeHtml(label)}</span>
-            ` : ''}
-            ${valueVisible && value ? `
-                <span
-                    contenteditable="true"
-                    data-field="${valueKey}"
-                    class="${textClass}"
-                >${escapeHtml(value)}</span>
-            ` : ''}
-        </div>
-    `;
-}
-
 export default {
-    type: 'split-layout',
-    name: 'Split Layout',
+    type: 'content-spotlight',
+    name: 'Content Spotlight',
     category: 'content',
-    description: '50/50 content and image split with flexible positioning',
+    description: '50/50 content and image split with optional stats grid',
 
     defaults: {
         variant: 'content-left',
-        headline: 'The Helen Keller Lecture Series Returns March 31',
-        body: 'This annual event shares powerful stories of resilience and purpose. The lecture honors the enduring legacy of Helen Keller and celebrates strength, courage and the human spirit.',
-        detailLabel1: 'Save the Date',
-        detailValue1: 'March 31 at 11 AM',
-        detailLabel2: '',
-        detailValue2: '',
-        ctaText: 'LEARN MORE',
+        headline: 'At TROY, You Can Do It All!',
+        body: 'Your home away from home has so much to offer. From championship athletics to world-class performances, diverse dining to global connections, Troy University provides the complete college experience.',
+        ctaText: 'Learn More',
         image: null,
         // Stats (hidden by default via visibility)
         stat1Number: '16',
@@ -122,11 +82,7 @@ export default {
         { key: 'variant', label: 'Layout', type: 'select', options: ['content-left', 'content-right'] },
         { key: 'headline', label: 'Headline', type: 'text' },
         { key: 'body', label: 'Body', type: 'textarea' },
-        { key: 'detailLabel1', label: 'Detail 1 Label', type: 'text' },
-        { key: 'detailValue1', label: 'Detail 1 Value', type: 'text' },
-        { key: 'detailLabel2', label: 'Detail 2 Label', type: 'text' },
-        { key: 'detailValue2', label: 'Detail 2 Value', type: 'text' },
-        { key: 'ctaText', label: 'CTA Text', type: 'text' },
+        { key: 'ctaText', label: 'CTA Button', type: 'text' },
         { key: 'stat1Number', label: 'Stat 1 Number', type: 'text' },
         { key: 'stat1Label', label: 'Stat 1 Label', type: 'text' },
         { key: 'stat2Number', label: 'Stat 2 Number', type: 'text' },
@@ -143,8 +99,8 @@ export default {
 
     render(content, visibility, colors = {}) {
         // Get color config
-        const bgKey = colors.background || 'black';
-        const colorConfig = COLORS[bgKey] || COLORS.black;
+        const bgKey = colors.background || 'sand';
+        const colorConfig = COLORS[bgKey] || COLORS.sand;
         const contrast = getContrastConfig(bgKey);
         const bgClass = colorConfig.bgClass;
         const isDark = colorConfig.isDark;
@@ -152,7 +108,6 @@ export default {
         // Dynamic classes based on background
         const textClass = contrast.text;
         const ctaClass = isDark ? 'btn-bordered-white' : 'btn-cardinal-outline';
-        const detailLabelClass = isDark ? 'text-white font-semibold' : 'text-cardinal font-semibold';
 
         // Build stats grid if any stats are visible
         let statsGrid = '';
@@ -169,9 +124,9 @@ export default {
             `;
         }
 
-        // Content column
+        // Content column (no padding needed - container handles spacing)
         const contentCol = `
-            <div class="flex flex-col justify-center p-12 lg:p-16">
+            <div class="flex flex-col justify-center">
                 ${renderIfVisible(visibility, 'headline', `
                     <h2
                         contenteditable="true"
@@ -186,25 +141,20 @@ export default {
                         class="body-text ${textClass} mb-6"
                     >${escapeHtml(content.body)}</p>
                 `)}
-                <!-- Detail rows -->
-                <div class="mb-8 space-y-1">
-                    ${renderDetailRow(content, visibility, 'detailLabel1', 'detailValue1', detailLabelClass, textClass)}
-                    ${renderDetailRow(content, visibility, 'detailLabel2', 'detailValue2', detailLabelClass, textClass)}
-                </div>
                 ${renderIfVisible(visibility, 'ctaText', `
                     <a
                         contenteditable="true"
                         data-field="ctaText"
-                        class="${ctaClass} cursor-text self-start"
+                        class="${ctaClass} cursor-text self-start mb-4"
                     >${escapeHtml(content.ctaText)}</a>
                 `)}
                 ${statsGrid}
             </div>
         `;
 
-        // Image column
+        // Image column (contained with aspect ratio)
         const imageCol = `
-            <div class="relative min-h-[400px] lg:min-h-[500px]">
+            <div class="relative overflow-hidden aspect-[4/3] lg:aspect-auto lg:min-h-[400px]">
                 ${imageSlot('image', content.image, 'absolute inset-0 w-full h-full object-cover')}
             </div>
         `;
@@ -215,10 +165,12 @@ export default {
         const secondCol = isContentRight ? contentCol : imageCol;
 
         return `
-            <section class="${bgClass}">
-                <div class="grid grid-cols-1 lg:grid-cols-2">
-                    ${firstCol}
-                    ${secondCol}
+            <section class="${bgClass} py-24">
+                <div class="container mx-auto px-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                        ${firstCol}
+                        ${secondCol}
+                    </div>
                 </div>
             </section>
         `;
@@ -226,8 +178,8 @@ export default {
 
     toMarkup(content, visibility = {}, colors = {}) {
         // Get color config
-        const bgKey = colors.background || 'black';
-        const colorConfig = COLORS[bgKey] || COLORS.black;
+        const bgKey = colors.background || 'sand';
+        const colorConfig = COLORS[bgKey] || COLORS.sand;
         const contrast = getContrastConfig(bgKey);
         const bgClass = colorConfig.bgClass;
         const isDark = colorConfig.isDark;
@@ -235,7 +187,6 @@ export default {
         // Dynamic classes based on background
         const textClass = contrast.text;
         const ctaClass = isDark ? 'btn-bordered-white' : 'btn-cardinal-outline';
-        const detailLabelClass = isDark ? 'text-white font-semibold' : 'text-cardinal font-semibold';
 
         // Build stats grid markup if any stats are visible
         let statsGrid = '';
@@ -259,46 +210,22 @@ export default {
             }
         }
 
-        // Build detail rows for markup
-        let detailRows = '';
-        if (content.detailLabel1 || content.detailValue1) {
-            const showLabel = visibility.detailLabel1 !== false && content.detailLabel1;
-            const showValue = visibility.detailValue1 !== false && content.detailValue1;
-            if (showLabel || showValue) {
-                detailRows += `<div class="flex flex-wrap gap-x-2">`;
-                if (showLabel) detailRows += `<span class="${detailLabelClass}">${escapeHtml(content.detailLabel1)}</span>`;
-                if (showValue) detailRows += `<span class="${textClass}">${escapeHtml(content.detailValue1)}</span>`;
-                detailRows += `</div>`;
-            }
-        }
-        if (content.detailLabel2 || content.detailValue2) {
-            const showLabel = visibility.detailLabel2 !== false && content.detailLabel2;
-            const showValue = visibility.detailValue2 !== false && content.detailValue2;
-            if (showLabel || showValue) {
-                detailRows += `<div class="flex flex-wrap gap-x-2">`;
-                if (showLabel) detailRows += `<span class="${detailLabelClass}">${escapeHtml(content.detailLabel2)}</span>`;
-                if (showValue) detailRows += `<span class="${textClass}">${escapeHtml(content.detailValue2)}</span>`;
-                detailRows += `</div>`;
-            }
-        }
-
-        // Content column
+        // Content column (no padding needed - container handles spacing)
         const contentCol = `
-            <div class="flex flex-col justify-center p-12 lg:p-16">
-                ${visibility.headline !== false ? `<h2 class="section-title ${textClass} mb-6">${escapeHtml(content.headline)}</h2>` : ''}
-                ${visibility.body !== false ? `<p class="body-text ${textClass} mb-6">${escapeHtml(content.body)}</p>` : ''}
-                ${detailRows ? `<div class="mb-8 space-y-1">${detailRows}</div>` : ''}
-                ${visibility.ctaText !== false ? `<a href="#" class="${ctaClass} self-start">${escapeHtml(content.ctaText)}</a>` : ''}${statsGrid}
-            </div>`;
+        <div class="flex flex-col justify-center">
+            ${visibility.headline !== false ? `<h2 class="section-title ${textClass} mb-6">${escapeHtml(content.headline)}</h2>` : ''}
+            ${visibility.body !== false ? `<p class="body-text ${textClass} mb-6">${escapeHtml(content.body)}</p>` : ''}
+            ${visibility.ctaText !== false ? `<a href="#" class="${ctaClass} self-start mb-4">${escapeHtml(content.ctaText)}</a>` : ''}${statsGrid}
+        </div>`;
 
-        // Image column
+        // Image column (contained with aspect ratio)
         const imageMarkup = content.image
             ? `<img src="${content.image}" alt="" class="absolute inset-0 w-full h-full object-cover">`
             : '<div class="absolute inset-0 w-full h-full bg-gray-200"></div>';
         const imageCol = `
-            <div class="relative min-h-[400px] lg:min-h-[500px]">
-                ${imageMarkup}
-            </div>`;
+        <div class="relative overflow-hidden aspect-[4/3] lg:aspect-auto lg:min-h-[400px]">
+            ${imageMarkup}
+        </div>`;
 
         // Order based on variant
         const isContentRight = content.variant === 'content-right';
@@ -306,10 +233,12 @@ export default {
         const secondCol = isContentRight ? contentCol : imageCol;
 
         return `
-<section class="${bgClass}">
-    <div class="grid grid-cols-1 lg:grid-cols-2">
-        ${firstCol}
-        ${secondCol}
+<section class="${bgClass} py-24">
+    <div class="container mx-auto px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            ${firstCol}
+            ${secondCol}
+        </div>
     </div>
 </section>`.trim();
     }

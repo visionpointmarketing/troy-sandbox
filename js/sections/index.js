@@ -11,6 +11,7 @@ import brandStory from './brand-story.js';
 import finalCta from './final-cta.js';
 import promoCarousel from './promo-carousel.js';
 import splitLayout from './split-layout.js';
+import contentSpotlight from './content-spotlight.js';
 
 // All section templates
 const templates = [
@@ -21,7 +22,8 @@ const templates = [
     brandStory,
     finalCta,
     promoCarousel,
-    splitLayout
+    splitLayout,
+    contentSpotlight
 ];
 
 // Create lookup map by type

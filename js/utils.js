@@ -13,6 +13,16 @@ export function escapeHtml(text) {
 }
 
 /**
+ * Strip HTML tags from text
+ */
+export function stripHtml(text) {
+    if (text === null || text === undefined) return '';
+    const div = document.createElement('div');
+    div.innerHTML = String(text);
+    return div.textContent || div.innerText || '';
+}
+
+/**
  * Render content only if visible
  * Returns empty string if field is hidden
  */
@@ -37,10 +47,10 @@ const ICONS = {
 };
 
 // Section types that support color customization
-const COLOR_SECTIONS = ['statistics', 'academic-excellence', 'latest-stories', 'promo-carousel', 'split-layout'];
+const COLOR_SECTIONS = ['statistics', 'academic-excellence', 'latest-stories', 'promo-carousel', 'split-layout', 'content-spotlight'];
 
 // Section types that support variant/layout switching
-const VARIANT_SECTIONS = ['promo-carousel', 'split-layout'];
+const VARIANT_SECTIONS = ['promo-carousel', 'split-layout', 'content-spotlight'];
 
 /**
  * Wrap section HTML with editor controls
