@@ -236,6 +236,35 @@ body {
     box-shadow: 0 0 0 4px rgba(145, 0, 57, 0.3);
 }
 
+/* White solid button (for dark backgrounds) */
+.btn-white {
+    display: inline-block;
+    padding: 1rem 2rem;
+    background-color: white;
+    border: 2px solid white;
+    border-radius: 2rem;
+    color: #910039;
+    font-family: 'avenir-lt-pro', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.btn-white:hover {
+    background-color: transparent;
+    color: white;
+    transform: scale(1.05);
+}
+
+.btn-white:focus {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.3);
+}
+
 /* ============================================
    SECTION HEADER COMPONENTS
    (Accent bars removed per Troy aesthetic cleanup)

@@ -31,12 +31,16 @@ const ICONS = {
     moveDown: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>`,
     visibility: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`,
     color: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>`,
+    layout: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>`,
     duplicate: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`,
     delete: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`
 };
 
 // Section types that support color customization
-const COLOR_SECTIONS = ['statistics', 'academic-excellence', 'latest-stories'];
+const COLOR_SECTIONS = ['statistics', 'academic-excellence', 'latest-stories', 'promo-carousel'];
+
+// Section types that support variant/layout switching
+const VARIANT_SECTIONS = ['promo-carousel'];
 
 /**
  * Wrap section HTML with editor controls
@@ -44,6 +48,7 @@ const COLOR_SECTIONS = ['statistics', 'academic-excellence', 'latest-stories'];
  */
 export function wrapSection(sectionId, sectionType, innerHtml) {
     const showColorBtn = COLOR_SECTIONS.includes(sectionType);
+    const showVariantBtn = VARIANT_SECTIONS.includes(sectionType);
 
     return `
         <div class="section-wrapper" data-section-id="${sectionId}" data-section-type="${sectionType}">
@@ -52,6 +57,11 @@ export function wrapSection(sectionId, sectionType, innerHtml) {
                 <button class="move-btn move-down" data-action="move-down" title="Move section down">${ICONS.moveDown}</button>
             </div>
             <div class="section-controls">
+                ${showVariantBtn ? `
+                    <button class="section-control-btn variant" data-action="variant" title="Change layout">
+                        ${ICONS.layout}
+                    </button>
+                ` : ''}
                 ${showColorBtn ? `
                     <button class="section-control-btn color" data-action="color" title="Change background color">
                         ${ICONS.color}

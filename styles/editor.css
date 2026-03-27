@@ -155,7 +155,7 @@
 }
 
 .image-placeholder::before {
-    content: '\1F4F7 Click to upload';
+    content: 'Click to upload';
     color: #9ca3af;
     font-size: 14px;
 }
@@ -508,6 +508,49 @@
 .section-control-btn.color:hover {
     background: #fef3c7;
     border-color: #f59e0b;
+}
+
+/* Variant/Layout button in section controls */
+.section-control-btn.variant:hover {
+    background: #dbeafe;
+    border-color: #3b82f6;
+}
+
+/* ============================================
+   Variant Popover
+   ============================================ */
+
+#variant-popover {
+    min-width: 200px;
+}
+
+.variant-option {
+    display: block;
+    width: 100%;
+    padding: 10px 12px;
+    text-align: left;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-size: 14px;
+    color: #374151;
+}
+
+.variant-option:hover {
+    background: #f3f4f6;
+    border-color: #910039;
+}
+
+.variant-option.selected {
+    background: #910039;
+    color: white;
+    border-color: #910039;
+}
+
+.variant-option.selected:hover {
+    background: #720724;
 }
 
 /* ============================================

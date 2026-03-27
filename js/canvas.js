@@ -13,8 +13,10 @@ import { COLORS, getSectionBackgroundColors, getDefaultColors } from './color-co
 let sectionsContainer = null;
 let visibilityPopover = null;
 let colorPopover = null;
+let variantPopover = null;
 let currentVisibilitySection = null;
 let currentColorSection = null;
+let currentVariantSection = null;
 
 // Editing state tracking - prevents re-render during active typing
 let isEditing = false;
@@ -26,6 +28,7 @@ export function initCanvas() {
     sectionsContainer = document.getElementById('sections-container');
     visibilityPopover = document.getElementById('visibility-popover');
     colorPopover = document.getElementById('color-popover');
+    variantPopover = document.getElementById('variant-popover');
 
     // Event delegation for section interactions
     sectionsContainer.addEventListener('click', handleClick);
@@ -73,6 +76,12 @@ export function initCanvas() {
     document.getElementById('section-color-swatches').addEventListener('click', handleColorSwatchClick);
     document.getElementById('card-color-swatches').addEventListener('click', handleColorSwatchClick);
 
+    // Variant popover
+    document.getElementById('variant-close').addEventListener('click', closeVariantPopover);
+
+    // Use event delegation for variant options
+    document.getElementById('variant-options').addEventListener('click', handleVariantOptionClick);
+
     // Close popovers on outside click
     document.addEventListener('click', (e) => {
         if (!visibilityPopover.contains(e.target) &&
@@ -82,6 +91,10 @@ export function initCanvas() {
         if (!colorPopover.contains(e.target) &&
             !e.target.closest('[data-action="color"]')) {
             closeColorPopover();
+        }
+        if (!variantPopover.contains(e.target) &&
+            !e.target.closest('[data-action="variant"]')) {
+            closeVariantPopover();
         }
     });
 
@@ -179,6 +192,9 @@ function handleClick(e) {
                 break;
             case 'color':
                 openColorPopover(sectionId, controlBtn);
+                break;
+            case 'variant':
+                openVariantPopover(sectionId, controlBtn);
                 break;
         }
         return;
@@ -383,6 +399,82 @@ function handleColorSwatchClick(e) {
 function closeColorPopover() {
     colorPopover.classList.add('hidden');
     currentColorSection = null;
+}
+
+/**
+ * Variant options for different section types
+ */
+const VARIANT_OPTIONS = {
+    'promo-carousel': [
+        { key: 'promo', label: 'Promo Banner' },
+        { key: 'news', label: 'News Carousel' }
+    ]
+};
+
+/**
+ * Open variant popover for a section
+ */
+function openVariantPopover(sectionId, button) {
+    const section = state.getSection(sectionId);
+    if (!section) return;
+
+    const sectionType = section.type;
+    const variants = VARIANT_OPTIONS[sectionType];
+    if (!variants) return;
+
+    currentVariantSection = sectionId;
+    const currentVariant = section.content.variant || variants[0].key;
+
+    // Build variant options
+    const optionsContainer = document.getElementById('variant-options');
+    optionsContainer.innerHTML = variants.map(variant => {
+        const isSelected = currentVariant === variant.key;
+        return `
+            <button
+                class="variant-option ${isSelected ? 'selected' : ''}"
+                data-variant-key="${variant.key}"
+            >
+                ${variant.label}
+            </button>
+        `;
+    }).join('');
+
+    // Position popover (account for scroll offset)
+    const rect = button.getBoundingClientRect();
+    const scrollTop = window.scrollY || document.documentElement.scrollTop;
+    variantPopover.style.top = `${rect.bottom + scrollTop + 8}px`;
+    variantPopover.style.right = `${window.innerWidth - rect.right}px`;
+    variantPopover.classList.remove('hidden');
+}
+
+/**
+ * Handle variant option click (using event delegation)
+ */
+function handleVariantOptionClick(e) {
+    const option = e.target.closest('.variant-option');
+    if (!option) return;
+
+    const variantKey = option.dataset.variantKey;
+    if (!currentVariantSection || !variantKey) return;
+
+    // Update state
+    state.updateSection(currentVariantSection, 'variant', variantKey);
+
+    // Update UI - remove selected from siblings, add to clicked
+    const container = option.parentElement;
+    container.querySelectorAll('.variant-option').forEach(o => o.classList.remove('selected'));
+    option.classList.add('selected');
+
+    // Close the popover after selection
+    closeVariantPopover();
+}
+
+/**
+ * Close variant popover
+ */
+function closeVariantPopover() {
+    variantPopover.classList.add('hidden');
+    currentVariantSection = null;
 }
 
 export default { initCanvas, render };

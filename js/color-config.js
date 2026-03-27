@@ -183,7 +183,8 @@ export function getDefaultColors(sectionType) {
     const defaults = {
         'statistics': { background: 'sand' },
         'academic-excellence': { background: 'white' },
-        'latest-stories': { background: 'sand' }
+        'latest-stories': { background: 'sand' },
+        'promo-carousel': { background: 'black' }
     };
 
     return defaults[sectionType] || { background: 'white' };

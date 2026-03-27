@@ -9,6 +9,7 @@ import academicExcellence from './academic-excellence.js';
 import latestStories from './latest-stories.js';
 import brandStory from './brand-story.js';
 import finalCta from './final-cta.js';
+import promoCarousel from './promo-carousel.js';
 
 // All section templates
 const templates = [
@@ -17,7 +18,8 @@ const templates = [
     academicExcellence,
     latestStories,
     brandStory,
-    finalCta
+    finalCta,
+    promoCarousel
 ];
 
 // Create lookup map by type
