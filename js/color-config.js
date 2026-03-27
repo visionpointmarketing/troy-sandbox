@@ -184,7 +184,8 @@ export function getDefaultColors(sectionType) {
         'statistics': { background: 'sand' },
         'academic-excellence': { background: 'white' },
         'latest-stories': { background: 'sand' },
-        'promo-carousel': { background: 'black' }
+        'promo-carousel': { background: 'black' },
+        'split-layout': { background: 'black' }
     };
 
     return defaults[sectionType] || { background: 'white' };

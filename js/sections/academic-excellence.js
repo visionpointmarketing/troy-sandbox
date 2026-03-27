@@ -107,7 +107,7 @@ export default {
                                 <a
                                     contenteditable="true"
                                     data-field="ctaText"
-                                    class="btn-cardinal cursor-text"
+                                    class="btn-cardinal-outline cursor-text"
                                 >${escapeHtml(content.ctaText)}</a>
                             `)}
                         </div>
@@ -189,7 +189,7 @@ export default {
             <div>
                 ${visibility.headline !== false ? `<h2 class="section-title ${contrast.text} mb-8">${headlineHtml}</h2>` : ''}
                 ${visibility.body !== false ? `<p class="body-text mb-10 ${contrast.text}">${escapeHtml(content.body)}</p>` : ''}
-                ${visibility.ctaText !== false ? `<a href="#" class="btn-cardinal">${escapeHtml(content.ctaText)}</a>` : ''}
+                ${visibility.ctaText !== false ? `<a href="#" class="btn-cardinal-outline">${escapeHtml(content.ctaText)}</a>` : ''}
             </div>
             ${visibility.featuredImage !== false ? `
             <div class="relative overflow-hidden aspect-auto min-h-[280px] sm:aspect-feature">

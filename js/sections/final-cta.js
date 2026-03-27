@@ -63,7 +63,7 @@ export default {
                             <a
                                 contenteditable="true"
                                 data-field="ctaPrimary"
-                                class="btn-cardinal cursor-text"
+                                class="btn-bordered-white cursor-text"
                             >${escapeHtml(content.ctaPrimary)}</a>
                         `)}
 
@@ -92,7 +92,7 @@ export default {
         ${visibility.headline !== false ? `<h2 class="section-title text-white mb-12">${escapeHtml(content.headline)}</h2>` : ''}
         ${visibility.body !== false ? `<p class="body-text-large max-w-3xl mx-auto mb-16 text-white">${escapeHtml(content.body)}</p>` : ''}
         <div class="flex flex-col md:flex-row gap-8 justify-center items-center">
-            ${visibility.ctaPrimary !== false ? `<a href="#" class="btn-cardinal">${escapeHtml(content.ctaPrimary)}</a>` : ''}
+            ${visibility.ctaPrimary !== false ? `<a href="#" class="btn-bordered-white">${escapeHtml(content.ctaPrimary)}</a>` : ''}
             ${visibility.ctaSecondary !== false ? `<a href="#" class="btn-bordered-white">${escapeHtml(content.ctaSecondary)}</a>` : ''}
         </div>
     </div>

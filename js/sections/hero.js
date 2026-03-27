@@ -72,7 +72,7 @@ export default {
                                 <a
                                     contenteditable="true"
                                     data-field="ctaPrimary"
-                                    class="btn-bordered-white cursor-text"
+                                    class="btn-cardinal cursor-text"
                                 >${escapeHtml(content.ctaPrimary)}</a>
                             `)}
 
@@ -80,7 +80,7 @@ export default {
                                 <a
                                     contenteditable="true"
                                     data-field="ctaSecondary"
-                                    class="btn-blue cursor-text"
+                                    class="btn-bordered-white cursor-text"
                                 >${escapeHtml(content.ctaSecondary)}</a>
                             `)}
                         </div>
@@ -106,8 +106,8 @@ export default {
             ${visibility.headline !== false ? `<h1 class="hero-headline text-white mb-8">${headlineHtml}</h1>` : ''}
             ${visibility.body !== false ? `<p class="body-text-large text-white mb-12 max-w-lg">${escapeHtml(content.body)}</p>` : ''}
             <div class="flex flex-col sm:flex-row gap-4 sm:gap-8 items-start sm:items-center">
-                ${visibility.ctaPrimary !== false ? `<a href="#" class="btn-bordered-white">${escapeHtml(content.ctaPrimary)}</a>` : ''}
-                ${visibility.ctaSecondary !== false ? `<a href="#" class="btn-blue">${escapeHtml(content.ctaSecondary)}</a>` : ''}
+                ${visibility.ctaPrimary !== false ? `<a href="#" class="btn-cardinal">${escapeHtml(content.ctaPrimary)}</a>` : ''}
+                ${visibility.ctaSecondary !== false ? `<a href="#" class="btn-bordered-white">${escapeHtml(content.ctaSecondary)}</a>` : ''}
             </div>
         </div>
     </div>

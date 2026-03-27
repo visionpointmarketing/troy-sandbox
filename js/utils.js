@@ -37,10 +37,10 @@ const ICONS = {
 };
 
 // Section types that support color customization
-const COLOR_SECTIONS = ['statistics', 'academic-excellence', 'latest-stories', 'promo-carousel'];
+const COLOR_SECTIONS = ['statistics', 'academic-excellence', 'latest-stories', 'promo-carousel', 'split-layout'];
 
 // Section types that support variant/layout switching
-const VARIANT_SECTIONS = ['promo-carousel'];
+const VARIANT_SECTIONS = ['promo-carousel', 'split-layout'];
 
 /**
  * Wrap section HTML with editor controls

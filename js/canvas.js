@@ -408,6 +408,10 @@ const VARIANT_OPTIONS = {
     'promo-carousel': [
         { key: 'promo', label: 'Promo Banner' },
         { key: 'news', label: 'News Carousel' }
+    ],
+    'split-layout': [
+        { key: 'content-left', label: 'Content Left' },
+        { key: 'content-right', label: 'Content Right' }
     ]
 };
 
