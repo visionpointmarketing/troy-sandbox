@@ -405,22 +405,41 @@ function closeColorPopover() {
  * Variant options for different section types
  */
 const VARIANT_OPTIONS = {
-    'promo-carousel': [
-        { key: 'promo', label: 'Promo Banner' },
-        { key: 'news', label: 'News Carousel' }
-    ],
-    'split-layout': [
-        { key: 'content-left', label: 'Content Left' },
-        { key: 'content-right', label: 'Content Right' }
-    ],
-    'content-spotlight': [
-        { key: 'content-left', label: 'Content Left' },
-        { key: 'content-right', label: 'Content Right' }
-    ],
-    'academic-excellence': [
-        { key: 'content-left', label: 'Content Left' },
-        { key: 'content-right', label: 'Content Right' }
-    ]
+    'promo-carousel': {
+        field: 'variant',
+        options: [
+            { key: 'promo', label: 'Promo Banner' },
+            { key: 'news', label: 'News Carousel' }
+        ]
+    },
+    'split-layout': {
+        field: 'variant',
+        options: [
+            { key: 'content-left', label: 'Content Left' },
+            { key: 'content-right', label: 'Content Right' }
+        ]
+    },
+    'content-spotlight': {
+        field: 'variant',
+        options: [
+            { key: 'content-left', label: 'Content Left' },
+            { key: 'content-right', label: 'Content Right' }
+        ]
+    },
+    'academic-excellence': {
+        field: 'variant',
+        options: [
+            { key: 'content-left', label: 'Content Left' },
+            { key: 'content-right', label: 'Content Right' }
+        ]
+    },
+    'brand-story': {
+        field: 'overlayColor',
+        options: [
+            { key: 'cardinal', label: 'Cardinal' },
+            { key: 'black', label: 'Black' }
+        ]
+    }
 };
 
 /**
@@ -431,14 +450,17 @@ function openVariantPopover(sectionId, button) {
     if (!section) return;
 
     const sectionType = section.type;
-    const variants = VARIANT_OPTIONS[sectionType];
-    if (!variants) return;
+    const variantConfig = VARIANT_OPTIONS[sectionType];
+    if (!variantConfig) return;
 
     currentVariantSection = sectionId;
-    const currentVariant = section.content.variant || variants[0].key;
+    const fieldName = variantConfig.field;
+    const variants = variantConfig.options;
+    const currentVariant = section.content[fieldName] || variants[0].key;
 
     // Build variant options
     const optionsContainer = document.getElementById('variant-options');
+    optionsContainer.dataset.variantField = fieldName;  // Store field name for click handler
     optionsContainer.innerHTML = variants.map(variant => {
         const isSelected = currentVariant === variant.key;
         return `
@@ -467,13 +489,14 @@ function handleVariantOptionClick(e) {
     if (!option) return;
 
     const variantKey = option.dataset.variantKey;
+    const container = option.parentElement;
+    const fieldName = container.dataset.variantField || 'variant';
     if (!currentVariantSection || !variantKey) return;
 
     // Update state
-    state.updateSection(currentVariantSection, 'variant', variantKey);
+    state.updateSection(currentVariantSection, fieldName, variantKey);
 
     // Update UI - remove selected from siblings, add to clicked
-    const container = option.parentElement;
     container.querySelectorAll('.variant-option').forEach(o => o.classList.remove('selected'));
     option.classList.add('selected');
 

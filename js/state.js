@@ -98,6 +98,32 @@ const state = {
             section.visibility.stat6Label = false;
         }
 
+        // Hide button links and stacked links by default for split-layout
+        if (type === 'split-layout') {
+            section.visibility.buttonLink1 = false;
+            section.visibility.buttonLink2 = false;
+            section.visibility.buttonLink3 = false;
+            section.visibility.buttonLink4 = false;
+            section.visibility.buttonLink5 = false;
+            section.visibility.buttonLink6 = false;
+            section.visibility.stackedLink1 = false;
+            section.visibility.stackedLink2 = false;
+            section.visibility.stackedLink3 = false;
+            section.visibility.stackedLink4 = false;
+            section.visibility.stackedLink5 = false;
+            section.visibility.stackedLink6 = false;
+        }
+
+        // Hide links by default for brand-story
+        if (type === 'brand-story') {
+            section.visibility.link1Text = false;
+            section.visibility.link2Text = false;
+            section.visibility.link3Text = false;
+            section.visibility.link4Text = false;
+            section.visibility.link5Text = false;
+            section.visibility.link6Text = false;
+        }
+
         this.sections.push(section);
         this._saveToHistory();
         this._notifyChange();

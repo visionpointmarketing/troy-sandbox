@@ -50,7 +50,7 @@ const ICONS = {
 const COLOR_SECTIONS = ['statistics', 'academic-excellence', 'latest-stories', 'promo-carousel', 'split-layout', 'content-spotlight'];
 
 // Section types that support variant/layout switching
-const VARIANT_SECTIONS = ['promo-carousel', 'split-layout', 'content-spotlight', 'academic-excellence'];
+const VARIANT_SECTIONS = ['promo-carousel', 'split-layout', 'content-spotlight', 'academic-excellence', 'brand-story'];
 
 /**
  * Wrap section HTML with editor controls

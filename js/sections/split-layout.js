@@ -52,6 +52,26 @@ function hasVisibleStats(visibility) {
 }
 
 /**
+ * Check if any button links are visible
+ */
+function hasVisibleButtonLinks(visibility) {
+    for (let i = 1; i <= 6; i++) {
+        if (visibility[`buttonLink${i}`] !== false) return true;
+    }
+    return false;
+}
+
+/**
+ * Check if any stacked links are visible
+ */
+function hasVisibleStackedLinks(visibility) {
+    for (let i = 1; i <= 6; i++) {
+        if (visibility[`stackedLink${i}`] !== false) return true;
+    }
+    return false;
+}
+
+/**
  * Render a detail row (label + value pair)
  */
 function renderDetailRow(content, visibility, labelKey, valueKey, labelClass, textClass) {
@@ -115,7 +135,21 @@ export default {
         stat5Number: '$1,250',
         stat5Label: 'Scholarships to Study Abroad',
         stat6Number: '78k+',
-        stat6Label: 'Square-Foot Recreational Facility'
+        stat6Label: 'Square-Foot Recreational Facility',
+        // Button links (hidden by default via visibility)
+        buttonLink1: 'Arts and Humanities',
+        buttonLink2: 'Business and Entrepreneurship',
+        buttonLink3: 'Communications',
+        buttonLink4: 'Community and Government',
+        buttonLink5: 'Dual Enrollment',
+        buttonLink6: 'Education',
+        // Stacked links (hidden by default via visibility)
+        stackedLink1: 'International Student',
+        stackedLink2: 'Military / Family Student',
+        stackedLink3: 'Veteran / Family Student',
+        stackedLink4: 'Online Student',
+        stackedLink5: 'Transfer Student',
+        stackedLink6: 'Dual Enrollment - Early College Student'
     },
 
     fields: [
@@ -138,7 +172,19 @@ export default {
         { key: 'stat5Number', label: 'Stat 5 Number', type: 'text' },
         { key: 'stat5Label', label: 'Stat 5 Label', type: 'text' },
         { key: 'stat6Number', label: 'Stat 6 Number', type: 'text' },
-        { key: 'stat6Label', label: 'Stat 6 Label', type: 'text' }
+        { key: 'stat6Label', label: 'Stat 6 Label', type: 'text' },
+        { key: 'buttonLink1', label: 'Button Link 1', type: 'text' },
+        { key: 'buttonLink2', label: 'Button Link 2', type: 'text' },
+        { key: 'buttonLink3', label: 'Button Link 3', type: 'text' },
+        { key: 'buttonLink4', label: 'Button Link 4', type: 'text' },
+        { key: 'buttonLink5', label: 'Button Link 5', type: 'text' },
+        { key: 'buttonLink6', label: 'Button Link 6', type: 'text' },
+        { key: 'stackedLink1', label: 'Stacked Link 1', type: 'text' },
+        { key: 'stackedLink2', label: 'Stacked Link 2', type: 'text' },
+        { key: 'stackedLink3', label: 'Stacked Link 3', type: 'text' },
+        { key: 'stackedLink4', label: 'Stacked Link 4', type: 'text' },
+        { key: 'stackedLink5', label: 'Stacked Link 5', type: 'text' },
+        { key: 'stackedLink6', label: 'Stacked Link 6', type: 'text' }
     ],
 
     render(content, visibility, colors = {}) {
@@ -165,6 +211,37 @@ export default {
                     ${renderStat(content, visibility, 'stat4Number', 'stat4Label', textClass, isDark)}
                     ${renderStat(content, visibility, 'stat5Number', 'stat5Label', textClass, isDark)}
                     ${renderStat(content, visibility, 'stat6Number', 'stat6Label', textClass, isDark)}
+                </div>
+            `;
+        }
+
+        // Build button links grid if any are visible
+        let buttonLinksGrid = '';
+        if (hasVisibleButtonLinks(visibility)) {
+            const buttonClass = isDark ? 'btn-bordered-white' : 'btn-cardinal-outline';
+            buttonLinksGrid = `
+                <div class="flex flex-wrap gap-3 mt-8">
+                    ${[1,2,3,4,5,6].map(i =>
+                        visibility[`buttonLink${i}`] !== false && content[`buttonLink${i}`] ? `
+                            <a contenteditable="true" data-field="buttonLink${i}"
+                               class="${buttonClass} cursor-text">${escapeHtml(content[`buttonLink${i}`])}</a>
+                        ` : ''
+                    ).join('')}
+                </div>
+            `;
+        }
+
+        // Build stacked links list if any are visible
+        let stackedLinksList = '';
+        if (hasVisibleStackedLinks(visibility)) {
+            stackedLinksList = `
+                <div class="space-y-3 mt-8">
+                    ${[1,2,3,4,5,6].map(i =>
+                        visibility[`stackedLink${i}`] !== false && content[`stackedLink${i}`] ? `
+                            <a contenteditable="true" data-field="stackedLink${i}"
+                               class="${textClass} font-bold uppercase tracking-wide text-sm block cursor-text">${escapeHtml(content[`stackedLink${i}`])}</a>
+                        ` : ''
+                    ).join('')}
                 </div>
             `;
         }
@@ -198,6 +275,8 @@ export default {
                         class="${ctaClass} cursor-text self-start"
                     >${escapeHtml(content.ctaText)}</a>
                 `)}
+                ${buttonLinksGrid}
+                ${stackedLinksList}
                 ${statsGrid}
             </div>
         `;
@@ -259,6 +338,37 @@ export default {
             }
         }
 
+        // Build button links markup if any are visible
+        let buttonLinksGrid = '';
+        if (hasVisibleButtonLinks(visibility)) {
+            const buttonClass = isDark ? 'btn-bordered-white' : 'btn-cardinal-outline';
+            let buttonsHtml = '';
+            for (let i = 1; i <= 6; i++) {
+                if (visibility[`buttonLink${i}`] !== false && content[`buttonLink${i}`]) {
+                    buttonsHtml += `<a href="#" class="${buttonClass}">${escapeHtml(content[`buttonLink${i}`])}</a>`;
+                }
+            }
+            if (buttonsHtml) {
+                buttonLinksGrid = `
+            <div class="flex flex-wrap gap-3 mt-8">${buttonsHtml}</div>`;
+            }
+        }
+
+        // Build stacked links markup if any are visible
+        let stackedLinksList = '';
+        if (hasVisibleStackedLinks(visibility)) {
+            let linksHtml = '';
+            for (let i = 1; i <= 6; i++) {
+                if (visibility[`stackedLink${i}`] !== false && content[`stackedLink${i}`]) {
+                    linksHtml += `<a href="#" class="${textClass} font-bold uppercase tracking-wide text-sm block">${escapeHtml(content[`stackedLink${i}`])}</a>`;
+                }
+            }
+            if (linksHtml) {
+                stackedLinksList = `
+            <div class="space-y-3 mt-8">${linksHtml}</div>`;
+            }
+        }
+
         // Build detail rows for markup
         let detailRows = '';
         if (content.detailLabel1 || content.detailValue1) {
@@ -288,7 +398,7 @@ export default {
                 ${visibility.headline !== false ? `<h2 class="section-title ${textClass} mb-6">${escapeHtml(content.headline)}</h2>` : ''}
                 ${visibility.body !== false ? `<p class="body-text ${textClass} mb-6">${escapeHtml(content.body)}</p>` : ''}
                 ${detailRows ? `<div class="mb-8 space-y-1">${detailRows}</div>` : ''}
-                ${visibility.ctaText !== false ? `<a href="#" class="${ctaClass} self-start">${escapeHtml(content.ctaText)}</a>` : ''}${statsGrid}
+                ${visibility.ctaText !== false ? `<a href="#" class="${ctaClass} self-start">${escapeHtml(content.ctaText)}</a>` : ''}${buttonLinksGrid}${stackedLinksList}${statsGrid}
             </div>`;
 
         // Image column
