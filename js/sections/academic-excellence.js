@@ -13,12 +13,11 @@ export default {
     description: 'Featured program + 3 program cards',
 
     defaults: {
+        variant: 'content-left',
         headline: 'Real Experiences.\nReal Opportunities.',
         body: 'Our programs are designed around real-world application and hands-on learning. From award-winning academic opportunities to exciting Division I athletics events, TROY provides students with top-notch learning opportunities that showcase the work, not just the results.',
         ctaText: 'Explore Programs',
         featuredImage: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=900&q=80',
-        featuredTitle: 'Business Administration',
-        featuredDescription: 'Real business challenges, real solutions',
         program1Title: 'Engineering',
         program1Description: 'Hands-on learning with industry-standard equipment and real-world projects that prepare you for immediate impact.',
         program2Title: 'Nursing',
@@ -28,12 +27,11 @@ export default {
     },
 
     fields: [
+        { key: 'variant', label: 'Layout', type: 'select', options: ['content-left', 'content-right'] },
         { key: 'headline', label: 'Headline', type: 'text' },
         { key: 'body', label: 'Body', type: 'textarea' },
         { key: 'ctaText', label: 'CTA Text', type: 'text' },
         { key: 'featuredImage', label: 'Featured Image', type: 'image' },
-        { key: 'featuredTitle', label: 'Featured Title', type: 'text' },
-        { key: 'featuredDescription', label: 'Featured Description', type: 'text' },
         { key: 'program1Title', label: 'Program 1 Title', type: 'text' },
         { key: 'program1Description', label: 'Program 1 Description', type: 'text' },
         { key: 'program2Title', label: 'Program 2 Title', type: 'text' },
@@ -47,7 +45,10 @@ export default {
 
         // Get color config
         const bgColor = COLORS[colors.background] || COLORS.white;
-                const contrast = getContrastConfig(colors.background);
+        const contrast = getContrastConfig(colors.background);
+
+        // Determine layout variant
+        const isContentRight = content.variant === 'content-right';
 
         const renderProgramCard = (title, desc, titleKey, descKey) => {
             const showTitle = visibility[titleKey] !== false;
@@ -78,75 +79,62 @@ export default {
         const bgStyle = getBackgroundStyle(colors.background);
         const halftoneClasses = getHalftoneClasses(colors.background);
 
+        // Content column
+        const contentCol = `
+            <div>
+                ${renderIfVisible(visibility, 'headline', `
+                    <h2
+                        contenteditable="true"
+                        data-field="headline"
+                        class="section-title ${contrast.text} mb-8"
+                    >${headlineHtml}</h2>
+                `)}
+
+                ${renderIfVisible(visibility, 'body', `
+                    <p
+                        contenteditable="true"
+                        data-field="body"
+                        class="body-text mb-10 ${contrast.text}"
+                    >${content.body}</p>
+                `)}
+
+                ${renderIfVisible(visibility, 'ctaText', `
+                    <a
+                        contenteditable="true"
+                        data-field="ctaText"
+                        class="btn-cardinal-outline cursor-text"
+                    >${escapeHtml(content.ctaText)}</a>
+                `)}
+            </div>
+        `;
+
+        // Image column (simplified - no overlay)
+        const imageCol = renderIfVisible(visibility, 'featuredImage', `
+            <div class="relative overflow-hidden aspect-auto min-h-[280px] sm:aspect-feature cursor-pointer" data-field="featuredImage" data-image-field="true">
+                ${content.featuredImage ? `
+                    <img src="${content.featuredImage}"
+                         alt="Featured Program"
+                         class="absolute inset-0 w-full h-full object-cover">
+                ` : `
+                    <div class="absolute inset-0 bg-gray-200 flex items-center justify-center text-gray-400">
+                        <span class="text-sm">Click to add image</span>
+                    </div>
+                `}
+            </div>
+        `);
+
+        // Determine column order based on variant
+        const firstCol = isContentRight ? imageCol : contentCol;
+        const secondCol = isContentRight ? contentCol : imageCol;
+
         return `
             <section class="${bgColor.bgClass} ${halftoneClasses} py-24"${bgStyle ? ` style="${bgStyle}"` : ''}>
                 <div class="container mx-auto px-8 relative z-10">
 
                     <!-- Two-column layout -->
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-20">
-
-                        <!-- Left column: Content -->
-                        <div>
-                            ${renderIfVisible(visibility, 'headline', `
-                                <h2
-                                    contenteditable="true"
-                                    data-field="headline"
-                                    class="section-title ${contrast.text} mb-8"
-                                >${headlineHtml}</h2>
-                            `)}
-
-                            ${renderIfVisible(visibility, 'body', `
-                                <p
-                                    contenteditable="true"
-                                    data-field="body"
-                                    class="body-text mb-10 ${contrast.text}"
-                                >${content.body}</p>
-                            `)}
-
-                            ${renderIfVisible(visibility, 'ctaText', `
-                                <a
-                                    contenteditable="true"
-                                    data-field="ctaText"
-                                    class="btn-cardinal-outline cursor-text"
-                                >${escapeHtml(content.ctaText)}</a>
-                            `)}
-                        </div>
-
-                        <!-- Right column: Featured program image -->
-                        ${renderIfVisible(visibility, 'featuredImage', `
-                            <div class="relative overflow-hidden aspect-auto min-h-[280px] sm:aspect-feature cursor-pointer" data-field="featuredImage" data-image-field="true">
-                                ${content.featuredImage ? `
-                                    <img src="${content.featuredImage}"
-                                         alt="Featured Program"
-                                         class="absolute inset-0 w-full h-full object-cover">
-                                ` : `
-                                    <div class="absolute inset-0 bg-gray-200 flex items-center justify-center text-gray-400">
-                                        <span class="text-sm">Click to add image</span>
-                                    </div>
-                                `}
-
-                                <!-- Content overlay -->
-                                <div class="absolute bottom-4 left-4 right-4 sm:bottom-8 sm:left-8 sm:right-8 text-white z-10">
-                                    ${renderIfVisible(visibility, 'featuredTitle', `
-                                        <h3
-                                            contenteditable="true"
-                                            data-field="featuredTitle"
-                                            class="program-title text-white mb-2"
-                                        >${escapeHtml(content.featuredTitle)}</h3>
-                                    `)}
-                                    ${renderIfVisible(visibility, 'featuredDescription', `
-                                        <p
-                                            contenteditable="true"
-                                            data-field="featuredDescription"
-                                            class="text-sm text-white/90"
-                                        >${escapeHtml(content.featuredDescription)}</p>
-                                    `)}
-                                </div>
-
-                                <!-- Multiply overlay -->
-                                <div class="absolute inset-0 bg-gradient-to-br from-cardinal-800 to-cardinal-900 mix-blend-multiply opacity-70"></div>
-                            </div>
-                        `)}
+                        ${firstCol}
+                        ${secondCol}
                     </div>
 
                     <!-- Programs grid -->
@@ -165,9 +153,12 @@ export default {
 
         // Get color config
         const bgColor = COLORS[colors.background] || COLORS.white;
-                const contrast = getContrastConfig(colors.background);
+        const contrast = getContrastConfig(colors.background);
         const bgStyle = getBackgroundStyle(colors.background);
         const halftoneClasses = getHalftoneClasses(colors.background);
+
+        // Determine layout variant
+        const isContentRight = content.variant === 'content-right';
 
         const renderProgramMarkup = (title, desc, titleKey, descKey) => {
             const showTitle = visibility[titleKey] !== false;
@@ -182,24 +173,30 @@ export default {
             </div>`;
         };
 
-        return `
-<section class="${bgColor.bgClass} ${halftoneClasses} py-24"${bgStyle ? ` style="${bgStyle}"` : ''}>
-    <div class="container mx-auto px-8 relative z-10">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-20">
+        // Content column markup
+        const contentColMarkup = `
             <div>
                 ${visibility.headline !== false ? `<h2 class="section-title ${contrast.text} mb-8">${headlineHtml}</h2>` : ''}
                 ${visibility.body !== false ? `<p class="body-text mb-10 ${contrast.text}">${escapeHtml(content.body)}</p>` : ''}
                 ${visibility.ctaText !== false ? `<a href="#" class="btn-cardinal-outline">${escapeHtml(content.ctaText)}</a>` : ''}
-            </div>
-            ${visibility.featuredImage !== false ? `
+            </div>`;
+
+        // Image column markup (simplified - no overlay)
+        const imageColMarkup = visibility.featuredImage !== false ? `
             <div class="relative overflow-hidden aspect-auto min-h-[280px] sm:aspect-feature">
                 ${content.featuredImage ? `<img src="${content.featuredImage}" alt="Featured Program" class="absolute inset-0 w-full h-full object-cover">` : ''}
-                <div class="absolute bottom-4 left-4 right-4 sm:bottom-8 sm:left-8 sm:right-8 text-white z-10">
-                    ${visibility.featuredTitle !== false ? `<h3 class="program-title text-white mb-2">${escapeHtml(content.featuredTitle)}</h3>` : ''}
-                    ${visibility.featuredDescription !== false ? `<p class="text-sm text-white/90">${escapeHtml(content.featuredDescription)}</p>` : ''}
-                </div>
-                <div class="absolute inset-0 bg-gradient-to-br from-cardinal-800 to-cardinal-900 mix-blend-multiply opacity-70"></div>
-            </div>` : ''}
+            </div>` : '';
+
+        // Determine column order based on variant
+        const firstColMarkup = isContentRight ? imageColMarkup : contentColMarkup;
+        const secondColMarkup = isContentRight ? contentColMarkup : imageColMarkup;
+
+        return `
+<section class="${bgColor.bgClass} ${halftoneClasses} py-24"${bgStyle ? ` style="${bgStyle}"` : ''}>
+    <div class="container mx-auto px-8 relative z-10">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-20">
+            ${firstColMarkup}
+            ${secondColMarkup}
         </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
             ${renderProgramMarkup(content.program1Title, content.program1Description, 'program1Title', 'program1Description')}

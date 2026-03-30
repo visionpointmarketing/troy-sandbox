@@ -416,6 +416,10 @@ const VARIANT_OPTIONS = {
     'content-spotlight': [
         { key: 'content-left', label: 'Content Left' },
         { key: 'content-right', label: 'Content Right' }
+    ],
+    'academic-excellence': [
+        { key: 'content-left', label: 'Content Left' },
+        { key: 'content-right', label: 'Content Right' }
     ]
 };
 
