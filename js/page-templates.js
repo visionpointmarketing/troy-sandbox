@@ -9,7 +9,7 @@ const pageTemplates = [
         id: 'prospective-students',
         name: 'Prospective Students',
         description: 'Undergraduate recruitment focus',
-        sectionCount: 5,
+        sectionCount: 7,
         sections: [
             {
                 type: 'hero',
@@ -42,6 +42,29 @@ const pageTemplates = [
                 colors: { background: 'sand' }
             },
             {
+                type: 'content-spotlight',
+                content: {
+                    variant: 'content-right',
+                    headline: 'At TROY, You Can Do It All!',
+                    body: 'Your home away from home has so much to offer. From championship athletics and world-class performances to diverse dining options and a global community, Troy University provides the complete college experience.',
+                    ctaText: 'Explore Campus Life',
+                    image: null,
+                    stat1Number: '16',
+                    stat1Label: 'DI Athletic Teams',
+                    stat2Number: '15+',
+                    stat2Label: 'On-campus Dining Options',
+                    stat3Number: '200+',
+                    stat3Label: 'Annual Fine Arts Performances',
+                    stat4Number: '60+',
+                    stat4Label: 'Nations Represented on Campus',
+                    stat5Number: '$1,250',
+                    stat5Label: 'Scholarships to Study Abroad',
+                    stat6Number: '78k+',
+                    stat6Label: 'Square-Foot Recreational Facility'
+                },
+                colors: { background: 'white' }
+            },
+            {
                 type: 'academic-excellence',
                 content: {
                     headline: 'Five Colleges.\nEndless Possibilities.',
@@ -57,7 +80,19 @@ const pageTemplates = [
                     program3Title: 'Engineering',
                     program3Description: 'Hands-on learning with industry-standard equipment and real-world projects.'
                 },
-                colors: { background: 'white' }
+                colors: { background: 'sand' }
+            },
+            {
+                type: 'promo-carousel',
+                content: {
+                    variant: 'promo',
+                    headline: 'Save Big with Trojan Book Bag',
+                    body: 'Trojan Book Bag provides access to course materials at a fraction of the cost. Get your textbooks, digital resources, and supplies all in one convenient package.',
+                    ctaText: 'TROJAN BOOK BAG INFORMATION',
+                    totalSlides: 3,
+                    activeSlide: 2
+                },
+                colors: { background: 'cardinal' }
             },
             {
                 type: 'latest-stories',
@@ -77,7 +112,7 @@ const pageTemplates = [
                     story3Title: 'Nursing Students Launch Rural Health Initiative',
                     story3Description: 'Making healthcare accessible to underserved communities through student-led programs.'
                 },
-                colors: { background: 'sand' }
+                colors: { background: 'white' }
             },
             {
                 type: 'final-cta',
@@ -95,7 +130,7 @@ const pageTemplates = [
         id: 'academic-programs',
         name: 'Academic Programs',
         description: 'Program showcase focus',
-        sectionCount: 4,
+        sectionCount: 6,
         sections: [
             {
                 type: 'hero',
@@ -106,6 +141,29 @@ const pageTemplates = [
                     ctaPrimary: 'Browse Programs',
                     ctaSecondary: 'Visit Campus'
                 }
+            },
+            {
+                type: 'split-layout',
+                content: {
+                    variant: 'content-left',
+                    headline: 'Learn From Leading Faculty',
+                    body: 'Our professors aren\'t just educators—they\'re active researchers, industry experts, and dedicated mentors. With a 16:1 student-faculty ratio, you\'ll receive personalized attention and real-world guidance.',
+                    detailLabel1: 'Faculty-to-Student Ratio',
+                    detailValue1: '16:1 personalized attention',
+                    detailLabel2: 'Faculty Credentials',
+                    detailValue2: '90% hold terminal degrees',
+                    ctaText: 'MEET OUR FACULTY',
+                    image: null
+                },
+                visibility: {
+                    stat1Number: false, stat1Label: false,
+                    stat2Number: false, stat2Label: false,
+                    stat3Number: false, stat3Label: false,
+                    stat4Number: false, stat4Label: false,
+                    stat5Number: false, stat5Label: false,
+                    stat6Number: false, stat6Label: false
+                },
+                colors: { background: 'sand' }
             },
             {
                 type: 'academic-excellence',
@@ -146,6 +204,22 @@ const pageTemplates = [
                 colors: { background: 'sand' }
             },
             {
+                type: 'promo-carousel',
+                content: {
+                    variant: 'news',
+                    newsItem1Title: 'TROY Announces New AI Research Center',
+                    newsItem1Date: 'March 2026',
+                    newsItem1Image: null,
+                    newsItem2Title: 'Engineering Program Earns National Recognition',
+                    newsItem2Date: 'February 2026',
+                    newsItem2Image: null,
+                    ctaLinkText: 'All News',
+                    totalSlides: 3,
+                    activeSlide: 2
+                },
+                colors: { background: 'white' }
+            },
+            {
                 type: 'brand-story',
                 content: {
                     backgroundImage: 'https://images.unsplash.com/photo-1562774053-701939374585?w=1200&q=80',
@@ -162,7 +236,7 @@ const pageTemplates = [
         id: 'about-troy',
         name: 'About Troy',
         description: 'Institutional brand story',
-        sectionCount: 4,
+        sectionCount: 6,
         sections: [
             {
                 type: 'hero',
@@ -186,6 +260,29 @@ const pageTemplates = [
                 }
             },
             {
+                type: 'content-spotlight',
+                content: {
+                    variant: 'content-left',
+                    headline: 'A Truly Global University',
+                    body: 'With students from over 65 countries and partnerships spanning the globe, TROY brings the world to Alabama—and Alabama to the world. Our international presence creates a diverse, inclusive community that prepares students for global citizenship.',
+                    ctaText: 'Global Initiatives',
+                    image: null,
+                    stat1Number: '65+',
+                    stat1Label: 'Countries Represented',
+                    stat2Number: '4',
+                    stat2Label: 'Alabama Campuses',
+                    stat3Number: '60+',
+                    stat3Label: 'International Sites',
+                    stat4Number: '15,000+',
+                    stat4Label: 'Students Worldwide',
+                    stat5Number: '100+',
+                    stat5Label: 'Study Abroad Programs',
+                    stat6Number: '1990s',
+                    stat6Label: 'Online Education Pioneer'
+                },
+                colors: { background: 'white' }
+            },
+            {
                 type: 'statistics',
                 content: {
                     headline: 'Real Numbers.\nReal Impact.',
@@ -204,6 +301,29 @@ const pageTemplates = [
                     stat4Description: 'Top school for veterans'
                 },
                 colors: { background: 'sand' }
+            },
+            {
+                type: 'split-layout',
+                content: {
+                    variant: 'content-right',
+                    headline: 'Join Us for Homecoming 2026',
+                    body: 'Celebrate Troy traditions with fellow Trojans! Homecoming brings together alumni, students, and friends for a weekend of spirit, football, and unforgettable memories. Come home to Troy.',
+                    detailLabel1: 'Save the Date',
+                    detailValue1: 'October 15-18, 2026',
+                    detailLabel2: 'Location',
+                    detailValue2: 'Troy Campus, Alabama',
+                    ctaText: 'REGISTER NOW',
+                    image: null
+                },
+                visibility: {
+                    stat1Number: false, stat1Label: false,
+                    stat2Number: false, stat2Label: false,
+                    stat3Number: false, stat3Label: false,
+                    stat4Number: false, stat4Label: false,
+                    stat5Number: false, stat5Label: false,
+                    stat6Number: false, stat6Label: false
+                },
+                colors: { background: 'cardinal' }
             },
             {
                 type: 'final-cta',
