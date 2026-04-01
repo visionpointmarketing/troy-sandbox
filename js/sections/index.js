@@ -5,6 +5,7 @@
 
 import hero from './hero.js';
 import programHero from './program-hero.js';
+import inPageNav from './in-page-nav.js';
 import statistics from './statistics.js';
 import academicExcellence from './academic-excellence.js';
 import latestStories from './latest-stories.js';
@@ -18,6 +19,7 @@ import contentSpotlight from './content-spotlight.js';
 const templates = [
     hero,
     programHero,
+    inPageNav,
     statistics,
     academicExcellence,
     latestStories,

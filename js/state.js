@@ -154,6 +154,11 @@ const state = {
             section.visibility.link6Text = false;
         }
 
+        // Hide nav item 8 by default for in-page-nav
+        if (type === 'in-page-nav') {
+            section.visibility.navItem8 = false;
+        }
+
         this.sections.push(section);
         this._saveToHistory();
         this._notifyChange();

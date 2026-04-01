@@ -187,7 +187,8 @@ export function getDefaultColors(sectionType) {
         'promo-carousel': { background: 'black' },
         'split-layout': { background: 'black' },
         'content-spotlight': { background: 'sand' },
-        'program-hero': { background: 'cardinal-halftone' }
+        'program-hero': { background: 'cardinal-halftone' },
+        'in-page-nav': { background: 'white' }
     };
 
     return defaults[sectionType] || { background: 'white' };
