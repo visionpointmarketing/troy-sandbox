@@ -104,6 +104,20 @@ const state = {
             section.visibility.quoteAuthor = false;
             section.visibility.quoteTitle = false;
             section.visibility.quoteCredential = false;
+            // Hide FAQ accordion by default for content-spotlight
+            section.visibility.faqTitle = false;
+            section.visibility.faq1Question = false;
+            section.visibility.faq1Answer = false;
+            section.visibility.faq2Question = false;
+            section.visibility.faq2Answer = false;
+            section.visibility.faq3Question = false;
+            section.visibility.faq3Answer = false;
+            section.visibility.faq4Question = false;
+            section.visibility.faq4Answer = false;
+            section.visibility.faq5Question = false;
+            section.visibility.faq5Answer = false;
+            section.visibility.faq6Question = false;
+            section.visibility.faq6Answer = false;
         }
 
         // Hide button links and stacked links by default for split-layout
