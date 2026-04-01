@@ -159,6 +159,13 @@ const state = {
             section.visibility.navItem8 = false;
         }
 
+        // Hide categories by default for latest-stories
+        if (type === 'latest-stories') {
+            section.visibility.story1Category = false;
+            section.visibility.story2Category = false;
+            section.visibility.story3Category = false;
+        }
+
         this.sections.push(section);
         this._saveToHistory();
         this._notifyChange();
