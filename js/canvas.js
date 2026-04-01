@@ -423,7 +423,8 @@ const VARIANT_OPTIONS = {
         field: 'variant',
         options: [
             { key: 'content-left', label: 'Content Left' },
-            { key: 'content-right', label: 'Content Right' }
+            { key: 'content-right', label: 'Content Right' },
+            { key: 'content-both', label: 'Content Both' }
         ]
     },
     'academic-excellence': {

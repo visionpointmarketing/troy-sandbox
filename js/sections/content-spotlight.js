@@ -1,7 +1,7 @@
 /**
  * TROY Sandbox — Content Spotlight Section
  * 50/50 content and image split with optional stats grid
- * Supports content-left and content-right variants
+ * Supports content-left, content-right, and content-both variants
  */
 
 import { escapeHtml, renderIfVisible, imageSlot } from '../utils.js';
@@ -73,6 +73,9 @@ export default {
         body: 'Your home away from home has so much to offer. From championship athletics to world-class performances, diverse dining to global connections, Troy University provides the complete college experience.',
         ctaText: 'Learn More',
         image: null,
+        // Right column content (for content-both variant)
+        headline2: 'Specialize in High-Demand Areas',
+        body2: 'TROY\'s graduate degree is designed to meet the demands of a rapidly evolving industry — and the careers that come with it.',
         // Stats (hidden by default via visibility)
         stat1Number: '16',
         stat1Label: 'DI Athletic Teams',
@@ -94,10 +97,12 @@ export default {
     },
 
     fields: [
-        { key: 'variant', label: 'Layout', type: 'select', options: ['content-left', 'content-right'] },
+        { key: 'variant', label: 'Layout', type: 'select', options: ['content-left', 'content-right', 'content-both'] },
         { key: 'headline', label: 'Headline', type: 'text' },
         { key: 'body', label: 'Body', type: 'textarea' },
         { key: 'ctaText', label: 'CTA Button', type: 'text' },
+        { key: 'headline2', label: 'Right Headline', type: 'text' },
+        { key: 'body2', label: 'Right Body', type: 'textarea' },
         { key: 'stat1Number', label: 'Stat 1 Number', type: 'text' },
         { key: 'stat1Label', label: 'Stat 1 Label', type: 'text' },
         { key: 'stat2Number', label: 'Stat 2 Number', type: 'text' },
@@ -143,7 +148,10 @@ export default {
             `;
         }
 
-        // Content column (no padding needed - container handles spacing)
+        // Check if content-both variant
+        const isContentBoth = content.variant === 'content-both';
+
+        // Content column (left side) - no CTA when content-both (CTA moves to right column)
         const contentCol = `
             <div class="flex flex-col justify-center">
                 ${renderIfVisible(visibility, 'headline', `
@@ -160,6 +168,34 @@ export default {
                         class="body-text ${textClass} mb-6"
                     >${escapeHtml(content.body)}</p>
                 `)}
+                ${!isContentBoth ? renderIfVisible(visibility, 'ctaText', `
+                    <a
+                        contenteditable="true"
+                        data-field="ctaText"
+                        class="${ctaClass} cursor-text self-start mb-4"
+                    >${escapeHtml(content.ctaText)}</a>
+                `) : ''}
+                ${statsGrid}
+            </div>
+        `;
+
+        // Second content column (for content-both variant)
+        const contentCol2 = `
+            <div class="flex flex-col justify-center">
+                ${renderIfVisible(visibility, 'headline2', `
+                    <h2
+                        contenteditable="true"
+                        data-field="headline2"
+                        class="section-title ${textClass} mb-6"
+                    >${escapeHtml(content.headline2)}</h2>
+                `)}
+                ${renderIfVisible(visibility, 'body2', `
+                    <p
+                        contenteditable="true"
+                        data-field="body2"
+                        class="body-text ${textClass} mb-6"
+                    >${escapeHtml(content.body2)}</p>
+                `)}
                 ${renderIfVisible(visibility, 'ctaText', `
                     <a
                         contenteditable="true"
@@ -167,7 +203,6 @@ export default {
                         class="${ctaClass} cursor-text self-start mb-4"
                     >${escapeHtml(content.ctaText)}</a>
                 `)}
-                ${statsGrid}
             </div>
         `;
 
@@ -179,9 +214,15 @@ export default {
         `;
 
         // Order based on variant
-        const isContentRight = content.variant === 'content-right';
-        const firstCol = isContentRight ? imageCol : contentCol;
-        const secondCol = isContentRight ? contentCol : imageCol;
+        let firstCol, secondCol;
+        if (isContentBoth) {
+            firstCol = contentCol;
+            secondCol = contentCol2;
+        } else {
+            const isContentRight = content.variant === 'content-right';
+            firstCol = isContentRight ? imageCol : contentCol;
+            secondCol = isContentRight ? contentCol : imageCol;
+        }
 
         // Quote block (appears below the two-column grid, contained width)
         const quoteBlock = hasVisibleQuote(visibility) ? `
@@ -248,12 +289,23 @@ export default {
             }
         }
 
-        // Content column (no padding needed - container handles spacing)
+        // Check if content-both variant
+        const isContentBoth = content.variant === 'content-both';
+
+        // Content column (left side) - no CTA when content-both (CTA moves to right column)
         const contentCol = `
         <div class="flex flex-col justify-center">
             ${visibility.headline !== false ? `<h2 class="section-title ${textClass} mb-6">${escapeHtml(content.headline)}</h2>` : ''}
             ${visibility.body !== false ? `<p class="body-text ${textClass} mb-6">${escapeHtml(content.body)}</p>` : ''}
-            ${visibility.ctaText !== false ? `<a href="#" class="${ctaClass} self-start mb-4">${escapeHtml(content.ctaText)}</a>` : ''}${statsGrid}
+            ${!isContentBoth && visibility.ctaText !== false ? `<a href="#" class="${ctaClass} self-start mb-4">${escapeHtml(content.ctaText)}</a>` : ''}${statsGrid}
+        </div>`;
+
+        // Second content column (for content-both variant)
+        const contentCol2 = `
+        <div class="flex flex-col justify-center">
+            ${visibility.headline2 !== false ? `<h2 class="section-title ${textClass} mb-6">${escapeHtml(content.headline2)}</h2>` : ''}
+            ${visibility.body2 !== false ? `<p class="body-text ${textClass} mb-6">${escapeHtml(content.body2)}</p>` : ''}
+            ${visibility.ctaText !== false ? `<a href="#" class="${ctaClass} self-start mb-4">${escapeHtml(content.ctaText)}</a>` : ''}
         </div>`;
 
         // Image column (contained with aspect ratio)
@@ -266,9 +318,15 @@ export default {
         </div>`;
 
         // Order based on variant
-        const isContentRight = content.variant === 'content-right';
-        const firstCol = isContentRight ? imageCol : contentCol;
-        const secondCol = isContentRight ? contentCol : imageCol;
+        let firstCol, secondCol;
+        if (isContentBoth) {
+            firstCol = contentCol;
+            secondCol = contentCol2;
+        } else {
+            const isContentRight = content.variant === 'content-right';
+            firstCol = isContentRight ? imageCol : contentCol;
+            secondCol = isContentRight ? contentCol : imageCol;
+        }
 
         // Quote block markup (appears below the two-column grid, contained width)
         let quoteBlockMarkup = '';
