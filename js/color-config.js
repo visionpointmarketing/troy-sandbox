@@ -186,7 +186,8 @@ export function getDefaultColors(sectionType) {
         'latest-stories': { background: 'sand' },
         'promo-carousel': { background: 'black' },
         'split-layout': { background: 'black' },
-        'content-spotlight': { background: 'sand' }
+        'content-spotlight': { background: 'sand' },
+        'program-hero': { background: 'cardinal-halftone' }
     };
 
     return defaults[sectionType] || { background: 'white' };

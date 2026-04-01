@@ -4,6 +4,7 @@
  */
 
 import hero from './hero.js';
+import programHero from './program-hero.js';
 import statistics from './statistics.js';
 import academicExcellence from './academic-excellence.js';
 import latestStories from './latest-stories.js';
@@ -16,6 +17,7 @@ import contentSpotlight from './content-spotlight.js';
 // All section templates
 const templates = [
     hero,
+    programHero,
     statistics,
     academicExcellence,
     latestStories,

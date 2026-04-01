@@ -640,6 +640,73 @@
     color: #6b7280;
 }
 
+/* Saved Template Card Wrapper */
+.saved-template-card {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+}
+
+.saved-template-card .template-card {
+    flex: 1;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.saved-template-card .template-card.saved {
+    background: #fef3c7;
+    border-color: #f59e0b;
+}
+
+.saved-template-card .template-card.saved:hover {
+    background: #fde68a;
+}
+
+.template-card-badge.saved {
+    background: #f59e0b;
+}
+
+/* Delete button for saved templates */
+.saved-template-delete {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-left: none;
+    border-radius: 0 6px 6px 0;
+    cursor: pointer;
+    color: #9ca3af;
+    transition: all 0.15s ease;
+    opacity: 0;
+}
+
+.saved-template-card:hover .saved-template-delete {
+    opacity: 1;
+}
+
+.saved-template-delete:hover {
+    background: #fee2e2;
+    border-color: #fca5a5;
+    color: #dc2626;
+}
+
+.saved-template-delete svg {
+    stroke: currentColor;
+}
+
+/* Save Template Modal Styles */
+#save-template-modal input.error {
+    border-color: #dc2626;
+}
+
+#save-template-modal input:focus {
+    outline: none;
+    border-color: #910039;
+    box-shadow: 0 0 0 1px #910039;
+}
+
 /* ============================================
    Design Rules Status Bar
    ============================================ */

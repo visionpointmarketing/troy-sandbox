@@ -8,6 +8,7 @@ import { initCanvas, render } from './canvas.js';
 import { initUI, updateDesignStatus } from './ui.js';
 import { initImageStore } from './image-store.js';
 import { initImageModal } from './image-upload-modal.js';
+import { initSaveTemplateModal } from './save-template-modal.js';
 import { initPreviewIframe, setStaticContent, updatePreviewContent } from './preview-iframe.js';
 import { getTemplateMap } from './sections/index.js';
 
@@ -47,6 +48,9 @@ async function init() {
 
         // Initialize image upload modal
         initImageModal();
+
+        // Initialize save template modal
+        initSaveTemplateModal();
 
         // Load static header/footer
         await loadStaticContent();

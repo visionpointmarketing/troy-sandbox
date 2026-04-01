@@ -10,6 +10,8 @@ import { getAllImages, storeImage, clearAllImages } from './image-store.js';
 import { setViewportMode, updatePreviewContent } from './preview-iframe.js';
 import { getAllPageTemplates, getPageTemplate } from './page-templates.js';
 import { validateDesignRules, getStatusMessage } from './design-rules.js';
+import { getSavedTemplates, getSavedTemplate, saveTemplate, deleteTemplate } from './template-storage.js';
+import { openSaveTemplateModal } from './save-template-modal.js';
 
 /**
  * Initialize UI components
@@ -123,13 +125,16 @@ function initTemplateDropdown() {
     const templatePopover = document.getElementById('template-popover');
     const templateList = document.getElementById('template-list');
     const templateClose = document.getElementById('template-close');
+    const saveCurrentBtn = document.getElementById('save-current-template-btn');
+    const savedTemplatesSection = document.getElementById('saved-templates-section');
+    const savedTemplateList = document.getElementById('saved-template-list');
 
     if (!templatesBtn || !templatePopover || !templateList) return;
 
     const pageTemplates = getAllPageTemplates();
     const sectionTemplates = getTemplateMap();
 
-    // Populate template list
+    // Populate preset template list
     templateList.innerHTML = pageTemplates.map(template => `
         <button class="template-card" data-template-id="${template.id}">
             <div class="template-card-header">
@@ -140,12 +145,55 @@ function initTemplateDropdown() {
         </button>
     `).join('');
 
+    /**
+     * Render saved templates list
+     */
+    function renderSavedTemplates() {
+        const savedTemplates = getSavedTemplates();
+
+        if (savedTemplates.length === 0) {
+            savedTemplatesSection.classList.add('hidden');
+            return;
+        }
+
+        savedTemplatesSection.classList.remove('hidden');
+        savedTemplateList.innerHTML = savedTemplates.map(template => `
+            <div class="saved-template-card" data-saved-template-id="${template.id}">
+                <button class="template-card saved">
+                    <div class="template-card-header">
+                        <span class="template-card-name">${escapeHtml(template.name)}</span>
+                        <span class="template-card-badge saved">${template.sectionCount} sections</span>
+                    </div>
+                </button>
+                <button class="saved-template-delete" data-delete-id="${template.id}" title="Delete template">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"/>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                    </svg>
+                </button>
+            </div>
+        `).join('');
+    }
+
+    // Escape HTML for safe rendering
+    function escapeHtml(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
+    // Initial render of saved templates
+    renderSavedTemplates();
+
     // Toggle popover
     templatesBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         const isHidden = templatePopover.classList.contains('hidden');
 
         if (isHidden) {
+            // Refresh saved templates list when opening
+            renderSavedTemplates();
+
             // Position popover below button
             const btnRect = templatesBtn.getBoundingClientRect();
             const toolbarRect = templatesBtn.closest('#toolbar').getBoundingClientRect();
@@ -169,7 +217,70 @@ function initTemplateDropdown() {
         });
     }
 
-    // Handle template selection
+    // Save Current Page button
+    if (saveCurrentBtn) {
+        saveCurrentBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+
+            const currentSections = state.getSections();
+            if (currentSections.length === 0) {
+                alert('Please add at least one section before saving.');
+                return;
+            }
+
+            openSaveTemplateModal((name) => {
+                const saved = saveTemplate(name, currentSections);
+                if (saved) {
+                    renderSavedTemplates();
+                }
+            });
+        });
+    }
+
+    // Handle saved template selection and deletion
+    if (savedTemplateList) {
+        savedTemplateList.addEventListener('click', (e) => {
+            // Handle delete button
+            const deleteBtn = e.target.closest('.saved-template-delete');
+            if (deleteBtn) {
+                e.stopPropagation();
+                const templateId = deleteBtn.dataset.deleteId;
+                const template = getSavedTemplate(templateId);
+                if (template && confirm(`Delete "${template.name}"?`)) {
+                    deleteTemplate(templateId);
+                    renderSavedTemplates();
+                }
+                return;
+            }
+
+            // Handle template card click
+            const card = e.target.closest('.saved-template-card');
+            if (!card) return;
+
+            const templateId = card.dataset.savedTemplateId;
+            const template = getSavedTemplate(templateId);
+
+            if (!template) return;
+
+            // Check if there are existing sections
+            const currentSections = state.getSections();
+            if (currentSections.length > 0) {
+                const confirmed = confirm(
+                    `Loading "${template.name}" will replace your current ${currentSections.length} section(s). Continue?`
+                );
+                if (!confirmed) return;
+            }
+
+            // Load the saved template
+            state.loadTemplate(template.sections, sectionTemplates);
+
+            // Close popover
+            templatePopover.classList.add('hidden');
+            templatesBtn.classList.remove('active');
+        });
+    }
+
+    // Handle preset template selection
     templateList.addEventListener('click', (e) => {
         const card = e.target.closest('.template-card');
         if (!card) return;
