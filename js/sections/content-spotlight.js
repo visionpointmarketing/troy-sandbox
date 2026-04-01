@@ -76,6 +76,38 @@ function hasVisibleFaqs(visibility) {
 }
 
 /**
+ * Check if any helpful links are visible
+ */
+function hasVisibleHelpfulLinks(visibility) {
+    if (visibility.helpfulLinksTitle !== false) return true;
+    for (let i = 1; i <= 6; i++) {
+        if (visibility[`helpfulLink${i}`] !== false) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * Render a single helpful link item
+ */
+function renderHelpfulLink(content, visibility, linkKey, isDark) {
+    if (visibility[linkKey] === false) return '';
+
+    // Styling based on background - consistent border all around
+    const cardBg = isDark ? 'bg-white/10' : 'bg-sand';
+    const borderClass = isDark ? 'border border-white/30' : 'border border-black/20';
+    const linkTextClass = isDark ? 'text-white underline' : 'text-[#1e4785] underline';
+
+    return `
+        <a contenteditable="true" data-field="${linkKey}"
+           class="${cardBg} ${borderClass} px-6 py-4 block cursor-text">
+            <span class="${linkTextClass}">${escapeHtml(content[linkKey])}</span>
+        </a>
+    `;
+}
+
+/**
  * Render a single FAQ item
  */
 function renderFaqItem(content, visibility, questionKey, answerKey, textClass, isDark) {
@@ -157,7 +189,15 @@ export default {
         faq5Question: 'Is a master\'s in computer science worth it?',
         faq5Answer: 'A master\'s degree opens doors to senior roles, higher salaries, and specialized positions in the tech industry.',
         faq6Question: 'What research opportunities are available?',
-        faq6Answer: 'TROY offers research opportunities in AI, machine learning, cybersecurity, and data analytics with experienced faculty mentors.'
+        faq6Answer: 'TROY offers research opportunities in AI, machine learning, cybersecurity, and data analytics with experienced faculty mentors.',
+        // Helpful Links section (hidden by default via visibility)
+        helpfulLinksTitle: 'Helpful Links',
+        helpfulLink1: 'Scholarships',
+        helpfulLink2: 'Student Success Center',
+        helpfulLink3: 'Admissions',
+        helpfulLink4: 'Libraries',
+        helpfulLink5: 'Academic Programs',
+        helpfulLink6: 'Financial Aid'
     },
 
     fields: [
@@ -195,7 +235,14 @@ export default {
         { key: 'faq5Question', label: 'FAQ 5 Question', type: 'text' },
         { key: 'faq5Answer', label: 'FAQ 5 Answer', type: 'textarea' },
         { key: 'faq6Question', label: 'FAQ 6 Question', type: 'text' },
-        { key: 'faq6Answer', label: 'FAQ 6 Answer', type: 'textarea' }
+        { key: 'faq6Answer', label: 'FAQ 6 Answer', type: 'textarea' },
+        { key: 'helpfulLinksTitle', label: 'Helpful Links Title', type: 'text' },
+        { key: 'helpfulLink1', label: 'Helpful Link 1', type: 'text' },
+        { key: 'helpfulLink2', label: 'Helpful Link 2', type: 'text' },
+        { key: 'helpfulLink3', label: 'Helpful Link 3', type: 'text' },
+        { key: 'helpfulLink4', label: 'Helpful Link 4', type: 'text' },
+        { key: 'helpfulLink5', label: 'Helpful Link 5', type: 'text' },
+        { key: 'helpfulLink6', label: 'Helpful Link 6', type: 'text' }
     ],
 
     render(content, visibility, colors = {}) {
@@ -337,6 +384,24 @@ export default {
             </div>
         ` : '';
 
+        // Helpful Links section (appears below FAQ, contained width)
+        const helpfulLinksSection = hasVisibleHelpfulLinks(visibility) ? `
+            <div class="mt-12">
+                ${renderIfVisible(visibility, 'helpfulLinksTitle', `
+                    <h3 contenteditable="true" data-field="helpfulLinksTitle"
+                        class="text-2xl lg:text-3xl font-bold ${textClass} mb-6">${escapeHtml(content.helpfulLinksTitle)}</h3>
+                `)}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    ${renderHelpfulLink(content, visibility, 'helpfulLink1', isDark)}
+                    ${renderHelpfulLink(content, visibility, 'helpfulLink2', isDark)}
+                    ${renderHelpfulLink(content, visibility, 'helpfulLink3', isDark)}
+                    ${renderHelpfulLink(content, visibility, 'helpfulLink4', isDark)}
+                    ${renderHelpfulLink(content, visibility, 'helpfulLink5', isDark)}
+                    ${renderHelpfulLink(content, visibility, 'helpfulLink6', isDark)}
+                </div>
+            </div>
+        ` : '';
+
         return `
             <section class="${bgClass} py-24">
                 <div class="container mx-auto px-8">
@@ -346,6 +411,7 @@ export default {
                     </div>
                     ${quoteBlock}
                     ${faqSection}
+                    ${helpfulLinksSection}
                 </div>
             </section>
         `;
@@ -484,13 +550,40 @@ export default {
             }
         }
 
+        // Helpful Links markup (appears below FAQ)
+        let helpfulLinksMarkup = '';
+        if (hasVisibleHelpfulLinks(visibility)) {
+            // Styling based on background - consistent border all around
+            const cardBg = isDark ? 'bg-white/10' : 'bg-sand';
+            const borderClass = isDark ? 'border border-white/30' : 'border border-black/20';
+            const linkTextClass = isDark ? 'text-white underline' : 'text-[#1e4785] underline';
+
+            let linksHtml = '';
+            for (let i = 1; i <= 6; i++) {
+                if (visibility[`helpfulLink${i}`] !== false) {
+                    linksHtml += `
+                <a href="#" class="${cardBg} ${borderClass} px-6 py-4 block">
+                    <span class="${linkTextClass}">${escapeHtml(content[`helpfulLink${i}`])}</span>
+                </a>`;
+                }
+            }
+            if (linksHtml || visibility.helpfulLinksTitle !== false) {
+                helpfulLinksMarkup = `
+        <div class="mt-12">
+            ${visibility.helpfulLinksTitle !== false ? `<h3 class="text-2xl lg:text-3xl font-bold ${textClass} mb-6">${escapeHtml(content.helpfulLinksTitle)}</h3>` : ''}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">${linksHtml}
+            </div>
+        </div>`;
+            }
+        }
+
         return `
 <section class="${bgClass} py-24">
     <div class="container mx-auto px-8">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             ${firstCol}
             ${secondCol}
-        </div>${quoteBlockMarkup}${faqSectionMarkup}
+        </div>${quoteBlockMarkup}${faqSectionMarkup}${helpfulLinksMarkup}
     </div>
 </section>`.trim();
     }

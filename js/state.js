@@ -118,6 +118,14 @@ const state = {
             section.visibility.faq5Answer = false;
             section.visibility.faq6Question = false;
             section.visibility.faq6Answer = false;
+            // Hide Helpful Links by default for content-spotlight
+            section.visibility.helpfulLinksTitle = false;
+            section.visibility.helpfulLink1 = false;
+            section.visibility.helpfulLink2 = false;
+            section.visibility.helpfulLink3 = false;
+            section.visibility.helpfulLink4 = false;
+            section.visibility.helpfulLink5 = false;
+            section.visibility.helpfulLink6 = false;
         }
 
         // Hide button links and stacked links by default for split-layout
