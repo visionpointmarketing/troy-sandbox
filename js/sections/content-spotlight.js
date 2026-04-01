@@ -51,6 +51,16 @@ function hasVisibleStats(visibility) {
     return false;
 }
 
+/**
+ * Check if quote block should be visible
+ */
+function hasVisibleQuote(visibility) {
+    return visibility.quoteText !== false ||
+           visibility.quoteAuthor !== false ||
+           visibility.quoteTitle !== false ||
+           visibility.quoteCredential !== false;
+}
+
 export default {
     type: 'content-spotlight',
     name: 'Content Spotlight',
@@ -75,7 +85,12 @@ export default {
         stat5Number: '$1,250',
         stat5Label: 'Scholarships to Study Abroad',
         stat6Number: '78k+',
-        stat6Label: 'Square-Foot Recreational Facility'
+        stat6Label: 'Square-Foot Recreational Facility',
+        // Quote block (hidden by default via visibility)
+        quoteText: '"The Computer Science program at TROY provided me with a solid foundation in both theory and practice. The faculty\'s industry experience and the hands-on projects prepared me well for my career in software development."',
+        quoteAuthor: 'Sunny Sharma',
+        quoteTitle: 'Principal Engineer, Charter Communications',
+        quoteCredential: '2014 graduate, M.S. in Computer Science'
     },
 
     fields: [
@@ -94,7 +109,11 @@ export default {
         { key: 'stat5Number', label: 'Stat 5 Number', type: 'text' },
         { key: 'stat5Label', label: 'Stat 5 Label', type: 'text' },
         { key: 'stat6Number', label: 'Stat 6 Number', type: 'text' },
-        { key: 'stat6Label', label: 'Stat 6 Label', type: 'text' }
+        { key: 'stat6Label', label: 'Stat 6 Label', type: 'text' },
+        { key: 'quoteText', label: 'Quote Text', type: 'textarea' },
+        { key: 'quoteAuthor', label: 'Quote Author', type: 'text' },
+        { key: 'quoteTitle', label: 'Quote Title', type: 'text' },
+        { key: 'quoteCredential', label: 'Quote Credential', type: 'text' }
     ],
 
     render(content, visibility, colors = {}) {
@@ -164,6 +183,24 @@ export default {
         const firstCol = isContentRight ? imageCol : contentCol;
         const secondCol = isContentRight ? contentCol : imageCol;
 
+        // Quote block (appears below the two-column grid, contained width)
+        const quoteBlock = hasVisibleQuote(visibility) ? `
+            <div class="bg-[#1a1a1a] py-12 mt-12 text-center">
+                <!-- Decorative quote line -->
+                <div class="flex items-center justify-center gap-4 mb-6">
+                    <div class="w-24 h-px bg-white/50"></div>
+                    <span class="text-white text-3xl font-serif">"</span>
+                    <div class="w-24 h-px bg-white/50"></div>
+                </div>
+                ${renderIfVisible(visibility, 'quoteText', `
+                    <p contenteditable="true" data-field="quoteText" class="text-white text-lg lg:text-xl italic max-w-4xl mx-auto mb-6">${escapeHtml(content.quoteText)}</p>
+                `)}
+                <div class="text-white text-sm">
+                    ${renderIfVisible(visibility, 'quoteAuthor', `<span contenteditable="true" data-field="quoteAuthor" class="font-bold">${escapeHtml(content.quoteAuthor)}</span>`)}${visibility.quoteAuthor !== false && visibility.quoteTitle !== false ? '<span class="mx-2">|</span>' : ''}${renderIfVisible(visibility, 'quoteTitle', `<span contenteditable="true" data-field="quoteTitle">${escapeHtml(content.quoteTitle)}</span>`)}${(visibility.quoteTitle !== false || visibility.quoteAuthor !== false) && visibility.quoteCredential !== false ? '<span class="mx-2">|</span>' : ''}${renderIfVisible(visibility, 'quoteCredential', `<span contenteditable="true" data-field="quoteCredential">${escapeHtml(content.quoteCredential)}</span>`)}
+                </div>
+            </div>
+        ` : '';
+
         return `
             <section class="${bgClass} py-24">
                 <div class="container mx-auto px-8">
@@ -171,6 +208,7 @@ export default {
                         ${firstCol}
                         ${secondCol}
                     </div>
+                    ${quoteBlock}
                 </div>
             </section>
         `;
@@ -232,13 +270,37 @@ export default {
         const firstCol = isContentRight ? imageCol : contentCol;
         const secondCol = isContentRight ? contentCol : imageCol;
 
+        // Quote block markup (appears below the two-column grid, contained width)
+        let quoteBlockMarkup = '';
+        if (hasVisibleQuote(visibility)) {
+            const showAuthor = visibility.quoteAuthor !== false;
+            const showTitle = visibility.quoteTitle !== false;
+            const showCredential = visibility.quoteCredential !== false;
+
+            let attributionParts = [];
+            if (showAuthor) attributionParts.push(`<span class="font-bold">${escapeHtml(content.quoteAuthor)}</span>`);
+            if (showTitle) attributionParts.push(`<span>${escapeHtml(content.quoteTitle)}</span>`);
+            if (showCredential) attributionParts.push(`<span>${escapeHtml(content.quoteCredential)}</span>`);
+
+            quoteBlockMarkup = `
+        <div class="bg-[#1a1a1a] py-12 mt-12 text-center">
+            <div class="flex items-center justify-center gap-4 mb-6">
+                <div class="w-24 h-px bg-white/50"></div>
+                <span class="text-white text-3xl font-serif">"</span>
+                <div class="w-24 h-px bg-white/50"></div>
+            </div>
+            ${visibility.quoteText !== false ? `<p class="text-white text-lg lg:text-xl italic max-w-4xl mx-auto mb-6">${escapeHtml(content.quoteText)}</p>` : ''}
+            ${attributionParts.length > 0 ? `<div class="text-white text-sm">${attributionParts.join('<span class="mx-2">|</span>')}</div>` : ''}
+        </div>`;
+        }
+
         return `
 <section class="${bgClass} py-24">
     <div class="container mx-auto px-8">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             ${firstCol}
             ${secondCol}
-        </div>
+        </div>${quoteBlockMarkup}
     </div>
 </section>`.trim();
     }

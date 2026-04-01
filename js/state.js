@@ -98,6 +98,14 @@ const state = {
             section.visibility.stat6Label = false;
         }
 
+        // Hide quote block by default for content-spotlight
+        if (type === 'content-spotlight') {
+            section.visibility.quoteText = false;
+            section.visibility.quoteAuthor = false;
+            section.visibility.quoteTitle = false;
+            section.visibility.quoteCredential = false;
+        }
+
         // Hide button links and stacked links by default for split-layout
         if (type === 'split-layout') {
             section.visibility.buttonLink1 = false;
