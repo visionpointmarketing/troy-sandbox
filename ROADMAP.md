@@ -12,7 +12,7 @@ This document tracks implementation progress with detailed checkpoints and testi
 - [x] Create folder at `/Users/breonwilliams/Sites/troy-sandbox`
 - [x] Create `CLAUDE.md` - Project context and architecture
 - [x] Create `ROADMAP.md` - This file
-- [x] Create `SECTIONS.md` - Specification for all 6 sections
+- [x] Create `SECTIONS.md` - Specification for all 11 sections
 
 ---
 
@@ -116,7 +116,7 @@ This document tracks implementation progress with detailed checkpoints and testi
 ## Phase 5: Remaining Sections ✅
 **Status:** Complete
 
-**Goal:** Complete all 6 section types
+**Goal:** Complete all 11 section types
 
 ### Tasks
 - [x] Create `js/sections/statistics.js`
@@ -124,6 +124,11 @@ This document tracks implementation progress with detailed checkpoints and testi
 - [x] Create `js/sections/latest-stories.js`
 - [x] Create `js/sections/brand-story.js`
 - [x] Create `js/sections/final-cta.js`
+- [x] Create `js/sections/program-hero.js`
+- [x] Create `js/sections/promo-carousel.js`
+- [x] Create `js/sections/split-layout.js`
+- [x] Create `js/sections/content-spotlight.js`
+- [x] Create `js/sections/in-page-nav.js`
 - [x] Add all sections to registry
 
 ### Test Criteria (per section)
@@ -295,11 +300,16 @@ Final CTA:
 To verify the implementation:
 
 1. Open `index.html` in a browser (via local server)
-2. Add each of the 6 section types
+2. Add each of the 11 section types
 3. Edit text inline
 4. Upload images
 5. Drag sections to reorder
 6. Toggle field visibility
-7. Export to JSON
-8. Import the JSON file
-9. Verify all content restored correctly
+7. Test background color picker
+8. Verify design rules validation
+9. Load preset templates
+10. Save and load custom templates
+11. Test responsive preview (desktop/tablet/mobile)
+12. Export to JSON
+13. Import the JSON file
+14. Verify all content restored correctly

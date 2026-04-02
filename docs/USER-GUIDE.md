@@ -61,6 +61,15 @@ Full-width opening section with a dramatic background image.
 - **Key fields**: Background image, headline, body text, two CTA buttons
 - **Tip**: Headlines support line breaks—press Enter to create multi-line text
 
+### Program Hero
+
+Program landing page hero with info box and quick links.
+
+- **Best for**: Program landing pages, degree pages, academic department pages
+- **Key fields**: Program name, two CTAs, note text, degree type, phone, deadline, quick links
+- **Default background**: Cardinal halftone
+- **Tip**: Use the quick links section to provide direct access to degree maps and catalog pages
+
 ### Statistics
 
 Display key numbers and metrics in a grid layout.
@@ -123,7 +132,17 @@ Similar to Split Layout with an integrated stats grid.
 
 - **Best for**: Campus life highlights, program features, data-driven stories
 - **Key fields**: Headline, body, CTA, image, up to 6 stat cards
-- **Layout options**: Content left or content right
+- **Layout options**: Content left, content right, or content both (two text columns)
+- **Optional features**: Quote block, FAQ accordion (up to 6 Q&As), helpful links section
+
+### In-Page Navigation
+
+Horizontal navigation bar for anchor links within the page.
+
+- **Best for**: Long-form program pages, multi-section landing pages
+- **Key fields**: Up to 8 navigation items
+- **Tip**: Navigation items automatically generate anchor links from their text
+- **Background**: Supports all background color options
 
 ---
 
