@@ -81,21 +81,21 @@ export default {
                             <div
                                 contenteditable="true"
                                 data-field="${categoryKey}"
-                                class="nav-heading text-cardinal-800 mb-3"
+                                class="nav-heading ${contrast.categoryText} mb-3"
                             >${escapeHtml(category)}</div>
                         ` : ''}
                         ${showTitle ? `
                             <h3
                                 contenteditable="true"
                                 data-field="${titleKey}"
-                                class="news-title text-black mb-4"
+                                class="news-title ${contrast.text} mb-4"
                             >${escapeHtml(title)}</h3>
                         ` : ''}
                         ${showDesc ? `
                             <p
                                 contenteditable="true"
                                 data-field="${descKey}"
-                                class="body-text-small text-black/80"
+                                class="body-text-small ${contrast.textMuted}"
                             >${escapeHtml(desc)}</p>
                         ` : ''}
                     </div>
@@ -173,9 +173,9 @@ export default {
                     ${image ? `<img src="${image}" alt="${escapeHtml(title || 'News story')}" class="w-full h-full object-cover ${grayscale ? 'grayscale' : ''}">` : ''}
                 </div>` : ''}
                 <div class="py-8">
-                    ${showCategory ? `<div class="nav-heading text-cardinal-800 mb-3">${escapeHtml(category)}</div>` : ''}
-                    ${showTitle ? `<h3 class="news-title text-black mb-4">${escapeHtml(title)}</h3>` : ''}
-                    ${showDesc ? `<p class="body-text-small text-black/80">${escapeHtml(desc)}</p>` : ''}
+                    ${showCategory ? `<div class="nav-heading ${contrast.categoryText} mb-3">${escapeHtml(category)}</div>` : ''}
+                    ${showTitle ? `<h3 class="news-title ${contrast.text} mb-4">${escapeHtml(title)}</h3>` : ''}
+                    ${showDesc ? `<p class="body-text-small ${contrast.textMuted}">${escapeHtml(desc)}</p>` : ''}
                 </div>
             </article>`;
         };

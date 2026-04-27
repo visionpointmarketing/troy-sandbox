@@ -3,8 +3,33 @@
  * Manages section state with undo/redo history
  */
 
-import { getDefaultColors } from './color-config.js';
+import { getDefaultColors, migrateColorTokens } from './color-config.js';
 import { deleteImage } from './image-store.js';
+import { showToast } from './utils.js';
+
+// One-shot guard so the migration toast appears at most once per page load,
+// even if a user imports/loads multiple legacy templates in the same session.
+let migrationToastShownThisSession = false;
+
+/**
+ * Apply the color-token migration shim to a sections array (in place) and
+ * surface a one-shot toast if any rewrites occurred. Idempotent.
+ */
+function applyColorMigration(sections) {
+    const rewrites = migrateColorTokens(sections);
+    if (rewrites > 0 && !migrationToastShownThisSession) {
+        migrationToastShownThisSession = true;
+        // Defer to next tick so the toast container can attach to the DOM
+        // even if this fires very early in the page lifecycle.
+        setTimeout(() => {
+            showToast(
+                'Updated section backgrounds to align with the refreshed Troy palette.',
+                { kind: 'info', durationMs: 5000 }
+            );
+        }, 0);
+    }
+    return rewrites;
+}
 
 // Generate unique IDs
 function generateId() {
@@ -42,6 +67,7 @@ const state = {
     init(savedState = null) {
         if (savedState && savedState.sections) {
             this.sections = deepClone(savedState.sections);
+            applyColorMigration(this.sections);
         } else {
             this.sections = [];
         }
@@ -375,6 +401,7 @@ const state = {
         }
 
         this.sections = deepClone(json.sections);
+        applyColorMigration(this.sections);
         this._saveToHistory();
         this._notifyChange();
         return true;
@@ -435,6 +462,7 @@ const state = {
             this.sections.push(section);
         });
 
+        applyColorMigration(this.sections);
         this._saveToHistory();
         this._notifyChange();
     },

@@ -177,15 +177,15 @@ Horizontal navigation bar for anchor links within the page.
 
 ### Background Colors
 
-Click the color swatch on any section to choose from 11 background options:
+Click the color swatch on any section to choose from 8 brand-aligned background options:
 
 | Light Backgrounds | Dark Backgrounds |
 |-------------------|------------------|
 | White | Cardinal |
 | Sand | Cardinal Dark |
-| Sand Dark | Black |
-| Sand Halftone | Cardinal Halftone |
-| Wheat | Cardinal Wheat Halftone |
+| Sand Halftone | Black |
+|  | Cardinal Halftone |
+|  | Cardinal + Wheat Halftone |
 
 ### Layout Variants
 
@@ -209,24 +209,36 @@ Hide specific fields without deleting content:
 
 ## Design Rules
 
-The tool includes soft guidelines based on Troy's brand standards. A status indicator in the toolbar shows your page's compliance.
+The tool includes soft guidelines based on Troy's Web Reskin CSS Ruleset (v2.4). A status indicator in the toolbar shows your page's compliance.
 
 ### The Rules
 
-| Rule | Limit | Why It Matters |
-|------|-------|----------------|
-| Sand backgrounds | Max 2 | Prevents visual monotony |
-| Dark sections | Max 1 (hero exempt) | Maintains balance and readability |
-| Halftone textures | Max 1 | Keeps the design clean |
+The ruleset uses **four visual weight categories** — Cardinal, Black, Sand, and Light (white) — and enforces rhythm across the page.
+
+| Rule | What it does | Why It Matters |
+|------|--------------|----------------|
+| Rhythm | No more than 2 consecutive sections of the same visual weight | Prevents flat or striped layouts |
+| Cardinal → Cardinal | Not allowed | Same emphasis twice in a row reads as repetition |
+| Black → Black | Not allowed | Same emphasis twice in a row reads as repetition |
+| Sand → Sand | Not allowed | Two sand sections back-to-back read as a sand "base" |
+| Cardinal → Black | **Allowed** | Distinct weights — creates visual depth |
+| Max emphasis run | 2 in a row | Cardinal → Black is fine; a third needs a sand or white break |
+| Combined emphasis | ~25–35% of page | Emphasis is impactful when it's not constant |
+| Sand distribution | No hard cap (≤35% recommended) | Sand bridges rhythm; shouldn't dominate |
+| White presence | ~25–35% of page | White is the page's base for clarity |
+| Halftone textures | Max 1 per page | Texture is rare and intentional |
 
 ### Checking Status
 
 - **Green checkmark**: All rules satisfied
-- **Yellow warning**: One or more guidelines exceeded
+- **Yellow warning**: A rule was violated (e.g., consecutive same-weight sections, halftone over-cap)
+- **Yellow info**: A distribution target is off (e.g., emphasis percentage outside 25–35%)
 
-Click the status indicator to see detailed counts and specific warnings.
+Click the status indicator to see detailed counts, percentages, and specific warnings.
 
-**Note**: These are soft warnings—you can proceed even if limits are exceeded, but consider adjusting for optimal design.
+**Note**: These are soft warnings — you can proceed even if limits are exceeded, but consider adjusting for optimal design.
+
+The full canonical rule set lives in the Troy Web Reskin codebase at `reskin-docs/TROY Web Reskin CSS Ruleset.md`. See `docs/DESIGN-RULES.md` for which rules this builder currently enforces and which are deferred.
 
 ---
 

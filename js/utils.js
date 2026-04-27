@@ -160,3 +160,62 @@ export function downloadFile(content, filename, mimeType = 'application/json') {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 }
+
+/**
+ * Show a non-blocking toast notification at the bottom of the screen.
+ * Auto-dismisses after `durationMs`. Multiple toasts stack.
+ *
+ * Used by the color-token migration shim so users see a brief notice when
+ * older saved templates / JSON imports are auto-upgraded to the current
+ * brand palette. Kept dependency-free (no external CSS required).
+ *
+ * @param {string} message
+ * @param {{ durationMs?: number, kind?: 'info'|'success'|'warning' }} [opts]
+ */
+export function showToast(message, opts = {}) {
+    const { durationMs = 4500, kind = 'info' } = opts;
+
+    // Lazy-create the container
+    let container = document.getElementById('toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        Object.assign(container.style, {
+            position: 'fixed',
+            bottom: '16px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '8px',
+            zIndex: '9999',
+            pointerEvents: 'none',
+        });
+        document.body.appendChild(container);
+    }
+
+    const toast = document.createElement('div');
+    toast.textContent = message;
+    Object.assign(toast.style, {
+        background: kind === 'warning' ? '#910039' : '#231F20',
+        color: '#ffffff',
+        padding: '10px 16px',
+        borderRadius: '6px',
+        fontSize: '14px',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.18)',
+        opacity: '0',
+        transition: 'opacity 200ms ease',
+        pointerEvents: 'auto',
+        maxWidth: '480px',
+    });
+    container.appendChild(toast);
+
+    // Animate in
+    requestAnimationFrame(() => { toast.style.opacity = '1'; });
+
+    // Auto-dismiss
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 250);
+    }, durationMs);
+}

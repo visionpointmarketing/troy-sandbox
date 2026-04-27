@@ -2,6 +2,8 @@
 
 This document defines the 11 section types for the TROY Sandbox builder.
 
+> **Note on Tailwind examples below.** The "Tailwind Structure (approximate)" blocks are illustrative sketches from the project's initial design phase and reference earlier color names like `bg-troy-maroon`, `bg-troy-gold`, and `bg-troy-cream`. Those tokens have since been replaced by the canonical Troy brand palette — `cardinal`, `cardinal-dark`, `sand`, `wheat`, `black`, `grey` (see [`js/color-tokens.js`](js/color-tokens.js) and [`docs/DESIGN-RULES.md`](docs/DESIGN-RULES.md) for the source of truth). For current section markup, consult the actual modules in `js/sections/*.js`. This file is preserved for the section-type-and-field reference; the markup samples should be read as approximate flow rather than as production code.
+
 ---
 
 ## 1. Hero Section
@@ -640,15 +642,19 @@ Each field can be shown/hidden via the visibility popover. Hidden fields:
 
 ## Background Colors
 
-Sections support 14+ background color options:
+Sections support 8 brand-aligned background options (per Troy Brand Standards page 13 + Troy Web Reskin CSS Ruleset v2.4):
 
 | Light Backgrounds | Dark Backgrounds |
 |-------------------|------------------|
 | White | Cardinal |
 | Sand | Cardinal Dark |
-| Sand Dark | Black |
-| Sand Halftone | Cardinal Halftone |
-| Wheat | Cardinal Wheat Halftone |
+| Sand Halftone | Black |
+|  | Cardinal Halftone |
+|  | Cardinal + Wheat Halftone |
+
+Notes:
+- The previous "Sand Dark" (#e8e6da) variant was explicitly removed from the brand palette in ruleset v2.4. Saved templates referencing it migrate automatically to the standard sand on load.
+- Wheat (#efd19f) is **not** a section background. Per the brand standards, wheat should occupy roughly 10% of a canvas — the sandbox uses it as a contrast accent (badges, category labels, halftone overlays) on dark backgrounds.
 
 ---
 

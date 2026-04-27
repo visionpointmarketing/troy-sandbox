@@ -1,5 +1,7 @@
 # TROY Sandbox — Implementation Roadmap
 
+> **Historical document.** Phases 0–9 below describe the project's initial build-out. All are complete. Subsequent work — Brand Standards alignment, the v2.4 design-rules engine, color-token migration, the rhythm-aware preset templates, and the browser-based test suite — is documented in [`CLAUDE.md`](CLAUDE.md) and [`docs/DESIGN-RULES.md`](docs/DESIGN-RULES.md). For the current state of the project, start there.
+
 ## Overview
 
 This document tracks implementation progress with detailed checkpoints and testing criteria for each phase.
@@ -32,7 +34,7 @@ This document tracks implementation progress with detailed checkpoints and testi
 ✓ Page loads without console errors
 ✓ Canvas area visible (empty)
 ✓ Sidebar visible (empty)
-✓ Tailwind classes work (test with bg-troy-maroon)
+✓ Tailwind classes work (test with bg-cardinal)
 ```
 
 ---

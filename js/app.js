@@ -11,6 +11,7 @@ import { initImageModal } from './image-upload-modal.js';
 import { initSaveTemplateModal } from './save-template-modal.js';
 import { initPreviewIframe, setStaticContent, updatePreviewContent } from './preview-iframe.js';
 import { getTemplateMap } from './sections/index.js';
+import { assertTailwindMirrorsBrandColors } from './color-tokens.js';
 
 /**
  * Load static header and footer
@@ -42,6 +43,12 @@ async function init() {
     console.log('TROY Sandbox initializing...');
 
     try {
+        // Verify the inline Tailwind config in index.html still mirrors
+        // js/color-tokens.js BRAND_COLORS. Drift logs an error to the console.
+        if (typeof window !== 'undefined' && window.tailwind?.config?.theme?.extend?.colors) {
+            assertTailwindMirrorsBrandColors(window.tailwind.config.theme.extend.colors);
+        }
+
         // Initialize image storage
         await initImageStore();
         console.log('Image store initialized');

@@ -15,8 +15,8 @@ This is a **standalone project** — not a fork of the wireframe-builder, but a 
 - **Sidebar** auto-generated from registry (no hardcoded section list)
 - **Static header/footer** frame the editable sections (not editable, not draggable)
 - **Tailwind CSS** via CDN with Troy color extensions
-- **Background color picker** with 14+ color options per section
-- **Design rules validation** for brand compliance (Troy VP Reskin V2)
+- **Background color picker** with 8 color options per section (white, sand, sand-halftone, cardinal, cardinal-dark, black, cardinal-halftone, cardinal+wheat halftone)
+- **Design rules validation** aligned with `reskin-docs/TROY Web Reskin CSS Ruleset.md` (v2.4) and Troy Brand Standards
 - **Page templates** system with preset and user-saved templates
 - **Responsive preview** with desktop/tablet/mobile viewport toggle
 
@@ -33,8 +33,9 @@ This is a **standalone project** — not a fork of the wireframe-builder, but a 
 | `js/image-store.js` | IndexedDB image storage |
 | `js/image-upload-modal.js` | Image upload modal component |
 | `js/markup-exporter.js` | Clean HTML export functionality |
-| `js/color-config.js` | Color definitions, contrast logic, halftone classes |
-| `js/design-rules.js` | Design rule validation engine (Troy VP Reskin V2) |
+| `js/color-tokens.js` | Single source of truth for the Troy brand palette (mirrored by inline Tailwind config in index.html) |
+| `js/color-config.js` | Section-background COLORS map, contrast logic, halftone classes, color-token migration shim |
+| `js/design-rules.js` | Design rule validation engine — implements Troy Web Reskin CSS Ruleset v2.4 |
 | `js/page-templates.js` | Preset page template library |
 | `js/template-storage.js` | LocalStorage for user-saved templates |
 | `js/save-template-modal.js` | Template saving modal component |
@@ -101,24 +102,23 @@ export default {
 
 ## Tailwind Configuration
 
-Using CDN with Troy color extensions:
+Tailwind is loaded via CDN (`https://cdn.tailwindcss.com`) with the Troy brand palette extended inline in `index.html`. The canonical palette lives in `js/color-tokens.js` (`BRAND_COLORS`); the inline Tailwind block mirrors those values. `js/app.js` runs `assertTailwindMirrorsBrandColors()` at boot and logs a console error if the two drift, so any mismatch surfaces immediately during development.
+
+Current palette (from Troy Brand Standards, page 13):
 ```javascript
-tailwind.config = {
-    theme: {
-        extend: {
-            colors: {
-                troy: {
-                    maroon: '#8B1F32',
-                    gold: '#C9A227',
-                    cream: '#F5F0E6'
-                }
-            }
-        }
-    }
+colors: {
+    cardinal: {
+        DEFAULT: '#910039',  // Trojan Cardinal — Pantone 202C/1807U
+        dark: '#720724',     // Dark Cardinal
+    },
+    sand: '#f1efe3',         // Sand
+    wheat: '#efd19f',        // Wheat — Pantone 155C
+    black: '#231F20',        // Troy brand black (NOT pure #000000)
+    grey: '#999999',         // Grey — Pantone 877 Metallic
 }
 ```
 
-When Troy provides their full `tailwind.config.js`, switch to build process.
+When Troy provides their full `tailwind.config.js` (or when this project switches to the production reskin's `vp-styles` system), migrate to a build process and consume the visionpoint Tailwind config directly.
 
 ## State Structure
 
@@ -129,13 +129,18 @@ When Troy provides their full `tailwind.config.js`, switch to build process.
             id: 'unique-id',
             type: 'hero',
             content: { /* field values */ },
-            visibility: { /* field visibility flags */ }
+            visibility: { /* field visibility flags */ },
+            colors: { background: 'sand' /* see js/color-config.js COLORS */ }
         }
     ],
     history: [],
     historyIndex: -1
 }
 ```
+
+### Color-token migration
+
+When sections are loaded from any external source (saved templates, JSON imports, a previous session's saved state), `state.js` runs `migrateColorTokens()` from `js/color-config.js`. This rewrites deprecated color keys to their current equivalents — for example, the removed `sand-300` ("Sand Dark") becomes `sand`, and the renamed `cardinal-900` becomes `cardinal-dark`. A one-shot toast notifies the user when any rewrites occur. The migration is idempotent and safe to call multiple times.
 
 ## What's NOT in This Project
 

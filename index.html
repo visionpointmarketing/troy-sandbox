@@ -9,12 +9,18 @@
     <link rel="stylesheet" href="https://use.typekit.net/yie8ysb.css">
 
     <!-- Tailwind CSS via CDN -->
+    <!--
+        IMPORTANT: The colors block below MIRRORS js/color-tokens.js BRAND_COLORS.
+        That file is the canonical source. Keep these values in sync. js/app.js
+        runs assertTailwindMirrorsBrandColors() at boot and prints a console
+        error if drift is detected. See docs/DESIGN-RULES.md for full context.
+    -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 fontFamily: {
-                    'headline-primary': ['pressio-compressed', 'sans-serif'], /* Per Troy VP Reskin V2 design rules */
+                    'headline-primary': ['pressio-compressed', 'sans-serif'], /* Per Troy Brand Standards */
                     'headline-secondary': ['pressio-compressed', 'sans-serif'],
                     'subhead': ['avenir-lt-pro', 'sans-serif'],
                     'body': ['avenir-lt-pro', 'sans-serif'],
@@ -22,19 +28,13 @@
                 extend: {
                     colors: {
                         cardinal: {
-                            DEFAULT: '#910039',
-                            800: '#910039',
-                            900: '#720724',
+                            DEFAULT: '#910039',  // Trojan Cardinal
+                            dark: '#720724',     // Dark Cardinal
                         },
-                        sand: {
-                            DEFAULT: '#f1efe3',
-                            300: '#e8e6da',
-                        },
-                        wheat: {
-                            DEFAULT: '#efd19f',
-                            light: '#f5e1b3',
-                        },
-                        grey: '#999999',
+                        sand: '#f1efe3',         // Sand
+                        wheat: '#efd19f',        // Wheat (Pantone 155C)
+                        black: '#231F20',        // Troy brand black
+                        grey: '#999999',         // Grey (Pantone 877 Metallic)
                     },
                     aspectRatio: {
                         'feature': '16 / 9',
@@ -76,7 +76,7 @@
                         Redo
                     </button>
                 </div>
-                <button id="export-btn" class="w-full px-3 py-2 text-sm bg-cardinal text-white rounded hover:bg-cardinal-900">
+                <button id="export-btn" class="w-full px-3 py-2 text-sm bg-cardinal text-white rounded hover:bg-cardinal-dark">
                     Export JSON
                 </button>
                 <button id="import-btn" class="w-full px-3 py-2 text-sm bg-gray-100 rounded hover:bg-gray-200">
@@ -189,7 +189,7 @@
             </div>
             <div class="flex gap-2 mt-6">
                 <button id="image-cancel-btn" class="flex-1 px-4 py-2 bg-gray-100 rounded hover:bg-gray-200">Cancel</button>
-                <button id="image-confirm-btn" class="flex-1 px-4 py-2 bg-cardinal text-white rounded hover:bg-cardinal-900 disabled:opacity-50" disabled>Upload</button>
+                <button id="image-confirm-btn" class="flex-1 px-4 py-2 bg-cardinal text-white rounded hover:bg-cardinal-dark disabled:opacity-50" disabled>Upload</button>
             </div>
         </div>
     </div>
@@ -211,7 +211,7 @@
             <p class="text-xs text-gray-500 mb-4">Note: Uploaded images will not be included in the saved template.</p>
             <div class="flex gap-2">
                 <button id="save-template-cancel" class="flex-1 px-4 py-2 bg-gray-100 rounded hover:bg-gray-200">Cancel</button>
-                <button id="save-template-confirm" class="flex-1 px-4 py-2 bg-cardinal text-white rounded hover:bg-cardinal-900">Save Template</button>
+                <button id="save-template-confirm" class="flex-1 px-4 py-2 bg-cardinal text-white rounded hover:bg-cardinal-dark">Save Template</button>
             </div>
         </div>
     </div>
@@ -261,7 +261,7 @@
             <button id="template-close" class="text-gray-400 hover:text-gray-600">&times;</button>
         </div>
         <!-- Save Current Page Button -->
-        <button id="save-current-template-btn" class="w-full mb-3 px-3 py-2 text-sm bg-cardinal text-white rounded hover:bg-cardinal-900 flex items-center justify-center gap-2">
+        <button id="save-current-template-btn" class="w-full mb-3 px-3 py-2 text-sm bg-cardinal text-white rounded hover:bg-cardinal-dark flex items-center justify-center gap-2">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
                 <polyline points="17 21 17 13 7 13 7 21"/>

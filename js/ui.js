@@ -492,8 +492,10 @@ export function updateDesignStatus(sections) {
     const result = validateDesignRules(sections);
     const status = getStatusMessage(result);
 
-    // Update status badge
-    statusEl.className = `design-status design-status-${status.type === 'success' ? 'ok' : 'warning'}`;
+    // Update status badge — three states map to the existing two CSS classes:
+    //   success → ok (green), warning → warning (yellow/red), info → warning (advisory)
+    const cssState = status.type === 'success' ? 'ok' : 'warning';
+    statusEl.className = `design-status design-status-${cssState}`;
 
     // Update icon
     const iconSvg = status.type === 'success'
@@ -528,16 +530,30 @@ export function updateDesignStatus(sections) {
         }
     }
 
-    // Update counts
+    // Update counts (v2.4 ruleset: 4 weight categories + halftone, with target ranges)
     if (countsEl && result.counts) {
-        const limits = { sand: 2, dark: 1, halftone: 1 };
-        countsEl.innerHTML = Object.entries(result.counts).map(([key, count]) => {
-            const limit = limits[key];
-            const statusClass = count > limit ? 'over-limit' : (count === limit ? 'at-limit' : '');
+        const { cardinal, black, sand, light, halftone, total } = result.counts;
+        const emphasis = cardinal + black;
+        const pct = (n) => total > 0 ? `${Math.round((n / total) * 100)}%` : '—';
+
+        const items = [
+            { label: 'Cardinal', count: cardinal, hint: pct(cardinal) },
+            { label: 'Black', count: black, hint: pct(black) },
+            { label: 'Emphasis', count: emphasis, hint: `${pct(emphasis)} (target 25–35%)` },
+            { label: 'Sand', count: sand, hint: `${pct(sand)} (≤35%)` },
+            { label: 'White', count: light, hint: `${pct(light)} (target 25–35%)` },
+            { label: 'Halftone', count: halftone, hint: `max 1` },
+        ];
+
+        countsEl.innerHTML = items.map(({ label, count, hint }) => {
+            // Halftone has a hard cap; flag it visually if exceeded.
+            const overLimit = label === 'Halftone' && count > 1;
+            const statusClass = overLimit ? 'over-limit' : '';
             return `
                 <div class="status-count-item ${statusClass}">
-                    <span class="status-count-number">${count}/${limit}</span>
-                    <span class="status-count-label">${key}</span>
+                    <span class="status-count-number">${count}</span>
+                    <span class="status-count-label">${label}</span>
+                    <span class="status-count-hint">${hint}</span>
                 </div>
             `;
         }).join('');

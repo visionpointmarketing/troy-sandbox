@@ -10,6 +10,11 @@ const pageTemplates = [
         name: 'Prospective Students',
         description: 'Undergraduate recruitment focus',
         sectionCount: 7,
+        // Visual rhythm (per ruleset v2.4 §5.8):
+        //   black → sand → light → cardinal → light → sand → black
+        //   Emphasis bookends with a mid-page cardinal moment; sand and light
+        //   alternate symmetrically between them. Palindromic alternation —
+        //   strong rhythm, no clustering.
         sections: [
             {
                 type: 'hero',
@@ -65,6 +70,21 @@ const pageTemplates = [
                 colors: { background: 'white' }
             },
             {
+                type: 'promo-carousel',
+                content: {
+                    variant: 'promo',
+                    headline: 'Save Big with Trojan Book Bag',
+                    body: 'Trojan Book Bag provides access to course materials at a fraction of the cost. Get your textbooks, digital resources, and supplies all in one convenient package.',
+                    ctaText: 'TROJAN BOOK BAG INFORMATION',
+                    totalSlides: 3,
+                    activeSlide: 2
+                },
+                // Cardinal mid-page brand moment — anchors the rhythm and
+                // gives the page a strong visual peak between the two black
+                // emphasis bookends.
+                colors: { background: 'cardinal' }
+            },
+            {
                 type: 'academic-excellence',
                 content: {
                     headline: 'Five Colleges.\nEndless Possibilities.',
@@ -80,19 +100,7 @@ const pageTemplates = [
                     program3Title: 'Engineering',
                     program3Description: 'Hands-on learning with industry-standard equipment and real-world projects.'
                 },
-                colors: { background: 'sand' }
-            },
-            {
-                type: 'promo-carousel',
-                content: {
-                    variant: 'promo',
-                    headline: 'Save Big with Trojan Book Bag',
-                    body: 'Trojan Book Bag provides access to course materials at a fraction of the cost. Get your textbooks, digital resources, and supplies all in one convenient package.',
-                    ctaText: 'TROJAN BOOK BAG INFORMATION',
-                    totalSlides: 3,
-                    activeSlide: 2
-                },
-                colors: { background: 'cardinal' }
+                colors: { background: 'white' }
             },
             {
                 type: 'latest-stories',
@@ -112,7 +120,7 @@ const pageTemplates = [
                     story3Title: 'Nursing Students Launch Rural Health Initiative',
                     story3Description: 'Making healthcare accessible to underserved communities through student-led programs.'
                 },
-                colors: { background: 'white' }
+                colors: { background: 'sand' }
             },
             {
                 type: 'final-cta',
@@ -131,6 +139,11 @@ const pageTemplates = [
         name: 'Academic Programs',
         description: 'Program showcase focus',
         sectionCount: 6,
+        // Visual rhythm (per ruleset v2.4 §5.8):
+        //   black → sand → light → cardinal → sand → light
+        //   Emphasis spread instead of bookended — black opens, cardinal sits
+        //   mid-page as a brand emphasis, with sand/light alternating between
+        //   them. Mirrors the 25–35% / "3–4 emphasis" guidance for short pages.
         sections: [
             {
                 type: 'hero',
@@ -184,6 +197,17 @@ const pageTemplates = [
                 colors: { background: 'white' }
             },
             {
+                type: 'brand-story',
+                content: {
+                    backgroundImage: 'https://images.unsplash.com/photo-1562774053-701939374585?w=1200&q=80',
+                    headline: '135+ Years of\nReal Innovation.',
+                    body: 'From our founding as a teachers\' college to becoming a leader in online education and AI-forward initiatives, Troy University has always embraced the future while honoring tradition.',
+                    quote: '"We don\'t just teach subjects—we transform students into professionals ready to make an impact."',
+                    ctaText: 'Discover Our Story',
+                    image: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=900&q=80'
+                }
+            },
+            {
                 type: 'statistics',
                 content: {
                     headline: 'Numbers That\nMatter.',
@@ -218,17 +242,6 @@ const pageTemplates = [
                     activeSlide: 2
                 },
                 colors: { background: 'white' }
-            },
-            {
-                type: 'brand-story',
-                content: {
-                    backgroundImage: 'https://images.unsplash.com/photo-1562774053-701939374585?w=1200&q=80',
-                    headline: '135+ Years of\nReal Innovation.',
-                    body: 'From our founding as a teachers\' college to becoming a leader in online education and AI-forward initiatives, Troy University has always embraced the future while honoring tradition.',
-                    quote: '"We don\'t just teach subjects—we transform students into professionals ready to make an impact."',
-                    ctaText: 'Discover Our Story',
-                    image: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=900&q=80'
-                }
             }
         ]
     },
@@ -236,7 +249,14 @@ const pageTemplates = [
         id: 'about-troy',
         name: 'About Troy',
         description: 'Institutional brand story',
-        sectionCount: 6,
+        sectionCount: 9,
+        // Visual rhythm (per ruleset v2.4 §5.8):
+        //   black → sand → light → cardinal → light → sand → light → sand → black
+        //   Emphasis spread evenly (positions 0, 3, 8) instead of clustered.
+        //   Sand and light alternate between emphasis points — this mirrors
+        //   the §5.8 example: "Cardinal → Sand → Light → Black → Light → Sand
+        //   → Cardinal → Black → Sand → Light".
+        //   3 emphasis (33%) · 3 sand (33%) · 3 light (33%) — all targets met.
         sections: [
             {
                 type: 'hero',
@@ -249,15 +269,24 @@ const pageTemplates = [
                 }
             },
             {
-                type: 'brand-story',
+                type: 'statistics',
                 content: {
-                    backgroundImage: 'https://images.unsplash.com/photo-1562774053-701939374585?w=1200&q=80',
-                    headline: 'No Filters.\nJust Real\nBreakthroughs.',
-                    body: 'At TROY, we celebrate the entire journey—not just the destination. We show the proposals that didn\'t work, the setbacks overcome, and the people who inspired breakthrough moments. Because real work always wins.',
-                    quote: '"Every step forward is a victory worth celebrating. Your journey matters as much as your destination."',
-                    ctaText: 'Learn More',
-                    image: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=900&q=80'
-                }
+                    headline: 'Real Numbers.\nReal Impact.',
+                    body: 'From a small teachers\' college to a global university, Troy has grown while staying true to our mission of accessible, authentic education.',
+                    stat1Number: '1887',
+                    stat1Label: 'Founded',
+                    stat1Description: '135+ years of excellence',
+                    stat2Number: '4',
+                    stat2Label: 'Alabama Campuses',
+                    stat2Description: 'Troy, Dothan, Montgomery, Phenix City',
+                    stat3Number: '65+',
+                    stat3Label: 'Countries',
+                    stat3Description: 'Truly global community',
+                    stat4Number: '#1',
+                    stat4Label: 'Military Friendly',
+                    stat4Description: 'Top school for veterans'
+                },
+                colors: { background: 'sand' }
             },
             {
                 type: 'content-spotlight',
@@ -283,24 +312,34 @@ const pageTemplates = [
                 colors: { background: 'white' }
             },
             {
-                type: 'statistics',
+                type: 'brand-story',
                 content: {
-                    headline: 'Real Numbers.\nReal Impact.',
-                    body: 'From a small teachers\' college to a global university, Troy has grown while staying true to our mission of accessible, authentic education.',
-                    stat1Number: '1887',
-                    stat1Label: 'Founded',
-                    stat1Description: '135+ years of excellence',
-                    stat2Number: '4',
-                    stat2Label: 'Alabama Campuses',
-                    stat2Description: 'Troy, Dothan, Montgomery, Phenix City',
-                    stat3Number: '65+',
-                    stat3Label: 'Countries',
-                    stat3Description: 'Truly global community',
-                    stat4Number: '#1',
-                    stat4Label: 'Military Friendly',
-                    stat4Description: 'Top school for veterans'
+                    backgroundImage: 'https://images.unsplash.com/photo-1562774053-701939374585?w=1200&q=80',
+                    headline: 'No Filters.\nJust Real\nBreakthroughs.',
+                    body: 'At TROY, we celebrate the entire journey—not just the destination. We show the proposals that didn\'t work, the setbacks overcome, and the people who inspired breakthrough moments. Because real work always wins.',
+                    quote: '"Every step forward is a victory worth celebrating. Your journey matters as much as your destination."',
+                    ctaText: 'Learn More',
+                    image: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=900&q=80'
+                }
+            },
+            {
+                type: 'academic-excellence',
+                content: {
+                    variant: 'content-left',
+                    headline: 'Five Colleges.\nOne Trojan Family.',
+                    body: 'TROY is organized into five colleges, each delivering nationally recognized programs anchored by hands-on learning, dedicated faculty, and a campus culture that takes the journey as seriously as the destination.',
+                    ctaText: 'Explore Programs',
+                    featuredImage: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=900&q=80',
+                    featuredTitle: 'Sorrell College of Business',
+                    featuredDescription: 'AACSB-accredited programs that connect classroom learning to real industry outcomes.',
+                    program1Title: 'Health Sciences',
+                    program1Description: 'Clinical excellence through real patient care, simulation labs, and community partnerships.',
+                    program2Title: 'Education and Behavioral Sciences',
+                    program2Description: 'Shape the next generation of teachers, counselors, and community leaders.',
+                    program3Title: 'Arts and Sciences',
+                    program3Description: 'A foundation in critical thinking, communication, and discovery across every discipline.'
                 },
-                colors: { background: 'sand' }
+                colors: { background: 'white' }
             },
             {
                 type: 'split-layout',
@@ -323,7 +362,43 @@ const pageTemplates = [
                     stat5Number: false, stat5Label: false,
                     stat6Number: false, stat6Label: false
                 },
-                colors: { background: 'cardinal' }
+                colors: { background: 'sand' }
+            },
+            {
+                type: 'latest-stories',
+                content: {
+                    headline: 'Real Stories.\nReal Trojans.',
+                    body: 'Discover the people who make TROY a community — students, faculty, and alumni who turn vision into impact every day.',
+                    story1Image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600&q=80',
+                    story1Category: 'Alumni Spotlight',
+                    story1Title: 'From TROY to the World Stage',
+                    story1Description: 'How an Alabama-rooted alumnus is leading global change in clean-energy research and policy.',
+                    story2Image: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=600&q=80',
+                    story2Category: 'Faculty Research',
+                    story2Title: 'Pioneering Research in Cybersecurity',
+                    story2Description: 'TROY faculty are shaping the next generation of secure systems through interdisciplinary collaboration.',
+                    story3Image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&q=80',
+                    story3Category: 'Student Achievement',
+                    story3Title: 'First-Gen Student Earns National Award',
+                    story3Description: 'Hard work and the right mentorship turn a TROY student into a national leader in service.'
+                },
+                colors: { background: 'white' }
+            },
+            {
+                type: 'promo-carousel',
+                content: {
+                    variant: 'news',
+                    newsItem1Title: 'TROY Welcomes Record International Class',
+                    newsItem1Date: 'September 2026',
+                    newsItem1Image: null,
+                    newsItem2Title: 'Alumni Network Expands to 100+ Countries',
+                    newsItem2Date: 'August 2026',
+                    newsItem2Image: null,
+                    ctaLinkText: 'All News',
+                    totalSlides: 3,
+                    activeSlide: 2
+                },
+                colors: { background: 'sand' }
             },
             {
                 type: 'final-cta',

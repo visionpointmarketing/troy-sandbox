@@ -22,7 +22,7 @@ body {
    TYPOGRAPHY COMPONENTS
    ============================================ */
 
-/* Primary Hero Headline - Pressio Compressed (per Troy VP Reskin V2 design rules) */
+/* Primary Hero Headline - Pressio Compressed (per Troy Brand Standards) */
 .hero-headline {
     font-family: 'pressio-compressed', sans-serif;
     font-size: clamp(4.167rem, 8vw, 6rem); /* Min 50pt (4.167rem) per design rules */
@@ -290,7 +290,7 @@ body {
    ============================================ */
 
 /* ============================================
-   HALFTONE TEXTURE SYSTEM (Troy VP Reskin V2)
+   HALFTONE TEXTURE SYSTEM (per Troy Web Reskin CSS Ruleset §5.6)
    Uses SVG textures instead of CSS patterns
    ============================================ */
 

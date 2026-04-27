@@ -58,7 +58,7 @@ export default {
         const dotBorderClass = isDark ? 'border-white' : 'border-cardinal';
         const dotFillClass = isDark ? 'bg-white' : 'bg-cardinal';
         const ctaClass = isDark ? 'btn-bordered-white' : 'btn-cardinal-outline';
-        const linkClass = isDark ? 'text-white hover:text-white/80' : 'text-cardinal hover:text-cardinal-900';
+        const linkClass = isDark ? 'text-white hover:text-white/80' : 'text-cardinal hover:text-cardinal-dark';
 
         // Generate dot indicators
         const dots = [];
@@ -227,7 +227,7 @@ export default {
         const dotBorderClass = isDark ? 'border-white' : 'border-cardinal';
         const dotFillClass = isDark ? 'bg-white' : 'bg-cardinal';
         const ctaClass = isDark ? 'btn-bordered-white' : 'btn-cardinal-outline';
-        const linkClass = isDark ? 'text-white hover:text-white/80' : 'text-cardinal hover:text-cardinal-900';
+        const linkClass = isDark ? 'text-white hover:text-white/80' : 'text-cardinal hover:text-cardinal-dark';
 
         // Generate dot indicators
         const dots = [];

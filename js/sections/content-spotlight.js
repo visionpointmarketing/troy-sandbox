@@ -89,19 +89,23 @@ function hasVisibleHelpfulLinks(visibility) {
 }
 
 /**
- * Render a single helpful link item
+ * Render a single helpful link item.
+ *
+ * Styling principle (per Component-Pattern-Library v2.4 §2.5):
+ *   nested elements like link blocks must NOT carry the section's color.
+ *   We use a transparent background + border outline only, so the block
+ *   reads as a clean outlined card on any section background.
  */
 function renderHelpfulLink(content, visibility, linkKey, isDark) {
     if (visibility[linkKey] === false) return '';
 
-    // Styling based on background - consistent border all around
-    const cardBg = isDark ? 'bg-white/10' : 'bg-sand';
+    // Transparent fill, border-only outline. Border + text colors adapt to bg.
     const borderClass = isDark ? 'border border-white/30' : 'border border-black/20';
     const linkTextClass = isDark ? 'text-white underline' : 'text-[#1e4785] underline';
 
     return `
         <a contenteditable="true" data-field="${linkKey}"
-           class="${cardBg} ${borderClass} px-6 py-4 block cursor-text">
+           class="${borderClass} px-6 py-4 block cursor-text">
             <span class="${linkTextClass}">${escapeHtml(content[linkKey])}</span>
         </a>
     `;
@@ -350,7 +354,7 @@ export default {
 
         // Quote block (appears below the two-column grid, contained width)
         const quoteBlock = hasVisibleQuote(visibility) ? `
-            <div class="bg-[#1a1a1a] py-12 mt-12 text-center">
+            <div class="bg-black py-12 mt-12 text-center">
                 <!-- Decorative quote line -->
                 <div class="flex items-center justify-center gap-4 mb-6">
                     <div class="w-24 h-px bg-white/50"></div>
@@ -503,7 +507,7 @@ export default {
             if (showCredential) attributionParts.push(`<span>${escapeHtml(content.quoteCredential)}</span>`);
 
             quoteBlockMarkup = `
-        <div class="bg-[#1a1a1a] py-12 mt-12 text-center">
+        <div class="bg-black py-12 mt-12 text-center">
             <div class="flex items-center justify-center gap-4 mb-6">
                 <div class="w-24 h-px bg-white/50"></div>
                 <span class="text-white text-3xl font-serif">"</span>
@@ -550,11 +554,10 @@ export default {
             }
         }
 
-        // Helpful Links markup (appears below FAQ)
+        // Helpful Links markup (appears below FAQ).
+        // Transparent fill + border outline (per Component-Pattern-Library v2.4 §2.5).
         let helpfulLinksMarkup = '';
         if (hasVisibleHelpfulLinks(visibility)) {
-            // Styling based on background - consistent border all around
-            const cardBg = isDark ? 'bg-white/10' : 'bg-sand';
             const borderClass = isDark ? 'border border-white/30' : 'border border-black/20';
             const linkTextClass = isDark ? 'text-white underline' : 'text-[#1e4785] underline';
 
@@ -562,7 +565,7 @@ export default {
             for (let i = 1; i <= 6; i++) {
                 if (visibility[`helpfulLink${i}`] !== false) {
                     linksHtml += `
-                <a href="#" class="${cardBg} ${borderClass} px-6 py-4 block">
+                <a href="#" class="${borderClass} px-6 py-4 block">
                     <span class="${linkTextClass}">${escapeHtml(content[`helpfulLink${i}`])}</span>
                 </a>`;
                 }

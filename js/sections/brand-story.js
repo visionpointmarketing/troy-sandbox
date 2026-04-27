@@ -46,7 +46,7 @@ export default {
 
         const isBlackOverlay = content.overlayColor === 'black';
         const overlayColor = isBlackOverlay ? 'rgba(0,0,0,0.7)' : 'rgba(114,7,36,0.85)';
-        const fallbackBg = isBlackOverlay ? '#1a1a1a' : '#720724';
+        const fallbackBg = isBlackOverlay ? '#231F20' : '#720724';
 
         const bgStyle = content.backgroundImage
             ? `background-image: linear-gradient(${overlayColor}, ${overlayColor}), url('${content.backgroundImage}'); background-size: cover; background-position: center;`
@@ -151,7 +151,7 @@ export default {
 
         const isBlackOverlay = content.overlayColor === 'black';
         const overlayColor = isBlackOverlay ? 'rgba(0,0,0,0.7)' : 'rgba(114,7,36,0.85)';
-        const fallbackBg = isBlackOverlay ? '#1a1a1a' : '#720724';
+        const fallbackBg = isBlackOverlay ? '#231F20' : '#720724';
 
         const bgStyle = content.backgroundImage
             ? `background-image: linear-gradient(${overlayColor}, ${overlayColor}), url('${content.backgroundImage}'); background-size: cover; background-position: center;`

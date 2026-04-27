@@ -46,6 +46,9 @@ export default {
         // Get color config
         const bgColor = COLORS[colors.background] || COLORS.white;
         const contrast = getContrastConfig(colors.background);
+        const isDark = bgColor.isDark;
+        // CTA: cardinal-style on light, white-style on dark
+        const ctaClass = isDark ? 'btn-bordered-white' : 'btn-cardinal-outline';
 
         // Determine layout variant
         const isContentRight = content.variant === 'content-right';
@@ -62,14 +65,14 @@ export default {
                         <h3
                             contenteditable="true"
                             data-field="${titleKey}"
-                            class="program-title text-black mb-4"
+                            class="program-title ${contrast.text} mb-4"
                         >${escapeHtml(title)}</h3>
                     ` : ''}
                     ${showDesc ? `
                         <p
                             contenteditable="true"
                             data-field="${descKey}"
-                            class="body-text text-black/80"
+                            class="body-text ${contrast.textMuted}"
                         >${escapeHtml(desc)}</p>
                     ` : ''}
                 </div>
@@ -102,7 +105,7 @@ export default {
                     <a
                         contenteditable="true"
                         data-field="ctaText"
-                        class="btn-cardinal-outline cursor-text"
+                        class="${ctaClass} cursor-text"
                     >${escapeHtml(content.ctaText)}</a>
                 `)}
             </div>
@@ -156,6 +159,8 @@ export default {
         const contrast = getContrastConfig(colors.background);
         const bgStyle = getBackgroundStyle(colors.background);
         const halftoneClasses = getHalftoneClasses(colors.background);
+        const isDark = bgColor.isDark;
+        const ctaClass = isDark ? 'btn-bordered-white' : 'btn-cardinal-outline';
 
         // Determine layout variant
         const isContentRight = content.variant === 'content-right';
@@ -168,8 +173,8 @@ export default {
 
             return `
             <div class="program-card">
-                ${showTitle ? `<h3 class="program-title text-black mb-4">${escapeHtml(title)}</h3>` : ''}
-                ${showDesc ? `<p class="body-text text-black/80">${escapeHtml(desc)}</p>` : ''}
+                ${showTitle ? `<h3 class="program-title ${contrast.text} mb-4">${escapeHtml(title)}</h3>` : ''}
+                ${showDesc ? `<p class="body-text ${contrast.textMuted}">${escapeHtml(desc)}</p>` : ''}
             </div>`;
         };
 
@@ -178,7 +183,7 @@ export default {
             <div>
                 ${visibility.headline !== false ? `<h2 class="section-title ${contrast.text} mb-8">${headlineHtml}</h2>` : ''}
                 ${visibility.body !== false ? `<p class="body-text mb-10 ${contrast.text}">${escapeHtml(content.body)}</p>` : ''}
-                ${visibility.ctaText !== false ? `<a href="#" class="btn-cardinal-outline">${escapeHtml(content.ctaText)}</a>` : ''}
+                ${visibility.ctaText !== false ? `<a href="#" class="${ctaClass}">${escapeHtml(content.ctaText)}</a>` : ''}
             </div>`;
 
         // Image column markup (simplified - no overlay)

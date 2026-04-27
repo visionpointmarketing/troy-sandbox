@@ -4,6 +4,7 @@
  */
 
 import { getDefaultColors } from './color-config.js';
+import { BRAND_COLORS } from './color-tokens.js';
 
 let iframe = null;
 let baseCssContent = null;
@@ -14,27 +15,29 @@ let footerHtml = '';
 let currentViewport = 'desktop';
 const viewportWidths = { mobile: 375, tablet: 768 };
 
-// Tailwind config (must match index.html)
-const tailwindConfig = `
+/**
+ * Build the inline Tailwind config string from BRAND_COLORS.
+ * This serializes the canonical brand palette into the iframe's Tailwind setup,
+ * keeping it automatically in sync with js/color-tokens.js.
+ */
+function buildTailwindConfig() {
+    const colorsJson = JSON.stringify(BRAND_COLORS);
+    return `
 tailwind.config = {
     theme: {
         fontFamily: {
-            'headline-primary': ['pressio-x-compressed', 'sans-serif'],
+            'headline-primary': ['pressio-compressed', 'sans-serif'],
             'headline-secondary': ['pressio-compressed', 'sans-serif'],
             'subhead': ['avenir-lt-pro', 'sans-serif'],
             'body': ['avenir-lt-pro', 'sans-serif'],
         },
         extend: {
-            colors: {
-                cardinal: { DEFAULT: '#910039', 800: '#910039', 900: '#720724' },
-                sand: { DEFAULT: '#f1efe3', 300: '#e8e6da' },
-                wheat: { DEFAULT: '#efd19f', light: '#f5e1b3' },
-                grey: '#999999',
-            },
+            colors: ${colorsJson},
             aspectRatio: { 'feature': '16 / 9' },
         }
     }
 }`;
+}
 
 /**
  * Initialize the preview iframe system
@@ -87,7 +90,7 @@ async function buildDocument(sectionsMarkup) {
     <meta name="viewport" content="width=${viewportWidths[currentViewport] || 'device-width'}, initial-scale=1.0">
     <link rel="stylesheet" href="https://use.typekit.net/yie8ysb.css">
     <script src="https://cdn.tailwindcss.com"><\/script>
-    <script>${tailwindConfig}<\/script>
+    <script>${buildTailwindConfig()}<\/script>
     <style>${css}</style>
     <style>${previewStyles}</style>
 </head>

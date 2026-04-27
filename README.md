@@ -52,8 +52,8 @@ Then open `http://localhost:8000` in your browser.
 - **Visibility Toggle**: Show/hide individual fields
 - **Undo/Redo**: Ctrl/Cmd+Z and Ctrl/Cmd+Y
 - **JSON Export/Import**: Save and restore your work
-- **Background Colors**: 14+ color options per section with brand compliance
-- **Design Rules**: Automatic validation against Troy VP Reskin V2 guidelines
+- **Background Colors**: 8 brand-aligned color options per section (white, sand, sand-halftone, cardinal, cardinal-dark, black, cardinal-halftone, cardinal+wheat halftone)
+- **Design Rules**: Automatic validation against Troy Brand Standards and the Troy Web Reskin CSS Ruleset (v2.4)
 - **Page Templates**: Preset templates and save your own custom templates
 - **Responsive Preview**: Desktop, tablet, and mobile viewport toggle
 - **Layout Variants**: Content-left or content-right positioning for applicable sections
@@ -91,11 +91,33 @@ troy-sandbox/
 
 ## Tailwind Configuration
 
-Uses Tailwind CSS via CDN with Troy brand colors:
+Uses Tailwind CSS via CDN with the Troy brand palette (per Troy Brand Standards, page 13):
 
-- `troy-maroon`: #8B1F32
-- `troy-gold`: #C9A227
-- `troy-cream`: #F5F0E6
+- `cardinal` / `cardinal-dark`: `#910039` / `#720724` (Trojan Cardinal / Dark Cardinal — Pantone 202C/1807U)
+- `sand`: `#f1efe3`
+- `wheat`: `#efd19f` (Pantone 155C)
+- `black`: `#231F20` (Troy brand black; not pure black)
+- `grey`: `#999999` (Pantone 877 Metallic)
+
+The canonical palette lives in `js/color-tokens.js`. The inline Tailwind config in `index.html` mirrors it; a runtime check at boot logs a console error if they drift.
+
+## Project Documentation
+
+- [`docs/DESIGN-RULES.md`](docs/DESIGN-RULES.md) — which v2.4 ruleset rules the design-rules engine enforces, which are deferred, and how to bump the version when the canonical ruleset changes.
+- [`docs/USER-GUIDE.md`](docs/USER-GUIDE.md) — end-user walkthrough.
+- [`SECTIONS.md`](SECTIONS.md) — section-type specifications.
+
+## Testing the Rules Engine
+
+A browser-based test suite at `tests/index.html` validates the design-rules engine against the canonical Troy Web Reskin CSS Ruleset (v2.4). It covers section classification, all hard-rule violations, distribution targets, the migration shim for deprecated color tokens, brand-token integrity, and full preset-template traces.
+
+To run, start a local server and open `http://localhost:8000/tests/index.html`:
+
+```bash
+python -m http.server 8000
+```
+
+Failures expand automatically with the assertion message; passes are collapsed by group. Add new tests by appending to the `TESTS` array in `tests/rules-engine.test.js`.
 
 ## Future Features
 

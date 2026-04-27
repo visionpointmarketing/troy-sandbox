@@ -1,11 +1,34 @@
 /**
  * TROY Sandbox — Program Hero Section
- * Program landing page hero with info box, two-column layout
- * Cardinal halftone background with white bordered info container
+ *
+ * Program landing page hero with info box, two-column layout.
+ *
+ * Contrast model:
+ *   - The full-width section background is user-selectable via the color picker.
+ *   - The LEFT column (program name, CTAs, note) adapts to that background:
+ *       * Dark sections → white text, white-style buttons
+ *       * Light sections → dark text, cardinal-style buttons
+ *   - The RIGHT column (Program Info card) is intentionally PINNED to a solid
+ *     cardinal background regardless of the section's background. This keeps
+ *     the white text inside it always legible and gives the card a consistent
+ *     branded identity. It also follows the v2.4 reskin principle that nested
+ *     containers must not inherit section colors — they use either white
+ *     (default) or a fixed brand color (cardinal here).
  */
 
 import { escapeHtml, renderIfVisible } from '../utils.js';
-import { COLORS, getHalftoneClasses } from '../color-config.js';
+import { COLORS, getContrastConfig, getHalftoneClasses } from '../color-config.js';
+
+/**
+ * Resolve button class variants based on whether the section background is dark.
+ * Returns the class names from `static/base.css`.
+ */
+function getButtonClasses(isDark) {
+    return {
+        primary: isDark ? 'btn-white' : 'btn-cardinal',
+        secondary: isDark ? 'btn-bordered-white' : 'btn-cardinal-outline',
+    };
+}
 
 export default {
     type: 'program-hero',
@@ -45,7 +68,12 @@ export default {
     render(content, visibility, colors = {}) {
         const bgKey = colors.background || 'cardinal-halftone';
         const colorConfig = COLORS[bgKey] || COLORS['cardinal-halftone'];
+        const contrast = getContrastConfig(bgKey);
         const halftoneClasses = getHalftoneClasses(bgKey);
+        const isDark = colorConfig.isDark;
+        const btn = getButtonClasses(isDark);
+        // Muted text for the *Available for International Students note
+        const noteClass = isDark ? 'text-white/80' : 'text-black/80';
 
         return `
             <section class="relative py-16 lg:py-24 overflow-hidden ${colorConfig.bgClass} ${halftoneClasses}">
@@ -53,13 +81,13 @@ export default {
                 <div class="container mx-auto px-8 relative z-10">
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
 
-                        <!-- Left Column: Program Name & CTAs -->
+                        <!-- Left Column: Program Name & CTAs (adapts to section background) -->
                         <div class="flex flex-col justify-center">
                             ${renderIfVisible(visibility, 'programName', `
                                 <h1
                                     contenteditable="true"
                                     data-field="programName"
-                                    class="hero-headline text-white mb-8"
+                                    class="hero-headline ${contrast.text} mb-8"
                                 >${escapeHtml(content.programName)}</h1>
                             `)}
 
@@ -68,7 +96,7 @@ export default {
                                     <a
                                         contenteditable="true"
                                         data-field="ctaPrimary"
-                                        class="btn-white cursor-text"
+                                        class="${btn.primary} cursor-text"
                                     >${escapeHtml(content.ctaPrimary)}</a>
                                 `)}
 
@@ -76,7 +104,7 @@ export default {
                                     <a
                                         contenteditable="true"
                                         data-field="ctaSecondary"
-                                        class="btn-bordered-white cursor-text"
+                                        class="${btn.secondary} cursor-text"
                                     >${escapeHtml(content.ctaSecondary)}</a>
                                 `)}
                             </div>
@@ -85,13 +113,13 @@ export default {
                                 <p
                                     contenteditable="true"
                                     data-field="noteText"
-                                    class="text-white/80 text-sm italic"
+                                    class="${noteClass} text-sm italic"
                                 >${escapeHtml(content.noteText)}</p>
                             `)}
                         </div>
 
-                        <!-- Right Column: Program Info Box -->
-                        <div class="border-2 border-white p-6 lg:p-8">
+                        <!-- Right Column: Program Info Box (PINNED cardinal, white text always) -->
+                        <div class="bg-cardinal border-2 border-white p-6 lg:p-8">
                             <h2 class="font-pressio-condensed text-2xl text-white uppercase tracking-wider mb-6">Program Info</h2>
 
                             <!-- Info Grid -->
@@ -164,21 +192,27 @@ export default {
     toMarkup(content, visibility = {}, colors = {}) {
         const bgKey = colors.background || 'cardinal-halftone';
         const colorConfig = COLORS[bgKey] || COLORS['cardinal-halftone'];
+        const contrast = getContrastConfig(bgKey);
         const halftoneClasses = getHalftoneClasses(bgKey);
+        const isDark = colorConfig.isDark;
+        const btn = getButtonClasses(isDark);
+        const noteClass = isDark ? 'text-white/80' : 'text-black/80';
 
         return `
 <section class="relative py-16 lg:py-24 overflow-hidden ${colorConfig.bgClass} ${halftoneClasses}">
     <div class="container mx-auto px-8 relative z-10">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+            <!-- Left column adapts to section background -->
             <div class="flex flex-col justify-center">
-                ${visibility.programName !== false ? `<h1 class="hero-headline text-white mb-8">${escapeHtml(content.programName)}</h1>` : ''}
+                ${visibility.programName !== false ? `<h1 class="hero-headline ${contrast.text} mb-8">${escapeHtml(content.programName)}</h1>` : ''}
                 <div class="flex flex-col sm:flex-row gap-4 mb-6">
-                    ${visibility.ctaPrimary !== false ? `<a href="#" class="btn-white">${escapeHtml(content.ctaPrimary)}</a>` : ''}
-                    ${visibility.ctaSecondary !== false ? `<a href="#" class="btn-bordered-white">${escapeHtml(content.ctaSecondary)}</a>` : ''}
+                    ${visibility.ctaPrimary !== false ? `<a href="#" class="${btn.primary}">${escapeHtml(content.ctaPrimary)}</a>` : ''}
+                    ${visibility.ctaSecondary !== false ? `<a href="#" class="${btn.secondary}">${escapeHtml(content.ctaSecondary)}</a>` : ''}
                 </div>
-                ${visibility.noteText !== false ? `<p class="text-white/80 text-sm italic">${escapeHtml(content.noteText)}</p>` : ''}
+                ${visibility.noteText !== false ? `<p class="${noteClass} text-sm italic">${escapeHtml(content.noteText)}</p>` : ''}
             </div>
-            <div class="border-2 border-white p-6 lg:p-8">
+            <!-- Right column: Program Info card pinned to cardinal regardless of section bg -->
+            <div class="bg-cardinal border-2 border-white p-6 lg:p-8">
                 <h2 class="font-pressio-condensed text-2xl text-white uppercase tracking-wider mb-6">Program Info</h2>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
                     <div>
