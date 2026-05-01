@@ -1,454 +1,487 @@
-# TROY Sandbox — Cloud Storage & Sharing Plan
+# Save & Share Implementation Plan
 
-**Status:** Proposal / Design Doc
-**Author:** Architecture exploration
-**Last updated:** 2026-04-23
-
----
-
-## TL;DR (Read This First)
-
-Today, everything a user builds in TROY Sandbox lives in **their own browser** — templates in `localStorage`, images in `IndexedDB`. If they clear their browser, use another computer, or want to send a template to a coworker, there's no way to do it.
-
-This document proposes adding an **AWS-powered cloud layer** that lets users:
-
-1. **Save** templates to the cloud so they persist across devices.
-2. **Revisit** them from any browser by signing in.
-3. **Share** a read-only snapshot via a link anyone can open.
-
-The plan is designed to **sit alongside** the existing localStorage system rather than replace it, so the editor keeps working offline and users can choose local vs. cloud per template. It's phased so we can ship value early (phase 1 = "save and revisit") and add sharing later without rework.
+**Status:** AWS confirmed · revised per Dave's review (April 30, 2026)
+**Companion to:** [`CLOUD-STORAGE-SUPABASE-ALTERNATIVE.md`](./CLOUD-STORAGE-SUPABASE-ALTERNATIVE.md) (alternative considered)
+**Audience:** VisionPoint engineering, Dave Olsen, anyone touching the cloud-side of TROY Sandbox.
 
 ---
 
-## 1. Where We Are Today
+## Executive Summary
 
-The editor has no server. Everything is local to the browser:
+We're adding cloud save and shareable links to the TROY Sandbox so VisionPoint and Troy team members can save their landing-page prototypes, revisit them from any browser, and share them with internal collaborators via a link.
 
-| What | Where it lives | File |
-|---|---|---|
-| The page you're editing (sections, content, visibility, colors) | In-memory `state` object | `js/state.js` |
-| Saved templates (up to 20) | `localStorage` key `troy-sandbox-templates` | `js/template-storage.js` |
-| Uploaded images | `IndexedDB` DB `troy-sandbox-images` | `js/image-store.js` |
-| Full-page JSON export/import | Download / upload a `.json` file | `js/ui.js` |
+**Platform:** AWS, in the existing VisionPoint–Troy account.
 
-Two things matter for cloud design:
+**Architecture:** DynamoDB (data), S3 (images), Lambda with Function URLs (HTTPS endpoints). No API Gateway, no Cognito, no user accounts. A single shared sandbox API key gates write operations.
 
-**a. Templates already have a clean JSON shape.** A template is just `{ id, name, sectionCount, createdAt, sections[] }`. That shape can be uploaded to the cloud almost as-is.
+**Data scope:** Templates are scoped to the **sandbox** (organization), not to individual users. Anyone with the editor and the sandbox key can save, list, and load any template — it's a shared team library, not a per-person inbox.
 
-**b. Templates don't currently contain image data.** When a user saves a template locally, `stripBase64Images()` in `template-storage.js` replaces every embedded image with `null`. Images live separately in IndexedDB keyed by `{sectionId}-{fieldName}`. This is good for localStorage (keeps it small) but means our cloud plan has to handle images as their own thing — not just piggyback on the template record.
+**Hosting:** the editor stays on GitHub Pages; AWS handles only the data layer.
 
-**c. There is no concept of a "user" yet.** No accounts, no login, no tokens. Cloud storage requires us to introduce one.
+**Build estimate:** ~1 week of focused work (down from 1–2 weeks since auth is dropped).
+
+**Cost estimate:** $1–10/month at Troy scale.
+
+**Long-term ownership:** VisionPoint owns the AWS resources after build. Claude-assisted maintenance is a complement, not a substitute, for human ownership.
+
+This revision incorporates Dave's review feedback (April 30, 2026): no Cognito/auth, Lambda Function URLs instead of API Gateway, sandbox-scoped templates instead of user-scoped, CDK is optional rather than required. Net result is a meaningfully simpler system.
 
 ---
 
-## 2. What We Want to Add
+## What we're building
 
 Three user-facing features, in priority order:
 
-1. **Cloud Save** — "Save to my account" instead of (or in addition to) saving locally. Templates live forever, across devices.
-2. **Cloud Library** — A list of my cloud templates I can open from any browser after signing in.
-3. **Share Link** — Generate a URL like `builder.troy.edu/share/abc123` that opens a read-only view of the template. No login required to view.
+1. **Cloud Save.** The editor saves to a shared cloud library instead of (or in addition to) browser localStorage. Templates persist across devices and sessions.
+2. **Cloud Library.** A list of all templates saved against this sandbox, openable by anyone using the editor.
+3. **Share Link.** Generate a URL like `breonwilliams.github.io/troy-sandbox/share/abc123` that opens a read-only view of a specific template. No sign-in required to view.
 
-And one implicit requirement: **images have to come along for the ride.** A template without its hero image is useless.
-
----
-
-## 3. The Big Picture (Plain English)
-
-Imagine three filing cabinets in the cloud:
-
-- **Cabinet 1: Users.** Holds accounts (who you are, how you sign in).
-- **Cabinet 2: Templates.** Holds the JSON for every saved template, tagged with which user it belongs to.
-- **Cabinet 3: Images.** Holds image files, each with a unique ID.
-
-When a user clicks **Save to Cloud**, the browser:
-
-1. Asks the user to sign in if they aren't already.
-2. Uploads each image from IndexedDB to Cabinet 3 and gets back a public URL for each.
-3. Rewrites the template JSON so image fields point to those URLs instead of local IDs.
-4. Sends the rewritten template to Cabinet 2, tagged with the user's ID.
-5. Gets back a template ID to remember.
-
-When the user opens the app on a new computer and clicks **My Cloud Templates**, the browser:
-
-1. Asks them to sign in.
-2. Lists every template tagged with their user ID.
-3. On click, downloads the template JSON. Images render directly from their cloud URLs (no re-upload needed).
-
-When the user clicks **Share**, the browser:
-
-1. Asks the cloud to mint a short random token (e.g. `abc123xyz`) and associate it with this template ID.
-2. Returns a URL like `builder.troy.edu/share/abc123xyz`.
-3. The recipient opens that URL and sees the template in read-only mode — no account needed.
-
-That's the whole model. Everything below is detail about which AWS services fill which role and how the client code calls them.
+Plus the implicit requirement: **images come along.** A template without its hero image is useless.
 
 ---
 
-## 4. AWS Services, Explained Simply
+## Where we are today
 
-We don't need exotic services. Five pieces do the whole job:
+The editor has no server. Everything lives in the user's browser:
 
-| AWS Service | Role in Plain English | Why This One |
+| What | Where it lives | File |
 |---|---|---|
-| **Cognito** | The sign-in system. Handles "Sign in with email/password" or "Sign in with Google." Issues a token that proves who the user is. | It's AWS's standard auth. Free up to 50,000 users. Supports social login when Troy is ready. |
-| **API Gateway** | The "front desk" of the cloud. All requests from the browser hit API Gateway first. It checks the token, then forwards the request to the right backend function. | Standard pattern. Handles HTTPS, rate limits, CORS. |
-| **Lambda** | The backend functions. Small JavaScript functions that run on demand — "save this template," "list my templates," "mint a share link." No server to manage. | Cheap (pay per request), scales automatically, fits this app's traffic pattern. |
-| **DynamoDB** | The templates database. Stores the JSON records for every template and share link. | Fast, cheap at small scale, fits our key-value access pattern perfectly (look up by user, look up by share token). |
-| **S3 + CloudFront** | Image storage. S3 holds the files, CloudFront serves them fast worldwide. | Industry-standard for this. Cheap storage, fast delivery. |
+| Editing state (sections, content, visibility, colors) | In-memory `state` object | `js/state.js` |
+| Saved templates (up to 20) | localStorage key `troy-sandbox-templates` | `js/template-storage.js` |
+| Uploaded images | IndexedDB DB `troy-sandbox-images` | `js/image-store.js` |
+| Full-page JSON export/import | Download/upload a `.json` file | `js/ui.js` |
 
-A browser flow touches all five: you sign in (Cognito), ask to save a template (API Gateway → Lambda), which writes to DynamoDB and S3. On view, images load directly from CloudFront.
+Two architectural realities matter for this plan:
 
-> **Note:** Cognito is the AWS-native answer but not the only one. If Troy has an existing SSO (Shibboleth, Azure AD, Okta) we should use that instead — see "Open Questions" at the end.
+- **Templates already have a clean JSON shape:** `{ id, name, sectionCount, createdAt, sections[] }`. That uploads to the cloud almost as-is.
+- **Templates don't currently contain image data.** When a user saves locally, `stripBase64Images()` replaces every embedded image with `null`. Images live separately in IndexedDB keyed by `{sectionId}-{fieldName}`. Cloud storage has to handle images as their own thing — they can't piggyback on the template record (DynamoDB has a 400KB per-item limit anyway).
+
+There's no concept of a "user" in the editor today, and per Dave's direction we're not introducing one. Cloud storage scopes to the sandbox itself.
 
 ---
 
-## 5. Data Model
+## Architecture
 
-Three tables/buckets. Keep them boring and predictable.
+Three AWS services, accessed by a small client module in the editor.
 
-### 5a. DynamoDB Table: `Templates`
+| Service | Role | Why this one |
+|---|---|---|
+| **Lambda + Function URLs** | Backend functions for save / list / get / delete / share. Each function has its own HTTPS endpoint via Lambda Function URLs. | Pay-per-request, scales automatically, no API Gateway middleman, simpler config |
+| **DynamoDB** | Templates and shares tables, scoped by `sandboxId` | Fast, cheap at small scale, simple key access patterns |
+| **S3** | Image storage | Industry standard. Direct S3 URLs (no CloudFront) are fine for MVP |
 
-Stores one record per saved template.
+### What we deliberately removed (per Dave's review)
+
+- **Cognito** — no user accounts, no sign-in flow. A single shared sandbox API key gates write operations instead.
+- **API Gateway** — Lambda Function URLs provide HTTPS endpoints natively. No API Gateway routing, throttling, or authorizer config to maintain.
+
+### Auth model: single sandbox API key
+
+Each "sandbox" (e.g., the Troy editor instance) has one API key. The key is sent in an `X-Sandbox-Key` header on every write request. Lambda compares against the configured key (stored in Lambda environment variable or AWS Secrets Manager) and rejects anything else. Reads of *individual* shared templates via share token are public (no key needed); reads of the *full library* require the sandbox key.
+
+Trust model: anyone with the editor URL and the sandbox key can save, list, modify, and delete templates. This matches Dave's "save this template and associate it with this sandbox" framing — the team is the unit, not the individual. The key is rotated by VisionPoint as needed.
+
+---
+
+## Infrastructure as Code (CDK) — *optional*
+
+Per Dave's review, CDK is the recommended way to manage these resources but is **not required**. The architecture is small enough that manual configuration via the AWS Console is acceptable for MVP. If we go CDK, the stack is small:
+
+```typescript
+// infra/cdk/lib/troy-sandbox-stack.ts (sketch)
+import { Stack, StackProps, RemovalPolicy } from 'aws-cdk-lib';
+import { Construct } from 'constructs';
+import { Table, AttributeType, BillingMode } from 'aws-cdk-lib/aws-dynamodb';
+import { Bucket, HttpMethods } from 'aws-cdk-lib/aws-s3';
+import { Function, Runtime, Code, FunctionUrlAuthType, HttpMethod } from 'aws-cdk-lib/aws-lambda';
+
+export class TroySandboxStack extends Stack {
+  constructor(scope: Construct, id: string, props?: StackProps) {
+    super(scope, id, props);
+
+    // --- Data ---
+    const templates = new Table(this, 'Templates', {
+      partitionKey: { name: 'sandboxId', type: AttributeType.STRING },
+      sortKey:      { name: 'templateId', type: AttributeType.STRING },
+      billingMode: BillingMode.PAY_PER_REQUEST,
+      removalPolicy: RemovalPolicy.RETAIN,
+    });
+
+    const shares = new Table(this, 'Shares', {
+      partitionKey: { name: 'shareToken', type: AttributeType.STRING },
+      billingMode: BillingMode.PAY_PER_REQUEST,
+      removalPolicy: RemovalPolicy.RETAIN,
+    });
+
+    // --- Storage ---
+    const images = new Bucket(this, 'Images', {
+      cors: [{
+        allowedMethods: [HttpMethods.GET, HttpMethods.PUT, HttpMethods.HEAD],
+        allowedOrigins: ['https://breonwilliams.github.io'],
+        allowedHeaders: ['*'],
+      }],
+    });
+
+    // --- Lambda functions with Function URLs ---
+    const saveTemplate = new Function(this, 'SaveTemplate', {
+      runtime: Runtime.NODEJS_22_X,
+      code: Code.fromAsset('lambda/save-template'),
+      handler: 'index.handler',
+      environment: {
+        TEMPLATES_TABLE: templates.tableName,
+        SANDBOX_KEY: process.env.SANDBOX_KEY!,  // injected at deploy
+      },
+    });
+    saveTemplate.addFunctionUrl({
+      authType: FunctionUrlAuthType.NONE,  // we auth via header inside the function
+      cors: { allowedOrigins: ['https://breonwilliams.github.io'] },
+    });
+    templates.grantWriteData(saveTemplate);
+
+    // ... repeat for listTemplates, getTemplate, deleteTemplate, presignImageUploads,
+    //     createShare, getSharedTemplate, revokeShare
+  }
+}
+```
+
+If we skip CDK and configure manually:
+1. Create DynamoDB tables in the Console (~10 min)
+2. Create S3 bucket with CORS (~5 min)
+3. Create each Lambda function via Console, paste the handler code, add Function URL, set CORS, set env vars (~10 min × 7 functions ≈ 70 min)
+
+CDK still wins on reproducibility and version-controlled diffs, but it's a "do it once if you'd like" rather than a hard requirement.
+
+---
+
+## Data Model
+
+Two DynamoDB tables and one S3 bucket. Sandbox-scoped, not user-scoped.
+
+### DynamoDB: `Templates`
+
+One record per saved template.
 
 ```
-Primary Key:        templateId       (e.g., "tpl_01HXYZ...")
-Sort/Index by:      userId           (so we can list "all my templates")
+Partition key:  sandboxId    (e.g., "troy")
+Sort key:       templateId   (e.g., "tpl_01HXYZ...")
 
 Fields:
-  templateId        string   unique, generated server-side
-  userId            string   from the Cognito token
-  name              string   user-chosen name
+  sandboxId         string   identifies the sandbox (e.g., "troy")
+  templateId        string   unique within sandbox, generated server-side
+  name              string   user-chosen
   sectionCount      number
+  folder            string   optional — for organization within sandbox (Phase 3)
   createdAt         ISO timestamp
   updatedAt         ISO timestamp
-  sections          JSON     the sections[] array, images swapped to URLs
-  version           number   incremented on each update (for conflict detection)
+  sections          JSON     the sections[] array, with images replaced by S3 URLs
+  version           number   optimistic-concurrency counter
 ```
 
-This mirrors the existing local template shape almost exactly, which means the client can treat local and cloud templates interchangeably in most of the UI.
+"List my sandbox's templates" is a single Query on `sandboxId`. No GSI needed for the MVP shape.
 
-### 5b. DynamoDB Table: `Shares`
+### DynamoDB: `Shares`
 
-Stores one record per share link. Separate from Templates so we can give share links different permissions (public read, no auth) without loosening the Templates table.
+One record per share link. Separate table so public read access (no auth) doesn't leak through to Templates.
 
 ```
-Primary Key:  shareToken   (short random string, e.g., "k3m9x2q7")
+Partition key:  shareToken   (10 random base62 chars; ~62^10 combinations — not guessable)
 
 Fields:
   shareToken        string   public, unguessable
-  templateId        string   points to a row in Templates
-  createdBy         string   userId of the person who shared it
+  sandboxId         string   the sandbox this share belongs to
+  templateId        string   points to a Templates row
   createdAt         ISO timestamp
-  expiresAt         ISO timestamp (optional — "no expiry" is allowed)
+  expiresAt         ISO timestamp (optional — default no expiry)
   viewCount         number
-  revoked           boolean  so owner can kill the link
+  revoked           boolean  can kill the link without deleting the template
 ```
 
-### 5c. S3 Bucket: `troy-sandbox-images`
+### S3 bucket: `troy-sandbox-images`
 
-One file per uploaded image. Key structure:
-
-```
-users/{userId}/{imageId}.{ext}
-```
-
-Files are served through CloudFront. The template JSON stores the full CloudFront URL (e.g. `https://cdn.troy.edu/users/abc/img_01HXYZ.jpg`) so the browser can render them without any extra API calls.
+Key structure: `sandboxes/{sandboxId}/images/{imageId}.{ext}`. Files served via direct S3 HTTPS URLs (CloudFront optional later). The template JSON stores the full URL so the editor renders without extra API calls.
 
 ---
 
-## 6. User Flows
+## User Flows
 
-### 6a. Save to Cloud
-
-```
-User clicks "Save to Cloud"
-  → If not signed in, Cognito login modal appears
-  → Client asks each image in IndexedDB for a pre-signed S3 URL (one API call)
-  → Client uploads images directly to S3 in parallel
-  → Client rewrites section content: backgroundImage: "indexeddb-id" → "https://cdn.troy.edu/..."
-  → Client POSTs the rewritten template JSON to /api/templates
-  → Lambda writes the row to DynamoDB, returns { templateId, updatedAt }
-  → Client stores templateId in a local "cloud sync" cache so future edits update instead of create
-```
-
-### 6b. Open a Cloud Template
+### Save to cloud
 
 ```
-User clicks "My Cloud Templates"
-  → Client GETs /api/templates (returns list of { templateId, name, sectionCount, updatedAt } for this user)
-  → UI renders a list mirroring the existing "Saved Templates" popover
-  → User clicks a template
-  → Client GETs /api/templates/{templateId} (returns full JSON)
-  → state.loadTemplate() hydrates the canvas, images load from CloudFront URLs
+User clicks "Save to Cloud" (no sign-in required)
+  → Editor includes the sandbox API key in request headers
+  → Client requests pre-signed S3 URLs for each image (one Lambda Function URL call returning N URLs)
+  → Client PUTs each image directly to S3 in parallel
+  → Client rewrites section JSON: image fields point at S3 URLs
+  → Client POSTs rewritten template JSON to the saveTemplate Function URL
+  → Lambda validates X-Sandbox-Key, writes to DynamoDB, returns { templateId, updatedAt }
+  → Client caches templateId so subsequent saves update instead of duplicate
 ```
 
-### 6c. Share a Template
+### List & open templates
 
 ```
-User opens a saved cloud template → clicks "Share"
-  → Client POSTs /api/templates/{templateId}/share  (optionally with expiresAt)
-  → Lambda creates a Shares row, returns { shareUrl: "https://builder.troy.edu/share/k3m9x2q7" }
-  → UI shows a "Copy link" button
+Editor loads → calls listTemplates Function URL with sandbox key
+  → Lambda returns list of {templateId, name, sectionCount, updatedAt} for this sandbox
+  → UI renders list (mirrors existing "Saved Templates" popover, just shared across the team)
+  → User clicks one → Client GETs getTemplate Function URL with sandbox key
+  → state.loadTemplate() hydrates the canvas; images load from S3 URLs directly
+```
+
+### Share a template
+
+```
+User clicks "Share" on any saved template
+  → Client POSTs to createShare Function URL with sandbox key + templateId
+  → Lambda creates Shares row, returns { shareUrl }
+  → UI shows "Copy link"
 
 Recipient opens the link
-  → Browser loads /share/{shareToken}
-  → App detects share mode, calls GET /api/share/{shareToken} (no auth required)
-  → Lambda looks up the Share, fetches the Template, increments viewCount, returns combined payload
-  → Editor loads in read-only mode (sidebar hidden, controls disabled)
-  → "Copy this template to my account" CTA lets a signed-in viewer fork it
+  → Editor JS reads ?share=TOKEN from URL
+  → Client GETs getSharedTemplate Function URL (no auth — public)
+  → Lambda fetches Share + Template, increments viewCount, returns combined payload
+  → Editor renders in read-only mode (sidebar hidden, controls disabled)
 ```
 
-### 6d. The "Cloud or Local?" Question
+### Cloud or local
 
-Users shouldn't have to think about cloud vs. local most of the time. Proposed UX:
-
-- **Signed-out users** — local only, same as today. No behavior change.
-- **Signed-in users** — **Cloud is the default** for new saves. A small "Save locally instead" option is available for users who want a temporary scratch copy.
-- **Existing local templates** — show a one-time "Migrate to cloud?" banner.
-
-This keeps the architecture simple without forcing users to learn two concepts.
+- **No sandbox key configured** → editor uses localStorage only (current behavior).
+- **Sandbox key configured** → cloud is the default for new saves; "Save locally instead" is a checkbox.
+- **Existing local templates** → one-time "Move to shared library?" banner with a copy-up button.
 
 ---
 
-## 7. What the Client Code Has to Change
+## Client Code Changes
 
-The client changes are smaller than they sound, because the architecture already separates concerns well. We'd add **one new module** and **tweak four existing ones**.
+Smaller than before since the auth layer is gone. **One new module + tweaks to four existing files.**
 
-### New file: `js/cloud-storage.js`
+### New files
 
-Mirrors the function shape of `template-storage.js` so UI code can treat them interchangeably.
+| File | Purpose |
+|---|---|
+| `js/cloud-storage.js` | Mirrors `template-storage.js` public API but talks to AWS Function URLs. `saveTemplate`, `listTemplates`, `getTemplate`, `deleteTemplate`, `createShareLink`, `revokeShare`, `uploadImagesToCloud`. Sends `X-Sandbox-Key` header on every request. |
+| `js/share-view.js` | Detects `?share=TOKEN` on page load, fetches the shared template, renders read-only. |
 
-```javascript
-// Mirrors template-storage.js public API, just async and networked
-export async function saveTemplateToCloud(name, sections)       // → {templateId, ...}
-export async function listCloudTemplates()                      // → [ {templateId, name, ...} ]
-export async function getCloudTemplate(templateId)              // → full template
-export async function updateCloudTemplate(templateId, sections) // → {updatedAt, version}
-export async function deleteCloudTemplate(templateId)           // → boolean
-export async function createShareLink(templateId, options)      // → {shareUrl, shareToken}
-export async function revokeShareLink(shareToken)               // → boolean
+(No `js/cloud-auth.js` needed — there's no sign-in.)
 
-// Image helpers
-export async function uploadImagesToCloud(indexedDbImages)      // → { "indexeddb-id": "https://cdn..." }
-```
-
-### New file: `js/cloud-auth.js`
-
-Handles Cognito sign-in/out, stores the token in memory (not localStorage — safer from XSS), refreshes it on expiry, exposes `getCurrentUser()`.
-
-### New file: `js/share-view.js`
-
-Detects `?share=TOKEN` or `/share/TOKEN` on page load, fetches the shared template, renders it in read-only mode, disables editor controls.
-
-### Existing files to touch
+### Existing files touched
 
 | File | Change |
 |---|---|
-| `js/app.js` | On bootstrap, check for auth token; detect share mode and route accordingly. |
-| `js/ui.js` | Add "Sign in" button, "Cloud Templates" section in template popover, "Share" button on saved-template cards. |
-| `js/save-template-modal.js` | Add "Save to cloud" / "Save locally" toggle when signed in. |
-| `js/state.js` | Add optional `state.cloudTemplateId` so "Save" updates the existing cloud record instead of creating a new one. |
+| `js/app.js` | On bootstrap, check for sandbox key in config; route to share view if a token is present in URL. |
+| `js/ui.js` | Add "Cloud Templates" tab in template popover (visible when sandbox key configured), "Share" button on saved-template cards. |
+| `js/save-template-modal.js` | Add "Save to cloud" / "Save locally" toggle when sandbox key is configured. |
+| `js/state.js` | Add optional `state.cloudTemplateId` so subsequent saves update existing record. |
 
-### Existing files we **don't** touch
+### Files we **don't** touch
 
-- `js/sections/*.js` — section templates are unchanged. The cloud doesn't care what a "hero" is.
-- `js/canvas.js` — rendering is unchanged.
-- `js/image-store.js` — IndexedDB still holds local images. The cloud module reads from it but doesn't replace it.
-- `js/markup-exporter.js` — HTML export is orthogonal.
+`js/sections/*.js`, `js/canvas.js`, `js/design-rules.js`, `js/color-config.js`, `js/markup-exporter.js`. Section logic, rendering, and rules engine are independent of where data lives.
 
-This separation matters: it means the cloud feature can be **removed or disabled** without breaking the core editor. That's the "maintainable, scalable" outcome we want — not a rewrite.
+### Sandbox key configuration
 
----
-
-## 8. Security & Privacy
-
-### Authentication
-
-All `/api/templates*` endpoints require a valid Cognito JWT in the `Authorization` header. Lambda extracts `userId` from the verified token, so a user **cannot** request another user's templates by guessing IDs.
-
-### Share links
-
-Share tokens are ~10 characters of randomness (62^10 ≈ 10^17 combinations — not guessable). Share endpoints are public (no auth) but only return **read-only** data. Owners can revoke a link at any time. Optional expiration built in.
-
-### Images
-
-S3 bucket is private. Public access happens through CloudFront with signed URLs OR with a public-read policy scoped only to the `users/{userId}/` prefix. For a first pass, public-read is simpler; signed URLs are the "enterprise" upgrade if Troy needs stricter privacy.
-
-### Data ownership
-
-Users own their templates. Delete means hard-delete (DynamoDB row removed, S3 images for that template removed). No soft-delete in v1 — keep it simple.
-
-### PII
-
-The only PII is email (via Cognito). Don't log template content in CloudWatch unless needed for debugging. Tag the DynamoDB tables appropriately if Troy has a data classification policy.
+The key is loaded from a config file or an environment variable injected at build time. For the GitHub Pages-hosted Troy editor, simplest is a small `js/cloud-config.js` (gitignored) that exports the key. The editor checks for its presence to enable the cloud features.
 
 ---
 
-## 9. Images — The Part That Trips Everyone Up
+## Security Model
 
-Cloud save only looks complicated because of images. Three options, with trade-offs:
+**Write operations** require the `X-Sandbox-Key` header. Lambda compares against the value in its environment (or AWS Secrets Manager) and rejects mismatches with 401. The key is the trust boundary — anyone with the key can save, list, modify, and delete templates within that sandbox. This matches Dave's "singular key per sandbox" framing.
 
-**Option A: Base64-embed everything in the template JSON.**
-Simplest to code, terrible at scale. A hero with a 2MB image becomes a 2.7MB JSON blob. DynamoDB has a 400KB per-item limit, so this breaks on basically any real template. **Reject.**
+**Read of an individual shared template** via share token is public — no key needed. The token's randomness (~10^17 combinations) is the access control.
 
-**Option B: S3 with public-read URLs.** *(Recommended)*
-Client uploads images to S3, gets back URLs, puts URLs in the template JSON. Simple, fast, scalable. Only risk: anyone with the URL can view the image. For a landing-page tool, this is the right risk level — the images are designed to be public anyway.
+**Listing the full library** requires the sandbox key. Share tokens only grant access to the specific template they point at, not to the sandbox's library.
 
-**Option C: S3 with signed, time-limited URLs.**
-Same as B but every image URL expires in e.g. 1 hour and has to be re-signed on load. More secure but adds complexity: every template load has to proxy through Lambda to re-sign URLs. Save this for "v2" if Troy has a concrete privacy requirement.
+**Images.** S3 bucket exposes the `sandboxes/{sandboxId}/images/` prefix as public-read. Images are designed to be public anyway (landing pages). If Troy later needs stricter privacy, switch to signed URLs (separate project, ~3 days of work).
 
-**Recommendation: Start with Option B.** Document the URL-exposure model clearly. Add Option C later if needed — the database schema doesn't have to change.
+**Data ownership.** Each template belongs to the sandbox. Delete is hard-delete (DynamoDB row + S3 images for that template removed). No soft-delete in v1.
 
----
+**No PII.** Without auth, we don't store user identities. Templates are anonymous within the sandbox.
 
-## 10. Phased Implementation Plan
-
-Each phase ships something useful on its own. If we stop after Phase 2, users still get meaningful value.
-
-### Phase 1: Accounts (1–2 weeks)
-
-**Goal:** Users can sign in. Nothing else changes yet.
-
-- Set up Cognito user pool (email + password to start).
-- Add `js/cloud-auth.js` with login/logout/getCurrentUser.
-- Add sign-in button + user-menu to the toolbar.
-- Store auth state in memory; handle token refresh.
-
-**Test criteria:** User can sign up, sign in, sign out. Refreshing the page stays signed in for session duration. No other behavior changes.
-
-### Phase 2: Cloud Save & Library (2–3 weeks)
-
-**Goal:** Signed-in users can save and reopen templates from the cloud.
-
-- Set up S3 bucket + CloudFront distribution.
-- Set up DynamoDB `Templates` table.
-- Create Lambda functions: `saveTemplate`, `listTemplates`, `getTemplate`, `updateTemplate`, `deleteTemplate`.
-- Set up API Gateway routes with Cognito authorizer.
-- Add `js/cloud-storage.js` with the public API above.
-- Update the template popover to show a "Cloud" tab when signed in.
-- Update save modal to offer cloud vs. local.
-
-**Test criteria:** A user signs in on Mac, saves a template with a hero image. Signs in on PC, opens the same template, image renders. Deletes on PC, confirms it's gone on Mac.
-
-### Phase 3: Share Links (1–2 weeks)
-
-**Goal:** Any saved cloud template can be shared via a link.
-
-- Add DynamoDB `Shares` table.
-- Add Lambda: `createShare`, `getSharedTemplate`, `revokeShare`.
-- Public route `/share/{shareToken}` (no auth).
-- Add `js/share-view.js` read-only viewer.
-- Add "Share" button to cloud template cards with copy-link UX.
-- Add "Fork this to my account" CTA for signed-in viewers.
-
-**Test criteria:** Owner clicks Share, gets a URL, sends to a colleague. Colleague opens in an incognito window, sees the page, cannot edit. Signs in, clicks "Fork," gets their own editable copy.
-
-### Phase 4: Polish (ongoing)
-
-Things we'd want eventually but can absolutely ship without:
-
-- **Autosave / sync** — debounced save-on-change for cloud templates.
-- **Version history** — keep the last N versions, restore a previous one.
-- **Team accounts** — shared libraries, not just individual users.
-- **Signed image URLs** — the Option C upgrade from §9.
-- **Analytics** — how many times has this share link been viewed, from where.
-- **Migration tool** — one-click "upload all my local templates to cloud."
-
-Flag these as "future" but design the schemas now so they don't require migrations later. Examples: we've already added `version` to Templates and `expiresAt`/`revoked` to Shares for exactly this reason.
+**Key rotation.** When the sandbox key needs rotating, update the Lambda environment variable (or Secrets Manager value) and update the editor's config. Brief outage window during the swap unless the Lambda reads at request time and supports two valid keys during a rotation period.
 
 ---
 
-## 11. Cost Estimate
+## Image Handling
 
-For the realistic TROY scale (say: a few hundred signed-in users, a few thousand templates, ~50GB of images), AWS costs should sit in the **$10–40 per month** range.
+Approach: **client uploads directly to S3 via presigned URLs.** Specifically:
 
-| Service | Likely monthly cost |
+1. Client calls the `presignImageUploads` Function URL with `[{ imageId, contentType, size }, ...]` and the sandbox key.
+2. Lambda returns `[{ uploadUrl, cdnUrl }, ...]` — one presigned PUT URL per image.
+3. Client `PUT`s each image directly to S3 in parallel. Bytes never go through Lambda.
+4. Client embeds the `cdnUrl`s in the template JSON before saving.
+
+This avoids Lambda's 6MB request size limit and avoids egress costs going through Lambda. It's the standard pattern.
+
+---
+
+## Phased Build Plan
+
+Each phase ships value on its own. With auth dropped, the previous "Phase 1 — Accounts" is gone.
+
+### Phase 1 — Cloud save & library (3–5 days)
+
+Templates table, S3 bucket, Lambda functions with Function URLs, client integration.
+
+- DynamoDB: `Templates` table (partition: sandboxId, sort: templateId)
+- S3: `Images` bucket with CORS for the editor origin
+- Lambda functions: `saveTemplate`, `listTemplates`, `getTemplate`, `updateTemplate`, `deleteTemplate`, `presignImageUploads` — each with its own Function URL, each validating `X-Sandbox-Key`
+- `js/cloud-storage.js` matching the public API of `template-storage.js`
+- Update template popover with "Cloud Library" tab when sandbox key configured
+- Update save modal with cloud/local toggle
+- **Test:** save on Mac with hero image; reload on PC, image renders; delete on PC, gone on Mac
+
+### Phase 2 — Share links (1–2 days)
+
+Shares table, public Lambda Function URL for share viewing, read-only viewer UI.
+
+- DynamoDB: `Shares` table
+- Lambda functions: `createShare`, `getSharedTemplate` (public, no key), `revokeShare`
+- `js/share-view.js` read-only viewer
+- "Share" button on cloud template cards with copy-link UX
+- **Test:** share, open in incognito, see template render read-only
+
+### Phase 3 — Polish (ongoing)
+
+- Folders for organizing the cloud library (Dave's "Maybe add folders for organization" suggestion)
+- Migration tool for existing localStorage templates (one-click upload-all)
+- Autosave for cloud templates (debounced save-on-change)
+- Analytics on share-link views
+- Signed URLs for images if Troy ever needs stricter privacy
+
+**Total Phase 1–2:** roughly **1 week of focused work** with Claude as code-suggester partner.
+
+---
+
+## Operational Ownership
+
+AWS infrastructure needs a human owner at VisionPoint for the long term. With Cognito and API Gateway removed, the surface area is smaller — but it's still real.
+
+What VisionPoint needs to commit to:
+
+- **Lambda runtime updates.** AWS deprecates Node.js versions every 2–3 years. Someone reads the deprecation email, updates the function runtime, confirms nothing broke. ~30 minutes per occurrence per function.
+- **Cost surveillance.** Set a Budget Alert at $25/month before deploying. Review the alarm if it fires.
+- **Sandbox key rotation.** When the key needs changing (suspected leak, departed contributor with sensitive access), rotate the Lambda environment variable and update the editor config.
+- **Incident response.** If something breaks (bad deploy, AWS outage, runaway loop), someone reads CloudWatch logs and characterizes the problem before Claude can help fix it.
+- **Annual security review.** Quick check: Lambda IAM scopes still least-privilege, S3 bucket CORS still locked to editor origin, no rogue Function URLs added.
+
+**Realistic ongoing time investment:** 1–2 hours per month in steady state. Smaller than the previous (auth-included) estimate.
+
+---
+
+## AI-Assisted Build Strategy
+
+Claude is a code-suggester during build. Specifically and intentionally **not** an autonomous actor in AWS.
+
+### Hard boundary: Claude does not access AWS
+
+Claude has **no AWS credentials, no Console access, and no MCP-based AWS connection** in this project. Claude writes the CDK stack, Lambda code, and client modules as text files. The developer reviews every piece, commits it to git, and runs `cdk deploy` (or configures manually in the Console) from their own machine using their own AWS credentials. The same applies to any console operation — provisioning, debugging, log inspection, manual interventions — those are exclusively human actions.
+
+This boundary is intentional. AI making autonomous changes to live cloud infrastructure introduces operational risk we're not willing to accept (a misunderstood instruction or hallucinated parameter can destroy data or rack up costs in seconds). The boundary keeps Claude useful as a coding partner while keeping a human in the loop for every change that touches AWS state.
+
+### During build
+
+- Claude writes the Lambda function handlers (Node.js)
+- Claude writes the optional CDK stack file
+- Claude writes the client modules (`cloud-storage.js`, `share-view.js`)
+- Claude generates IAM policies with least-privilege defaults
+- Developer is the only actor with AWS access — reviews each piece, commits, and deploys themselves
+- Developer pastes any AWS errors, log excerpts, or output back to Claude as text for debugging
+
+### During day-2 operations
+
+- Developer describes incidents to Claude using CloudWatch log excerpts and observed symptoms
+- Claude suggests fixes; developer reviews and applies them
+- Claude **cannot** read AWS state, run AWS commands, or apply changes — every action that affects AWS is a human action
+
+The honest framing: AI-assisted build cuts time-to-MVP roughly in half by accelerating code-writing and IAM-policy-authoring. It does not eliminate the long-term ownership requirement, and it does not give Claude any agency over the live AWS environment. The "Claude + CDK route" is exactly what this section describes — applied to a smaller AWS surface now that auth and API Gateway are out.
+
+---
+
+## Cost Estimate
+
+For Troy's expected scale (a Troy team using one shared sandbox, hundreds of templates, modest image volume):
+
+| Service | Monthly cost |
 |---|---|
-| Cognito | $0 (under 50k free tier) |
-| DynamoDB | $1–5 (pay-per-request) |
-| Lambda | $0–2 (under 1M requests/mo free tier) |
-| API Gateway | $1–5 |
-| S3 storage + CloudFront | $5–25 depending on image volume & traffic |
+| DynamoDB | $0–2 (pay-per-request, free tier covers most months) |
+| Lambda | $0–1 (under 1M requests/mo free tier) |
+| S3 storage + transfer | $1–5 (depends on image volume and view traffic) |
+| **Total** | **~$1–10/month** |
 
-Costs scale well: 10× the users ≈ 2–3× the cost because most services are pay-per-use and the free tiers absorb a lot.
-
-The "gotcha" to watch is CloudFront egress if a template goes viral through shares. Set a budget alert.
+Removing Cognito ($0 anyway), API Gateway ($1–5), and the user-account complexity drops both the build cost and the steady-state bill.
 
 ---
 
-## 12. Trade-offs & Alternatives
+## Open Questions for VisionPoint / Troy
 
-**"Could we just use Firebase / Supabase and skip AWS?"**
-Yes. Both give you auth + database + file storage + hosting in one package with less setup. If Troy doesn't have an existing AWS relationship, this is a legitimate shortcut. The data model in §5 translates directly to either.
+A few things still need answers before build:
 
-**Recommendation:** Use AWS if Troy already has an AWS account, DevOps, or procurement preference. Use Supabase/Firebase if this is a first cloud footprint for the team and speed matters more than long-term control. Either choice is reversible — the client-side module stays the same, only the network layer changes.
+1. **Sandbox key storage.** Lambda env var (simpler) or AWS Secrets Manager (rotates more cleanly)? For an MVP with one sandbox, env var is fine.
+2. **Sandbox key distribution.** How do Troy team members get the key into their editor instance? Options: (a) hardcoded into the editor's config file (commit to a private repo), (b) prompt user once and stored in localStorage, (c) embedded at build time via GitHub Actions secret. Recommend (c) if the GitHub Pages deployment is automated; else (a).
+3. **Cloud region.** us-east-1 (cheapest, most services) is the default. Confirm there's no policy requirement for a specific region.
+4. **Data retention on delete.** Hard-delete (recommended) or 30-day soft-delete? Hard-delete is simpler.
+5. **Share link expiration.** No default expiry (recommended) or e.g. 30-day default? Internal Troy sharing flow benefits from no-expiry.
 
-**"Could we just use a single JSON file per template in S3 and skip DynamoDB?"**
-Technically yes, and it'd be cheaper and simpler to start. The reason to use DynamoDB anyway is that "list my templates" becomes painful with S3 alone (you have to list-objects and read each JSON to get the name), and share tokens really want a proper index. DynamoDB solves both cleanly.
-
-**"Could we skip accounts and use random browser IDs?"**
-You could let users save to the cloud anonymously keyed by a browser-generated ID. It lets you ship Phase 2 without Phase 1. But "I cleared my browser and lost all my cloud templates" is a very bad support ticket. Accounts are worth the extra week.
-
-**"Why not just beef up the existing JSON import/export?"**
-Import/export already works for one-off sharing — you can email someone a `.json` file today. The missing value is **persistence and URLs**: someone clicking a link in Slack and immediately seeing the template. Files-over-email doesn't get you there.
-
----
-
-## 13. Recommended Path
-
-If Troy greenlights this, build it in this order:
-
-1. **Decide on auth provider.** Cognito (default) vs. Troy SSO (if it exists) vs. Supabase/Firebase (if we want to skip AWS). This decision blocks everything else.
-2. **Ship Phase 1 (accounts).** Release it even though it does "nothing" — it de-risks the hardest part and lets users start signing up.
-3. **Ship Phase 2 (cloud save & library).** This is the feature people actually want. Share links can wait a sprint.
-4. **Ship Phase 3 (share links).** The "viral" moment. Now people have a reason to bring collaborators into the tool.
-5. Treat Phase 4 items as backlog, prioritized by user feedback.
-
-Resist the temptation to skip Phase 1 and build "accountless" cloud save — it's a short-term win that becomes a support nightmare and a data-migration project 6 months in.
+Settled per Dave's review:
+- No auth / no Cognito
+- Lambda Function URLs, no API Gateway
+- Sandbox-scoped templates with single shared key
+- CDK is optional, not required
+- Hosting stays on GitHub Pages
+- AWS confirmed as platform
 
 ---
 
-## 14. Open Questions for Troy Stakeholders
+## API Contract
 
-Before we start building, we need answers to these. They materially change the design:
-
-1. **Auth:** Does Troy have an existing SSO we should integrate with (Shibboleth, Azure AD, Okta)? If yes, Cognito federates to it. If no, we start with Cognito email/password.
-2. **Who can sign up?** Public (anyone with an email), Troy-only (must have a `@troy.edu` email), or invite-only?
-3. **Cloud region:** Any policy on where data can be stored (e.g. US-only)?
-4. **Retention:** How long do we keep deleted templates? 30-day soft-delete, or immediate hard-delete?
-5. **Share defaults:** Do share links expire by default (e.g. 30 days) or never?
-6. **Hosting:** Where does the editor itself get hosted once it goes cloud-connected? Static hosting on S3+CloudFront is the natural answer and pairs well with this plan.
-7. **Branding of share URLs:** `builder.troy.edu/share/...`? A separate short domain? Needs DNS coordination.
-
----
-
-## 15. Appendix — API Contract Sketch
-
-A concrete REST shape the Lambda + API Gateway layer would expose. Included so a backend dev could start immediately.
+Concrete shape — each endpoint is a Lambda Function URL, no API Gateway routing:
 
 ```
-POST   /api/templates                   Create new cloud template
-GET    /api/templates                   List my cloud templates
-GET    /api/templates/{id}              Get one full template
-PUT    /api/templates/{id}              Replace template (autosave)
-DELETE /api/templates/{id}              Delete template
+POST   /save-template            Save / update a template
+                                 Headers: X-Sandbox-Key
+                                 Body: { sandboxId, name, sections[], templateId? }
+                                 Returns: { templateId, updatedAt }
 
-POST   /api/images/presign              Get pre-signed S3 upload URL
-                                        body: { imageId, contentType, size }
-                                        returns: { uploadUrl, cdnUrl }
+GET    /list-templates           List templates for this sandbox
+                                 Headers: X-Sandbox-Key
+                                 Query: ?sandboxId=troy
+                                 Returns: [{ templateId, name, sectionCount, updatedAt }, ...]
 
-POST   /api/templates/{id}/share        Create share link
-                                        body: { expiresAt? }
-                                        returns: { shareToken, shareUrl }
-DELETE /api/shares/{shareToken}         Revoke share
+GET    /get-template             Get one full template
+                                 Headers: X-Sandbox-Key
+                                 Query: ?sandboxId=troy&templateId=tpl_abc
+                                 Returns: full template
 
-GET    /api/share/{shareToken}          Public: get a shared template
-                                        returns: { template, meta: { createdBy, viewCount } }
+DELETE /delete-template          Delete a template
+                                 Headers: X-Sandbox-Key
+                                 Query: ?sandboxId=troy&templateId=tpl_abc
+                                 Returns: { ok: true }
+
+POST   /presign-images           Get presigned S3 upload URLs
+                                 Headers: X-Sandbox-Key
+                                 Body: [{ imageId, contentType, size }, ...]
+                                 Returns: [{ uploadUrl, cdnUrl }, ...]
+
+POST   /create-share             Create share link
+                                 Headers: X-Sandbox-Key
+                                 Body: { sandboxId, templateId, expiresAt? }
+                                 Returns: { shareToken, shareUrl }
+
+DELETE /revoke-share             Revoke share
+                                 Headers: X-Sandbox-Key
+                                 Query: ?shareToken=k3m9x2q7
+
+GET    /share/{shareToken}       Public: get a shared template (no key)
+                                 Returns: { template, meta: { viewCount } }
 ```
 
-All authenticated routes expect `Authorization: Bearer <cognito-jwt>`. The public share route takes no auth. CORS allowlists the editor origin.
+Each route is a separate Lambda Function URL. CORS allowlists the GitHub Pages editor origin on each one. The Function URL itself is unauthed at the AWS layer (`AuthType.NONE`) — the `X-Sandbox-Key` header is the application-level gate, validated inside each Lambda.
 
 ---
 
-*End of plan. This is a design document, not a build document — every section is open to revision before implementation begins.*
+## See Also
+
+- [`CLOUD-STORAGE-SUPABASE-ALTERNATIVE.md`](./CLOUD-STORAGE-SUPABASE-ALTERNATIVE.md) — the alternative considered. With auth dropped from the AWS plan, the AWS-vs-Supabase gap narrows but doesn't disappear; Supabase still wins on built-in concerns like real-time subscriptions, dashboard tooling, and managed Postgres if those become useful later.
+
+---
+
+*This is an implementation plan, not a build artifact. The Lambda functions, optional CDK stack, and client modules are written during Phases 1–2. This document captures the architecture and decisions; the code is the deliverable.*
