@@ -10,6 +10,7 @@ import { initImageStore } from './image-store.js';
 import { initImageModal } from './image-upload-modal.js';
 import { initSaveTemplateModal } from './save-template-modal.js';
 import { initPreviewIframe, setStaticContent, updatePreviewContent } from './preview-iframe.js';
+import { setStaticContentForScreenshot } from './screenshot-exporter.js';
 import { getTemplateMap } from './sections/index.js';
 import { assertTailwindMirrorsBrandColors } from './color-tokens.js';
 
@@ -64,10 +65,12 @@ async function init() {
 
         // Initialize preview iframe with static content
         initPreviewIframe();
-        setStaticContent(
-            document.getElementById('static-header').innerHTML,
-            document.getElementById('static-footer').innerHTML
-        );
+        const headerContent = document.getElementById('static-header').innerHTML;
+        const footerContent = document.getElementById('static-footer').innerHTML;
+        setStaticContent(headerContent, footerContent);
+
+        // Initialize screenshot exporter with static content
+        setStaticContentForScreenshot(headerContent, footerContent);
 
         // Initialize state
         state.init();

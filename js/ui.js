@@ -12,6 +12,7 @@ import { getAllPageTemplates, getPageTemplate } from './page-templates.js';
 import { validateDesignRules, getStatusMessage } from './design-rules.js';
 import { getSavedTemplates, getSavedTemplate, saveTemplate, deleteTemplate } from './template-storage.js';
 import { openSaveTemplateModal } from './save-template-modal.js';
+import { captureScreenshot } from './screenshot-exporter.js';
 
 /**
  * Initialize UI components
@@ -321,8 +322,18 @@ function initTemplateDropdown() {
  */
 function initExportImport() {
     const exportBtn = document.getElementById('export-btn');
+    const exportScreenshotBtn = document.getElementById('export-screenshot-btn');
     const importBtn = document.getElementById('import-btn');
     const importInput = document.getElementById('import-input');
+
+    // Screenshot Export
+    if (exportScreenshotBtn) {
+        exportScreenshotBtn.addEventListener('click', () => {
+            const sections = state.getSections();
+            const templates = getTemplateMap();
+            captureScreenshot(sections, templates);
+        });
+    }
 
     // Export
     exportBtn.addEventListener('click', async () => {
