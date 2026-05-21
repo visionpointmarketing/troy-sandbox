@@ -1,15 +1,15 @@
 /**
  * TROY Sandbox — Screenshot Exporter
  * Captures the landing page as a PNG image using html2canvas
+ *
+ * Directly captures the canvas element for reliability
  */
 
 import { getDefaultColors } from './color-config.js';
-import { BRAND_COLORS } from './color-tokens.js';
 import { getTimestamp, showToast } from './utils.js';
 
 let headerHtml = '';
 let footerHtml = '';
-let baseCssContent = null;
 
 /**
  * Set static content (header/footer) for screenshot rendering
@@ -20,71 +20,8 @@ export function setStaticContentForScreenshot(header, footer) {
 }
 
 /**
- * Build the inline Tailwind config string from BRAND_COLORS.
- * Matches the pattern from preview-iframe.js
- */
-function buildTailwindConfig() {
-    const colorsJson = JSON.stringify(BRAND_COLORS);
-    return `
-tailwind.config = {
-    theme: {
-        fontFamily: {
-            'headline-primary': ['pressio-compressed', 'sans-serif'],
-            'headline-secondary': ['pressio-compressed', 'sans-serif'],
-            'subhead': ['avenir-lt-pro', 'sans-serif'],
-            'body': ['avenir-lt-pro', 'sans-serif'],
-        },
-        extend: {
-            colors: ${colorsJson},
-            aspectRatio: { 'feature': '16 / 9' },
-        }
-    }
-}`;
-}
-
-/**
- * Fetch and cache base.css content
- */
-async function getBaseCss() {
-    if (baseCssContent) return baseCssContent;
-    try {
-        const response = await fetch('static/base.css');
-        baseCssContent = await response.text();
-    } catch (e) {
-        console.warn('Could not load base.css for screenshot:', e);
-        baseCssContent = '';
-    }
-    return baseCssContent;
-}
-
-/**
- * Wait for all images in a container to load
- */
-function waitForImages(container) {
-    const images = container.querySelectorAll('img');
-    const promises = Array.from(images).map(img => {
-        if (img.complete) return Promise.resolve();
-        return new Promise(resolve => {
-            img.onload = resolve;
-            img.onerror = resolve; // Continue even if image fails
-        });
-    });
-    return Promise.all(promises);
-}
-
-/**
- * Wait for fonts to be ready
- */
-async function waitForFonts() {
-    if (document.fonts && document.fonts.ready) {
-        await document.fonts.ready;
-    }
-    // Additional delay to ensure fonts are rendered
-    return new Promise(resolve => setTimeout(resolve, 100));
-}
-
-/**
  * Capture screenshot of the current landing page
+ * Directly captures the canvas element
  * @param {Array} sections - Array of section objects
  * @param {Object} templates - Map of section type to template module
  * @returns {Promise<void>}
@@ -113,70 +50,42 @@ export async function captureScreenshot(sections, templates) {
                 <svg class="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
                 </svg>
-                Capturing...
+                <span>Capturing...</span>
             `;
         }
 
-        // Get base.css content
-        const css = await getBaseCss();
+        // Get the canvas element directly
+        const canvas = document.getElementById('canvas');
+        if (!canvas) {
+            throw new Error('Canvas element not found');
+        }
 
-        // Generate clean markup from sections using toMarkup()
-        const sectionsMarkup = sections
-            .map(section => {
-                const template = templates[section.type];
-                if (!template || !template.toMarkup) return '';
-                const colors = section.colors || getDefaultColors(section.type);
-                return template.toMarkup(section.content, section.visibility, colors);
-            })
-            .join('\n');
+        // Hide editor controls temporarily for cleaner capture
+        const controls = canvas.querySelectorAll('.section-controls, .section-move-controls');
+        controls.forEach(el => el.style.display = 'none');
 
-        // Create offscreen container
-        const container = document.createElement('div');
-        container.id = 'screenshot-container';
-        container.style.cssText = `
-            position: absolute;
-            left: -9999px;
-            top: 0;
-            width: 1440px;
-            background: white;
-            font-family: 'avenir-lt-pro', sans-serif;
-        `;
-
-        // Build the HTML content
-        container.innerHTML = `
-            <style>${css}</style>
-            ${headerHtml}
-            <main>${sectionsMarkup}</main>
-            ${footerHtml}
-        `;
-
-        document.body.appendChild(container);
-
-        // Wait for images and fonts to load
-        await Promise.all([
-            waitForImages(container),
-            waitForFonts()
-        ]);
-
-        // Small delay to ensure rendering is complete
-        await new Promise(resolve => setTimeout(resolve, 200));
+        // Wait a moment for any animations to settle
+        await new Promise(resolve => setTimeout(resolve, 100));
 
         // Capture with html2canvas
-        const canvas = await html2canvas(container, {
+        const capturedCanvas = await html2canvas(canvas, {
             scale: 2, // Retina quality
             useCORS: true,
             allowTaint: true,
             backgroundColor: '#ffffff',
-            width: 1440,
-            windowWidth: 1440,
             logging: false,
+            // Ignore editor controls
+            ignoreElements: (element) => {
+                return element.classList?.contains('section-controls') ||
+                       element.classList?.contains('section-move-controls');
+            }
         });
 
-        // Clean up offscreen container
-        container.remove();
+        // Restore controls
+        controls.forEach(el => el.style.display = '');
 
         // Convert to PNG and download
-        const dataUrl = canvas.toDataURL('image/png');
+        const dataUrl = capturedCanvas.toDataURL('image/png');
         const timestamp = getTimestamp();
         const filename = `troy-landing-page-${timestamp}.png`;
 
@@ -192,7 +101,7 @@ export async function captureScreenshot(sections, templates) {
 
     } catch (error) {
         console.error('Screenshot capture failed:', error);
-        showToast('Screenshot capture failed. Please try again.', { kind: 'warning' });
+        showToast('Screenshot failed. Please try again.', { kind: 'warning' });
     } finally {
         // Restore button state
         if (exportBtn && originalContent) {

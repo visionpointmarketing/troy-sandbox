@@ -831,10 +831,39 @@
 }
 
 /* ============================================
-   Export Screenshot Button
+   Toolbar Export Buttons
    ============================================ */
 
-#export-screenshot-btn:disabled {
-    opacity: 0.7;
-    cursor: wait;
+.toolbar-export-group {
+    display: flex;
+    gap: 0.5rem;
+    margin-left: auto;
+    margin-right: 1rem;
+}
+
+.toolbar-export-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+    color: white;
+    background-color: #910039;
+    border: none;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: background-color 0.15s;
+}
+
+.toolbar-export-btn:hover {
+    background-color: #720724;
+}
+
+.toolbar-export-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.toolbar-export-btn svg {
+    flex-shrink: 0;
 }
