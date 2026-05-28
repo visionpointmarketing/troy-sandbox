@@ -42,6 +42,10 @@ This is a **standalone project** — not a fork of the wireframe-builder, but a 
 | `js/preview-iframe.js` | Responsive preview rendering |
 | `js/sections/index.js` | Registry — imports all sections, exports `sectionTemplates` |
 | `js/sections/*.js` | Individual section templates (11 total) |
+| `js/cloud-config.js` | Cloud Lambda endpoint URLs + sandbox API key helpers. See "Cloud Save" below. |
+| `js/cloud-storage.js` | API client for AWS-backed save. Mirrors `template-storage.js` public surface. |
+| `js/cloud-key-modal.js` | Modal that prompts the user for the sandbox API key on first connect. |
+| `lambda/` | AWS Lambda handlers, IAM policies, and config — one subdirectory per function. See `lambda/README.md` and `docs/CLOUD-IMPLEMENTATION.md`. |
 | `styles/editor.css` | Editor UI styles (controls, handles, canvas chrome) |
 | `static/base.css` | Base component styles (buttons, typography) |
 | `assets/header.html` | Static Troy header markup |
@@ -142,6 +146,55 @@ When Troy provides their full `tailwind.config.js` (or when this project switche
 
 When sections are loaded from any external source (saved templates, JSON imports, a previous session's saved state), `state.js` runs `migrateColorTokens()` from `js/color-config.js`. This rewrites deprecated color keys to their current equivalents — for example, the removed `sand-300` ("Sand Dark") becomes `sand`, and the renamed `cardinal-900` becomes `cardinal-dark`. A one-shot toast notifies the user when any rewrites occur. The migration is idempotent and safe to call multiple times.
 
+## Cloud Save & Share
+
+The editor has an optional **Cloud Library** feature that backs onto AWS
+(DynamoDB + S3 + Lambda Function URLs in the existing VisionPoint AWS
+account, `831326375124`, region `us-east-1`). It lets a team save templates
+**with images** to a shared library accessible from any device.
+
+**Authoritative source of truth:** [`docs/CLOUD-IMPLEMENTATION.md`](docs/CLOUD-IMPLEMENTATION.md).
+Every architectural decision, naming convention, data model, and trade-off
+is captured there. **Future Claude instances working on cloud-side issues
+should read that document first.** It links to:
+
+- [`docs/AWS-DEPLOYMENT-GUIDE.md`](docs/AWS-DEPLOYMENT-GUIDE.md) — step-by-step console deployment
+- [`docs/AWS-RUNBOOK.md`](docs/AWS-RUNBOOK.md) — rotation, debugging, teardown procedures
+- [`docs/CLOUD-STORAGE-PLAN.md`](docs/CLOUD-STORAGE-PLAN.md) — original planning doc (Dave-approved architecture)
+- [`lambda/README.md`](lambda/README.md) — Lambda directory conventions
+
+### How cloud features are gated
+
+The feature is **fully optional and self-gating**. When `js/cloud-config.js`
+still contains `PASTE_FUNCTION_URL_HERE` placeholders, the editor behaves
+identically to its pre-cloud state — local-only saves, no Cloud Library UI,
+no network calls. When real Lambda Function URLs are pasted in, the Cloud
+Library section appears in the Templates popover and users can connect.
+
+The trust model is a single shared API key (`X-Sandbox-Key` header,
+sandbox-scoped, not per-user) per Dave Olsen's planning review. Users enter
+the key once per browser; it's stored in `localStorage` under
+`troy-sandbox-cloud-key`. The key is the trust boundary — see the
+implementation doc for rationale.
+
+### What's deployed vs. planned
+
+- **Phase 1 (built, awaiting deploy):** save, list, get, delete, presign-images. Five Lambdas, one DynamoDB table (`TroySandbox_Templates`), one S3 bucket (`troy-sandbox-images.vpmdevtech.com`).
+- **Phase 2 (not built):** share links. Endpoint placeholders exist in `cloud-config.js` but no Lambdas. See `CLOUD-IMPLEMENTATION.md` → "What's NOT implemented" for the build plan.
+- **Phase 3 (not built):** folders, autosave, orphan-image cleanup, etc.
+
+### Backend deployment characteristics
+
+- **No CDK, no Lambda Layers, no build step.** Each Lambda is a single
+  copy-paste-deployable `index.js` file. Helpers (CORS, key validation,
+  response builders) are duplicated across all 5 handlers by design — see
+  `CLOUD-IMPLEMENTATION.md` for the rationale. Do not introduce CDK or
+  Layers without first reading that doc and confirming with the user.
+- **Manual console deployment.** The existing VP AWS account has zero
+  CloudFormation stacks; consistency with that pattern was deliberate.
+- **Every resource is prefixed `TroySandbox`/`troy-sandbox`/`troySandbox`**
+  for unambiguous identification and easy teardown.
+
 ## What's NOT in This Project
 
 - No brand presets/switching (Troy-only)
@@ -150,6 +203,7 @@ When sections are loaded from any external source (saved templates, JSON imports
 - No PNG export
 - No lead form builder
 - No writing guidelines panel
+- No Phase 2/3 cloud features (see Cloud Save section above)
 
 ## Testing Checklist
 
@@ -170,6 +224,21 @@ When sections are loaded from any external source (saved templates, JSON imports
 - [ ] Responsive preview (desktop/tablet/mobile) works
 - [ ] Layout variants (content-left/content-right) work
 - [ ] No console errors on load
+
+### Cloud Save testing (only after AWS deployment)
+
+- [ ] With placeholders in `cloud-config.js`, app behaves identically to pre-cloud (Cloud Library section is hidden)
+- [ ] With real Lambda URLs, Cloud Library section appears in Templates popover
+- [ ] "Connect to cloud library" prompt opens the key modal
+- [ ] After entering a valid key, toast confirms connection and library list loads
+- [ ] Save Current Page modal shows Cloud/Local toggle when connected
+- [ ] Saving to cloud uploads images and stores S3 URLs in section content
+- [ ] Loading a cloud template renders images from S3 URLs (no IndexedDB)
+- [ ] Saving the same cloud template again updates (no duplicate row); version increments
+- [ ] Deleting a cloud template removes the row and its S3 images
+- [ ] A second browser with the same key sees the same cloud library
+- [ ] An invalid key produces "Cloud key was rejected" — not a generic error
+- [ ] No regressions in localStorage save/load flow when cloud isn't connected
 
 ## Development Notes
 

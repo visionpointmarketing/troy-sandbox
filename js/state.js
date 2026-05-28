@@ -57,6 +57,12 @@ const state = {
     historyIndex: -1,
     maxHistory: 50,
 
+    // Cloud association: when set, subsequent cloud saves UPDATE this template
+    // instead of creating a new one. Cleared when starting fresh or loading
+    // a local template. Set when loading a cloud template or after a fresh
+    // cloud save. See js/cloud-storage.js and docs/CLOUD-IMPLEMENTATION.md.
+    cloudTemplateId: null,
+
     // Callbacks for state changes
     onChange: null,
     onHistoryChange: null,
@@ -71,10 +77,27 @@ const state = {
         } else {
             this.sections = [];
         }
+        this.cloudTemplateId = null;
         this.history = [];
         this.historyIndex = -1;
         this._saveToHistory();
         this._notifyChange();
+    },
+
+    /**
+     * Get the currently-associated cloud template ID, or null.
+     * Used by save flows so update-vs-create is decided automatically.
+     */
+    getCloudTemplateId() {
+        return this.cloudTemplateId;
+    },
+
+    /**
+     * Set the associated cloud template ID. Pass null to clear (decouples
+     * the current canvas from any cloud record — next cloud save will create).
+     */
+    setCloudTemplateId(templateId) {
+        this.cloudTemplateId = templateId || null;
     },
 
     /**
@@ -402,6 +425,8 @@ const state = {
 
         this.sections = deepClone(json.sections);
         applyColorMigration(this.sections);
+        // Imported JSON is a fresh canvas — don't associate it with a cloud record
+        this.cloudTemplateId = null;
         this._saveToHistory();
         this._notifyChange();
         return true;
@@ -412,6 +437,7 @@ const state = {
      */
     clear() {
         this.sections = [];
+        this.cloudTemplateId = null;
         this._saveToHistory();
         this._notifyChange();
     },
@@ -420,10 +446,16 @@ const state = {
      * Load a page template
      * @param {Array} templateSections - Array of section definitions from template
      * @param {object} sectionTemplates - Map of section type to template module
+     * @param {object} [options]
+     * @param {string|null} [options.cloudTemplateId=null] - If this template
+     *   came from the cloud, associate it so subsequent saves update the
+     *   same record. Pass null (default) for local templates / presets.
      */
-    loadTemplate(templateSections, sectionTemplates) {
+    loadTemplate(templateSections, sectionTemplates, options = {}) {
         // Clear existing sections
         this.sections = [];
+        // Set or clear cloud association based on source
+        this.cloudTemplateId = options.cloudTemplateId || null;
 
         // Add each section from the template
         templateSections.forEach(templateSection => {

@@ -5,14 +5,26 @@
 
 import state from './state.js';
 import { getAllTemplates, getTemplate, getTemplateMap } from './sections/index.js';
-import { downloadFile, getTimestamp } from './utils.js';
+import { downloadFile, getTimestamp, showToast } from './utils.js';
 import { getAllImages, storeImage, clearAllImages } from './image-store.js';
 import { setViewportMode, updatePreviewContent } from './preview-iframe.js';
 import { getAllPageTemplates, getPageTemplate } from './page-templates.js';
 import { validateDesignRules, getStatusMessage } from './design-rules.js';
 import { getSavedTemplates, getSavedTemplate, saveTemplate, deleteTemplate } from './template-storage.js';
-import { openSaveTemplateModal } from './save-template-modal.js';
+import { openSaveTemplateModal, closeSaveTemplateModal, setSaving } from './save-template-modal.js';
 import { captureScreenshot } from './screenshot-exporter.js';
+import {
+    isCloudConfigured,
+    isCloudConnected,
+} from './cloud-config.js';
+import {
+    getSavedTemplates as cloudListTemplates,
+    getSavedTemplate as cloudGetTemplate,
+    saveTemplate as cloudSaveTemplate,
+    deleteTemplate as cloudDeleteTemplate,
+    CloudError,
+} from './cloud-storage.js';
+import { openCloudKeyModal } from './cloud-key-modal.js';
 
 /**
  * Initialize UI components
@@ -129,6 +141,10 @@ function initTemplateDropdown() {
     const saveCurrentBtn = document.getElementById('save-current-template-btn');
     const savedTemplatesSection = document.getElementById('saved-templates-section');
     const savedTemplateList = document.getElementById('saved-template-list');
+    // Cloud-related DOM (created lazily in renderCloudSection)
+    let cloudSectionEl = null;
+    let cloudListEl = null;
+    let cloudStatusEl = null;
 
     if (!templatesBtn || !templatePopover || !templateList) return;
 
@@ -183,8 +199,194 @@ function initTemplateDropdown() {
         return div.innerHTML;
     }
 
+    // -----------------------------------------------------------------
+    // Cloud Library rendering
+    // -----------------------------------------------------------------
+
+    /**
+     * Lazily create the Cloud Library section inside the popover.
+     * Returns the list <div> we render template cards into.
+     */
+    function ensureCloudSection() {
+        if (cloudSectionEl) return cloudListEl;
+
+        const popoverInner = templatePopover;
+        cloudSectionEl = document.createElement('div');
+        cloudSectionEl.id = 'cloud-templates-section';
+        cloudSectionEl.className = 'mb-3';
+        cloudSectionEl.innerHTML = `
+            <div class="flex items-center justify-between mb-2">
+                <div class="text-xs text-gray-500 uppercase tracking-wide">Cloud Library</div>
+                <button id="cloud-connect-btn" class="text-xs text-cardinal hover:underline">Manage</button>
+            </div>
+            <div id="cloud-status" class="text-xs text-gray-400 mb-2 hidden"></div>
+            <div id="cloud-template-list" class="space-y-2"></div>
+        `;
+        // Insert ABOVE the "Your Templates" section (or above starter list)
+        const insertBefore = savedTemplatesSection || templateList.parentElement.querySelector('.text-xs.text-gray-500.uppercase');
+        if (insertBefore) {
+            insertBefore.parentElement.insertBefore(cloudSectionEl, insertBefore);
+        } else {
+            popoverInner.insertBefore(cloudSectionEl, popoverInner.firstChild);
+        }
+        cloudListEl = cloudSectionEl.querySelector('#cloud-template-list');
+        cloudStatusEl = cloudSectionEl.querySelector('#cloud-status');
+
+        // Wire up Connect/Manage button
+        const connectBtn = cloudSectionEl.querySelector('#cloud-connect-btn');
+        connectBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            openCloudKeyModal(() => {
+                renderCloudSection();
+                // Save modal is destination-aware via isCloudConnected()
+            });
+        });
+
+        // List click handler — delegated for both load-template and delete
+        cloudListEl.addEventListener('click', handleCloudListClick);
+
+        return cloudListEl;
+    }
+
+    /**
+     * Render the Cloud Library section based on current connection state.
+     * Hides itself entirely when cloud is not configured (Phase 1 not deployed).
+     */
+    async function renderCloudSection() {
+        // Cloud not configured → hide section completely
+        if (!isCloudConfigured()) {
+            if (cloudSectionEl) cloudSectionEl.classList.add('hidden');
+            return;
+        }
+
+        ensureCloudSection();
+        cloudSectionEl.classList.remove('hidden');
+
+        if (!isCloudConnected()) {
+            // Configured but not connected → show connect prompt
+            cloudStatusEl.classList.remove('hidden');
+            cloudStatusEl.innerHTML = `<button id="cloud-connect-now" class="text-cardinal hover:underline">Connect this browser to the cloud library →</button>`;
+            cloudListEl.innerHTML = '';
+            const connectNow = cloudStatusEl.querySelector('#cloud-connect-now');
+            if (connectNow) {
+                connectNow.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    openCloudKeyModal(() => renderCloudSection());
+                });
+            }
+            return;
+        }
+
+        // Connected → load and render list
+        cloudStatusEl.classList.remove('hidden');
+        cloudStatusEl.textContent = 'Loading…';
+        cloudListEl.innerHTML = '';
+
+        try {
+            const cloudTemplates = await cloudListTemplates();
+            if (!Array.isArray(cloudTemplates) || cloudTemplates.length === 0) {
+                cloudStatusEl.textContent = 'No cloud templates yet. Save one to share with the team.';
+                return;
+            }
+            cloudStatusEl.classList.add('hidden');
+            cloudListEl.innerHTML = cloudTemplates.map(t => `
+                <div class="saved-template-card" data-cloud-template-id="${escapeAttr(t.templateId)}">
+                    <button class="template-card saved">
+                        <div class="template-card-header">
+                            <span class="template-card-name">${escapeText(t.name)}</span>
+                            <span class="template-card-badge saved">${t.sectionCount || 0} sections</span>
+                        </div>
+                    </button>
+                    <button class="saved-template-delete" data-cloud-delete-id="${escapeAttr(t.templateId)}" title="Delete from cloud">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="3 6 5 6 21 6"/>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                        </svg>
+                    </button>
+                </div>
+            `).join('');
+        } catch (err) {
+            const isCloud = err instanceof CloudError;
+            if (isCloud && err.code === 'unauthorized') {
+                cloudStatusEl.innerHTML = 'Cloud key was rejected. <button id="cloud-fix-key" class="text-cardinal hover:underline">Re-enter key</button>';
+                const fix = cloudStatusEl.querySelector('#cloud-fix-key');
+                if (fix) {
+                    fix.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        openCloudKeyModal(() => renderCloudSection());
+                    });
+                }
+            } else {
+                cloudStatusEl.textContent = `Couldn't load cloud templates: ${err.message}`;
+            }
+        }
+    }
+
+    /**
+     * Click handler for the cloud template list (load / delete).
+     */
+    async function handleCloudListClick(e) {
+        const deleteBtn = e.target.closest('[data-cloud-delete-id]');
+        if (deleteBtn) {
+            e.stopPropagation();
+            const templateId = deleteBtn.dataset.cloudDeleteId;
+            if (!confirm('Delete this template from the cloud library? This cannot be undone.')) return;
+            try {
+                await cloudDeleteTemplate(templateId);
+                showToast('Cloud template deleted.', { kind: 'info', durationMs: 3000 });
+                // If the current canvas was tied to this template, decouple it
+                if (state.getCloudTemplateId && state.getCloudTemplateId() === templateId) {
+                    state.setCloudTemplateId(null);
+                }
+                renderCloudSection();
+            } catch (err) {
+                alert(`Failed to delete: ${err.message}`);
+            }
+            return;
+        }
+
+        const card = e.target.closest('[data-cloud-template-id]');
+        if (!card) return;
+        const templateId = card.dataset.cloudTemplateId;
+
+        const currentSections = state.getSections();
+        if (currentSections.length > 0) {
+            if (!confirm(`Loading this cloud template will replace your current ${currentSections.length} section(s). Continue?`)) {
+                return;
+            }
+        }
+
+        try {
+            const tmpl = await cloudGetTemplate(templateId);
+            if (!tmpl || !Array.isArray(tmpl.sections)) {
+                alert('Cloud template returned unexpected data.');
+                return;
+            }
+            state.loadTemplate(tmpl.sections, sectionTemplates, { cloudTemplateId: templateId });
+            templatePopover.classList.add('hidden');
+            templatesBtn.classList.remove('active');
+            showToast(`Loaded "${tmpl.name}" from cloud.`, { kind: 'info', durationMs: 3000 });
+        } catch (err) {
+            alert(`Failed to load cloud template: ${err.message}`);
+        }
+    }
+
+    /**
+     * Safe text escape (separate from the HTML attribute escape).
+     */
+    function escapeText(str) {
+        const div = document.createElement('div');
+        div.textContent = str == null ? '' : String(str);
+        return div.innerHTML;
+    }
+    function escapeAttr(str) {
+        return String(str == null ? '' : str).replace(/"/g, '&quot;').replace(/</g, '&lt;');
+    }
+
     // Initial render of saved templates
     renderSavedTemplates();
+    // Initial render of cloud section (no-op if cloud not configured)
+    renderCloudSection();
 
     // Toggle popover
     templatesBtn.addEventListener('click', (e) => {
@@ -194,6 +396,8 @@ function initTemplateDropdown() {
         if (isHidden) {
             // Refresh saved templates list when opening
             renderSavedTemplates();
+            // Refresh cloud section too (no-op if cloud not configured)
+            renderCloudSection();
 
             // Position popover below button
             const btnRect = templatesBtn.getBoundingClientRect();
@@ -229,10 +433,46 @@ function initTemplateDropdown() {
                 return;
             }
 
-            openSaveTemplateModal((name) => {
-                const saved = saveTemplate(name, currentSections);
-                if (saved) {
-                    renderSavedTemplates();
+            openSaveTemplateModal(async (name, destination) => {
+                if (destination === 'cloud') {
+                    // Cloud save — async, may upload images, may update existing
+                    setSaving(true, 'Saving to cloud…');
+                    try {
+                        const existingId = state.getCloudTemplateId
+                            ? state.getCloudTemplateId()
+                            : null;
+                        const result = await cloudSaveTemplate(
+                            name,
+                            currentSections,
+                            existingId
+                        );
+                        // Associate the canvas with the saved cloud record
+                        if (state.setCloudTemplateId && result?.templateId) {
+                            state.setCloudTemplateId(result.templateId);
+                        }
+                        closeSaveTemplateModal();
+                        showToast(
+                            result?.created === false
+                                ? `Updated "${name}" in cloud library.`
+                                : `Saved "${name}" to cloud library.`,
+                            { kind: 'info', durationMs: 3000 }
+                        );
+                        renderCloudSection();
+                    } catch (err) {
+                        setSaving(false);
+                        if (err instanceof CloudError && err.code === 'unauthorized') {
+                            alert('Cloud key was rejected. Please re-enter the key from the Cloud Library section.');
+                        } else {
+                            alert(`Cloud save failed: ${err.message}`);
+                        }
+                    }
+                } else {
+                    // Local save — synchronous
+                    const saved = saveTemplate(name, currentSections);
+                    if (saved) {
+                        renderSavedTemplates();
+                    }
+                    // Modal closes itself on local-save path (see save-template-modal.js)
                 }
             });
         });

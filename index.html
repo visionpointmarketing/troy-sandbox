@@ -227,7 +227,28 @@
                 >
                 <p id="template-name-error" class="hidden mt-2 text-sm text-red-600"></p>
             </div>
-            <p class="text-xs text-gray-500 mb-4">Note: Uploaded images will not be included in the saved template.</p>
+            <!-- Cloud / Local destination toggle. Hidden when cloud is not connected. -->
+            <div id="save-destination-group" class="hidden mb-4">
+                <div class="text-xs text-gray-500 uppercase tracking-wide mb-2">Save to</div>
+                <div class="flex gap-2">
+                    <label class="flex-1 flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg cursor-pointer hover:border-cardinal">
+                        <input type="radio" name="save-destination" value="cloud" checked>
+                        <span class="text-sm">
+                            <strong>Cloud library</strong>
+                            <span class="block text-xs text-gray-500">Shared across the team, includes images</span>
+                        </span>
+                    </label>
+                    <label class="flex-1 flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg cursor-pointer hover:border-cardinal">
+                        <input type="radio" name="save-destination" value="local">
+                        <span class="text-sm">
+                            <strong>This browser</strong>
+                            <span class="block text-xs text-gray-500">Local only, no images</span>
+                        </span>
+                    </label>
+                </div>
+            </div>
+            <p id="save-template-local-note" class="text-xs text-gray-500 mb-4">Note: Uploaded images will not be included in the saved template.</p>
+            <p id="save-template-cloud-note" class="hidden text-xs text-gray-500 mb-4">Images will be uploaded to the team cloud library.</p>
             <div class="flex gap-2">
                 <button id="save-template-cancel" class="flex-1 px-4 py-2 bg-gray-100 rounded hover:bg-gray-200">Cancel</button>
                 <button id="save-template-confirm" class="flex-1 px-4 py-2 bg-cardinal text-white rounded hover:bg-cardinal-dark">Save Template</button>

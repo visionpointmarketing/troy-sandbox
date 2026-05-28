@@ -1,0 +1,43 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "DeleteTemplatesRow",
+            "Effect": "Allow",
+            "Action": [
+                "dynamodb:DeleteItem"
+            ],
+            "Resource": "arn:aws:dynamodb:us-east-1:831326375124:table/TroySandbox_Templates"
+        },
+        {
+            "Sid": "DeleteTemplateImages",
+            "Effect": "Allow",
+            "Action": [
+                "s3:ListBucket"
+            ],
+            "Resource": "arn:aws:s3:::troy-sandbox-images.vpmdevtech.com",
+            "Condition": {
+                "StringLike": {
+                    "s3:prefix": "sandboxes/*/templates/*/"
+                }
+            }
+        },
+        {
+            "Sid": "DeleteTemplateImageObjects",
+            "Effect": "Allow",
+            "Action": [
+                "s3:DeleteObject"
+            ],
+            "Resource": "arn:aws:s3:::troy-sandbox-images.vpmdevtech.com/sandboxes/*/templates/*/*"
+        },
+        {
+            "Sid": "BasicLambdaLogging",
+            "Effect": "Allow",
+            "Action": [
+                "logs:CreateLogStream",
+                "logs:PutLogEvents"
+            ],
+            "Resource": "arn:aws:logs:us-east-1:831326375124:log-group:/aws/lambda/troySandboxDeleteTemplate:*"
+        }
+    ]
+}

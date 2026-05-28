@@ -1,0 +1,27 @@
+{
+    "functionName": "troySandboxListTemplates",
+    "runtime": "nodejs22.x",
+    "handler": "index.handler",
+    "memoryMB": 256,
+    "timeoutSeconds": 10,
+    "reservedConcurrency": 10,
+    "environmentVariables": {
+        "TEMPLATES_TABLE": "TroySandbox_Templates",
+        "SANDBOX_KEY": "<paste-generated-sandbox-key-here>",
+        "ALLOWED_ORIGIN": "https://visionpointmarketing.github.io"
+    },
+    "functionUrl": {
+        "authType": "NONE",
+        "cors": {
+            "allowOrigins": ["https://visionpointmarketing.github.io"],
+            "allowMethods": ["GET", "OPTIONS"],
+            "allowHeaders": ["Content-Type", "X-Sandbox-Key"],
+            "maxAgeSeconds": 3600
+        }
+    },
+    "executionRoleName": "troy-sandbox-lambda-listTemplates",
+    "tags": {
+        "Project": "troy-sandbox",
+        "Phase": "1"
+    }
+}

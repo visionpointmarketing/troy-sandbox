@@ -1,0 +1,22 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "PresignImagePuts",
+            "Effect": "Allow",
+            "Action": [
+                "s3:PutObject"
+            ],
+            "Resource": "arn:aws:s3:::troy-sandbox-images.vpmdevtech.com/sandboxes/*/templates/*/images/*"
+        },
+        {
+            "Sid": "BasicLambdaLogging",
+            "Effect": "Allow",
+            "Action": [
+                "logs:CreateLogStream",
+                "logs:PutLogEvents"
+            ],
+            "Resource": "arn:aws:logs:us-east-1:831326375124:log-group:/aws/lambda/troySandboxPresignImages:*"
+        }
+    ]
+}
