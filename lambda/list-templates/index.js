@@ -23,11 +23,11 @@ const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 
 // ----- helpers (kept inline; duplicated across all Lambda handlers by design) -----
 
+// Function URL CORS config (configured separately on the Lambda) handles
+// Access-Control-* headers automatically. Returning them from the handler
+// duplicates them, which browsers reject. We only set Content-Type here.
 function corsHeaders() {
     return {
-        'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
-        'Access-Control-Allow-Methods': 'GET,OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type,X-Sandbox-Key',
         'Content-Type': 'application/json',
     };
 }
