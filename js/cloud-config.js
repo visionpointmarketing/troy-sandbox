@@ -21,11 +21,11 @@
 // PHASE 1 ENDPOINTS — paste Lambda Function URLs here after deployment
 // ============================================================================
 export const CLOUD_ENDPOINTS = {
-    saveTemplate:    'PASTE_FUNCTION_URL_HERE',
-    listTemplates:   'PASTE_FUNCTION_URL_HERE',
-    getTemplate:     'PASTE_FUNCTION_URL_HERE',
-    deleteTemplate:  'PASTE_FUNCTION_URL_HERE',
-    presignImages:   'PASTE_FUNCTION_URL_HERE',
+    saveTemplate:    'https://sywxo3tpkdtw7qfnii7gpzg5vm0tfoub.lambda-url.us-east-1.on.aws/',
+    listTemplates:   'https://wrsyho2oxybrnjouagayvrt6ie0bxaxl.lambda-url.us-east-1.on.aws/',
+    getTemplate:     'https://e2qe5lldoc4bybxtmj6rjj4uua0fiiaj.lambda-url.us-east-1.on.aws/',
+    deleteTemplate:  'https://pk6no7qshoboby2ttrk4uzjhuu0zquut.lambda-url.us-east-1.on.aws/',
+    presignImages:   'https://fjudckm7x3zuek3yw7iwaqrxma0puafv.lambda-url.us-east-1.on.aws/',
 
     // Phase 2 endpoints — leave placeholders until Phase 2 is built
     createShare:        'PASTE_FUNCTION_URL_HERE',
