@@ -42,8 +42,8 @@ the Lambdas don't exist.
 │  Browser (GitHub Pages editor)   │
 │  ───────────────────────────     │
 │  js/cloud-storage.js  ──┐        │
-│  js/cloud-config.js   ──┤        │
-│  js/cloud-key-modal.js──┘        │
+│  js/cloud-config.js   ──┘        │
+│  (key is embedded in config)     │
 │           │                      │
 │           │ HTTPS + X-Sandbox-Key│
 │           ▼                      │
@@ -95,9 +95,8 @@ No API Gateway, no Cognito, no user accounts, no Lambda Layers, no CDK.
 | `lambda/get-template/*` | Handler + policy + config for get endpoint |
 | `lambda/delete-template/*` | Handler + policy + config for delete endpoint (also cleans S3) |
 | `lambda/presign-images/*` | Handler + policy + config for presigned-URL endpoint |
-| `js/cloud-config.js` | Endpoint URLs (filled after deploy), sandboxId, getCloudKey/setCloudKey/etc. |
+| `js/cloud-config.js` | Endpoint URLs (filled after deploy), sandboxId, **embedded SANDBOX_API_KEY**, getCloudKey/setCloudKey/etc. |
 | `js/cloud-storage.js` | API client — mirrors `template-storage.js` shape; orchestrates image uploads |
-| `js/cloud-key-modal.js` | Modal for entering/clearing the sandbox API key on a device |
 | `docs/CLOUD-IMPLEMENTATION.md` | **This file** — source of truth |
 | `docs/AWS-DEPLOYMENT-GUIDE.md` | Step-by-step console deployment instructions |
 | `docs/AWS-RUNBOOK.md` | Operational tasks: rotation, debugging, teardown |
@@ -147,7 +146,8 @@ embed them as ARNs.
 | Resource tag | `Project: troy-sandbox` | every `lambda/*/config.json` |
 | CORS allowed origin | `https://visionpointmarketing.github.io` | `lambda/*/config.json` Function URL CORS, also `ALLOWED_ORIGIN` env var |
 | Budget alert name | `Troy Sandbox Budget` | AWS Budgets console (created during deployment) |
-| Browser localStorage — sandbox API key | `troy-sandbox-cloud-key` | `js/cloud-config.js` → `KEY_STORAGE` |
+| Embedded sandbox API key | `SANDBOX_API_KEY` constant in `js/cloud-config.js` | `js/cloud-config.js`; must match Lambda `SANDBOX_KEY` env var |
+| Browser localStorage — manual key override (rare) | `troy-sandbox-cloud-key` | `js/cloud-config.js` → `KEY_STORAGE` (escape hatch only — embedded key is the normal path) |
 
 ---
 
@@ -291,24 +291,64 @@ each ≤ 10 MB. Allowed content types: png, jpeg, webp, gif, svg+xml.
 
 ## Authentication & trust model
 
-**One API key per sandbox.** Stored as the `SANDBOX_KEY` env var on each
-Lambda. Sent by the client as the `X-Sandbox-Key` request header.
+**One API key per sandbox**, embedded in `js/cloud-config.js` and stored as
+the `SANDBOX_KEY` env var on each Lambda. Sent by the client as the
+`X-Sandbox-Key` request header on every request.
 
-The trust boundary is the key. Anyone who has the editor URL **and** the key
-can save, list, update, and delete every template in the sandbox. There is
-no per-user identity, no audit trail of who-did-what beyond CloudWatch
-request logs (which capture IP only, not identity).
+### Trust boundary
 
-**Why not Secrets Manager?** Considered, deferred. For a single-key,
-infrequent-rotation MVP, env var is operationally simpler. The runbook
-documents migrating to Secrets Manager as a clean ~30-minute upgrade path
-if rotation cadence ever increases.
+Anyone who **(a)** has the editor URL AND **(b)** views the served JS bundle
+or extracts the key from a network request can save, list, modify, and
+delete every template in the sandbox. There is no per-user identity, no
+audit trail of who-did-what beyond CloudWatch request logs (which capture IP
+only, not identity).
 
-**Key distribution to team.** Users paste the key into the editor on first
-visit; it's stored in their browser's `localStorage` under key
-`troy-sandbox-cloud-key`. There is no auto-distribution. New team members
-get the key out-of-band (e.g., a 1Password share). Removed team members lose
-access by rotating the key on the Lambda side; their stored key stops working.
+The realistic threat model for this internal Troy tool is:
+- **Drive-by abuse** (random URL visitors): Low probability — the URL isn't
+  advertised. If it happens, recovery is fast.
+- **Determined attacker who knows the URL exists**: Same as any internal
+  tool — they could ask anyone on the team for the key, or extract it from
+  the deployed bundle.
+- **Bots scanning github.io**: Possible but they'd need to also figure out
+  the API endpoint structure and key.
+
+Protection layers in place:
+1. **CORS lock to `https://visionpointmarketing.github.io`** on every
+   Function URL. Browser-based calls from other origins are blocked.
+2. **DynamoDB Point-in-Time Recovery enabled** on `TroySandbox_Templates`,
+   giving a 35-day rollback window. If abuse happens, recovery is a Console
+   action, not a panic.
+3. **Reserved concurrency on every Lambda** (5–10) — a hostile loop
+   self-throttles instead of running up costs.
+4. **The API key is rotatable in ~5 minutes** (see runbook).
+
+### Why the key is committed instead of prompted
+
+The original plan doc listed three options for key distribution:
+(a) hardcode in repo (committed), (b) prompt user once and store in
+localStorage, (c) inject at build time via GitHub Actions. Of these, (a)
+was chosen for the deployed system because:
+
+- The editor's UX intent is "anyone on the team visits the URL, saves a
+  template, shares the library". Option (b)'s key-paste step on every
+  device — and the need to coordinate the key when sharing with new
+  collaborators — undermined that intent.
+- Option (c) results in the same deployed bundle as (a) (key embedded in
+  served JS) but adds a GitHub Actions workflow to maintain. For this
+  team's manual deploy cadence, the workflow wasn't worth the complexity.
+- The repo is public. Option (a) means the key is visible to anyone
+  browsing GitHub. **Accepted** as a known trade-off — the URL is the
+  meaningful access control for this internal tool, not the key.
+
+**The `localStorage` override remains as an escape hatch.** Setting
+`troy-sandbox-cloud-key` manually in DevTools overrides the embedded key,
+useful for testing alternate keys or emergency overrides during a rotation
+window. Production users never touch this.
+
+**Why not Secrets Manager?** Server-side key is in Lambda env vars. For
+single-key, infrequent-rotation, env var is operationally simpler. The
+runbook documents migrating to Secrets Manager as a clean upgrade path if
+rotation cadence ever increases.
 
 **The Function URL is unauthenticated at the AWS layer** (`AuthType=NONE`).
 The application-level `X-Sandbox-Key` check inside the handler is the only
@@ -327,12 +367,13 @@ credentials in the browser, which we explicitly don't want.
 │   js/template-storage.js  →  localStorage (no images)          │
 │                                                                │
 │  New cloud flow (additive, gated on cloud-config)              │
-│   js/cloud-config.js     ────────┐                             │
-│                                  ├──> js/cloud-storage.js      │
-│   js/cloud-key-modal.js  ────────┘            │                │
-│                                               │ fetch + key    │
-│                                               ▼                │
-│                                          AWS Lambdas           │
+│   js/cloud-config.js (URLs + SANDBOX_API_KEY embedded)         │
+│            │                                                   │
+│            ▼                                                   │
+│   js/cloud-storage.js  ──── fetch + X-Sandbox-Key header       │
+│            │                                                   │
+│            ▼                                                   │
+│       AWS Lambdas                                              │
 │                                                                │
 │  Both flows feed the same UI                                   │
 │   js/save-template-modal.js (now destination-aware)            │
@@ -350,11 +391,10 @@ credentials in the browser, which we explicitly don't want.
 1. App boots → `state.init()` → empty canvas, `cloudTemplateId = null`.
 2. User clicks **Templates** in toolbar → `ui.js#renderCloudSection()` runs:
    - `isCloudConfigured()` false (placeholders in `cloud-config.js`) → entire Cloud Library section is hidden. App behaves identically to pre-cloud. ✅
-   - `isCloudConfigured()` true, `isCloudConnected()` false → section shows "Connect this browser to the cloud library →"
-   - Both true → list cloud templates via Lambda
+   - `isCloudConfigured()` true → list cloud templates via Lambda directly. **No "Connect" step** — the key is embedded in `cloud-config.js`.
 3. User clicks **Save Current Page** → modal opens:
-   - Cloud not connected → no toggle; local-only behavior (current).
-   - Cloud connected → Cloud/Local toggle, defaults to Cloud.
+   - Cloud not configured → no toggle; local-only behavior (current).
+   - Cloud configured → Cloud/Local toggle, defaults to Cloud.
 4. On save:
    - Local → existing `template-storage.js` flow (synchronous).
    - Cloud → `cloud-storage.js#saveTemplate(name, sections, state.getCloudTemplateId())`:
@@ -427,19 +467,32 @@ implementation because:
 Migrating to Secrets Manager is documented in `AWS-RUNBOOK.md` and is a
 ~30-minute change if rotation needs ever increase.
 
-### 4. Prompt-for-key in browser, NOT hardcoded in `cloud-config.js`
+### 4. Key embedded in `cloud-config.js` — frictionless team UX
 
-The editor is served by public GitHub Pages. Any string committed into
-`cloud-config.js` gets served in the public JS bundle. Anyone who knows the
-URL can extract it. So:
+The editor's UX goal is "any Troy or VP team member visits the URL, saves a
+template, the library shows up for everyone else." A prompt-for-key flow
+worked technically but added meaningful friction every time a new team
+member joined or someone needed to use a second device.
 
-- The **Function URLs** are committed — they're not secret; the key is what
-  gates writes.
-- The **API key** is entered by the user once per device and stored in
-  `localStorage` under `troy-sandbox-cloud-key`.
+Per the original plan doc's recommendation (option (a)), the key is now a
+committed constant in `js/cloud-config.js`. The public-repo / public-URL
+trade-off is accepted because:
 
-Same security outcome as the doc's "commit to private repo" option, with a
-smaller exposure surface (the key isn't in the served JS bundle).
+- The threat from an unknown attacker stumbling on this is low (URL isn't
+  advertised externally; bot risk is mitigated by CORS lock to the editor
+  origin and reserved Lambda concurrency).
+- The threat from a known attacker is no different than option (b) would
+  prevent — they'd ask a team member or extract from the deployed bundle.
+- Recovery from any abuse incident is fast: DynamoDB Point-in-Time
+  Recovery is enabled (35-day rollback) and key rotation is a 5-minute
+  procedure (see `AWS-RUNBOOK.md`).
+- Team onboarding becomes trivial: send the editor URL.
+- Sharing a saved template becomes trivial: send the editor URL.
+
+The legacy `localStorage` key is still honored as an **override** — set
+`troy-sandbox-cloud-key` manually in DevTools to test alternate keys or
+unblock yourself during a rotation window. Production users never touch
+this; the embedded key is the normal path.
 
 ### 5. Client-side templateId generation
 
@@ -502,7 +555,7 @@ listed in the right column to keep the source of truth coherent.
 | The S3 key prefix shape | `lambda/presign-images/index.js`, `lambda/delete-template/index.js`, all related policies, this doc |
 | The sandbox ID ("troy") | `js/cloud-config.js`, this doc, deployment guide |
 | The CORS origin | All `lambda/*/config.json` Function URL CORS + `ALLOWED_ORIGIN` env var, this doc |
-| The API key | Lambda console (env var) + every team member's stored key in their browser (they'll be prompted to re-enter when the old key starts being rejected) |
+| The API key | (a) Lambda env var on all 5 functions; (b) `SANDBOX_API_KEY` constant in `js/cloud-config.js`; commit + push so deployed bundle matches. See `AWS-RUNBOOK.md` for zero-downtime rotation pattern. |
 | Phase 2 endpoints come online | `js/cloud-config.js` Phase 2 URL placeholders, build the corresponding Lambdas, update this doc, update deployment guide and runbook |
 
 ---
@@ -548,8 +601,7 @@ feature, **read this file first**. Then:
   then the specific `lambda/<function>/` directory, then `AWS-RUNBOOK.md`
   for operational context
 - **Frontend change** (UI, save flow, key handling) → `js/cloud-config.js`,
-  `js/cloud-storage.js`, `js/cloud-key-modal.js`, plus the modified files
-  listed in "File map" above
+  `js/cloud-storage.js`, plus the modified files listed in "File map" above
 - **Deploying or re-deploying** → `AWS-DEPLOYMENT-GUIDE.md`
 - **Debugging a production issue** → `AWS-RUNBOOK.md`
 - **Adding a new Lambda endpoint** → see the "Phase 2" notes above; the

@@ -13,14 +13,15 @@ during an incident.
 |---|---|
 | AWS Account | `831326375124` (alias `breon`) |
 | Region | `us-east-1` |
-| DynamoDB table | `TroySandbox_Templates` |
+| DynamoDB table | `TroySandbox_Templates` (Point-in-Time Recovery: ENABLED, 35-day window) |
 | S3 bucket | `troy-sandbox-images.vpmdevtech.com` |
 | Lambdas | `troySandboxSaveTemplate`, `troySandboxListTemplates`, `troySandboxGetTemplate`, `troySandboxDeleteTemplate`, `troySandboxPresignImages` |
 | Budget alert | `Troy Sandbox Budget` ($25/mo, scoped to `Project=troy-sandbox` tag) |
 | Editor origin | `https://visionpointmarketing.github.io` |
 | Resource tag | `Project=troy-sandbox` |
 | API key location (server side) | `SANDBOX_KEY` env var on each Lambda |
-| API key location (client side) | Browser `localStorage` under key `troy-sandbox-cloud-key` |
+| API key location (client side) | `SANDBOX_API_KEY` constant in `js/cloud-config.js` (embedded in deployed bundle) |
+| Deployment script | `lambda/deploy.sh` (runs from CloudShell to recreate all roles + Lambdas + URLs) |
 
 ---
 
@@ -28,58 +29,109 @@ during an incident.
 
 Reasons to rotate:
 - Suspected key leak
-- Team member with the key has left
+- Team member with sensitive access has left
 - Periodic rotation policy
 
-The rotation has a brief window during which **all clients are disconnected**.
-Plan for a minute or two of "Save was rejected" errors followed by team
-members re-entering the new key.
+The key lives in **two places** that must be updated together:
+- `SANDBOX_KEY` env var on each of the 5 Lambdas (server-side)
+- `SANDBOX_API_KEY` constant in `js/cloud-config.js` (client-side)
 
-### Procedure
+There is a brief window (~30–90 seconds) between updating the Lambda env
+vars and GitHub Pages picking up the new `cloud-config.js`. During that
+window, users see "Cloud save failed" errors. Plan rotations for low-traffic
+times or use the dual-key pattern below.
 
-1. **Generate a new key.** Same approach as the initial deployment:
+### Standard procedure (brief outage acceptable)
+
+1. **Generate a new key.**
    ```
    openssl rand -hex 32
    ```
-   Save it to the same secure store you used originally (e.g., 1Password).
+   Save it to your 1Password vault, replacing the old value (keep the old
+   one in version history in case rollback is needed).
 
 2. **Update each of the 5 Lambdas' `SANDBOX_KEY` env var.**
-   For each function in:
-   - `troySandboxSaveTemplate`
-   - `troySandboxListTemplates`
-   - `troySandboxGetTemplate`
-   - `troySandboxDeleteTemplate`
-   - `troySandboxPresignImages`
 
-   Go to Lambda Console → function → **Configuration** → **Environment
-   variables** → **Edit** → replace the value of `SANDBOX_KEY` with the new
-   key → **Save**. Each function picks up the change on its next cold start
-   (or immediately on warm invocations after the change propagates,
-   typically a few seconds).
+   Open AWS CloudShell and run:
+   ```bash
+   NEW_KEY="<paste the new key>"
+   for FN in troySandboxSaveTemplate troySandboxListTemplates \
+             troySandboxGetTemplate troySandboxDeleteTemplate \
+             troySandboxPresignImages; do
+       echo "Updating $FN..."
+       CURRENT=$(aws lambda get-function-configuration --function-name $FN --query 'Environment.Variables' --output json)
+       UPDATED=$(echo "$CURRENT" | jq --arg k "$NEW_KEY" '.SANDBOX_KEY = $k')
+       aws lambda update-function-configuration --function-name $FN \
+           --environment "Variables=$UPDATED" --no-cli-pager > /dev/null
+   done
+   echo "Done."
+   ```
 
-3. **Distribute the new key** to the team out-of-band (1Password, encrypted
-   DM, etc).
+   (Or for each function: Lambda Console → function → Configuration →
+   Environment variables → Edit → replace `SANDBOX_KEY` value → Save.)
 
-4. **Each team member re-enters the new key** in the editor:
-   - Open the editor
-   - Templates popover → click **Manage** in the Cloud Library section (or
-     trigger the "Cloud key was rejected" prompt by attempting any cloud
-     action with the old key)
-   - Paste the new key → **Connect**
+3. **Update `js/cloud-config.js`** in your local checkout: replace the
+   value of `SANDBOX_API_KEY` with the new key.
 
-5. **Update this runbook's "API key last rotated" line if you keep one.**
-   *(Last rotated: not yet rotated — initial deploy)*
+4. **Commit + push:**
+   ```bash
+   git add js/cloud-config.js
+   git commit -m "Rotate sandbox API key ($(date +%Y-%m-%d))"
+   git push
+   ```
 
-### Supporting a graceful rotation (advanced — optional)
+5. **GitHub Pages redeploys in 30–90 seconds.** During that window cloud
+   features fail. After redeploy, all users automatically have the new key
+   (no per-device action required).
 
-If a future rotation needs to be zero-downtime, modify each Lambda's key
-validation to accept either of two keys (env var `SANDBOX_KEY` plus an
-optional `SANDBOX_KEY_PREV`), then:
-1. Deploy with both keys set
-2. Rotate clients onto the new key
-3. After a week, remove `SANDBOX_KEY_PREV` from each Lambda
+6. **Verify** by opening the editor in an incognito window, trying to load
+   the Cloud Library. Should work without any prompts.
 
-The current implementation only checks `SANDBOX_KEY` to keep things simple.
+7. **Update this runbook's "API key last rotated" line.**
+   *(Last rotated: not yet rotated — initial deploy on 2026-05-28)*
+
+### Zero-downtime rotation (advanced — optional)
+
+The standard procedure has a brief outage during GitHub Pages redeploy. To
+eliminate that window:
+
+1. **Modify each Lambda's `requireKey()` helper** to accept either of two
+   env vars:
+   ```javascript
+   function requireKey(event) {
+       const provided = getHeader(event, 'X-Sandbox-Key');
+       return provided === SANDBOX_KEY ||
+              (process.env.SANDBOX_KEY_PREV && provided === process.env.SANDBOX_KEY_PREV);
+   }
+   ```
+   Redeploy all 5 Lambdas (see `lambda/deploy.sh`).
+
+2. **Set `SANDBOX_KEY_PREV`** on each Lambda to the OLD key, leaving
+   `SANDBOX_KEY` as the OLD key still:
+   ```bash
+   OLD_KEY="<current key>"
+   for FN in troySandboxSaveTemplate troySandboxListTemplates \
+             troySandboxGetTemplate troySandboxDeleteTemplate \
+             troySandboxPresignImages; do
+       CURRENT=$(aws lambda get-function-configuration --function-name $FN --query 'Environment.Variables' --output json)
+       UPDATED=$(echo "$CURRENT" | jq --arg k "$OLD_KEY" '. + {SANDBOX_KEY_PREV: $k}')
+       aws lambda update-function-configuration --function-name $FN \
+           --environment "Variables=$UPDATED" --no-cli-pager > /dev/null
+   done
+   ```
+
+3. **Now rotate `SANDBOX_KEY` to the new value** on each Lambda using the
+   standard procedure above (steps 1–2). Both keys now accepted.
+
+4. **Update `js/cloud-config.js` with the new key** and push.
+
+5. **Wait ~24 hours** (any cached client requests with the old key still
+   work via `SANDBOX_KEY_PREV`).
+
+6. **Remove `SANDBOX_KEY_PREV`** from each Lambda's env vars.
+
+Total elapsed time with zero user impact: ~30 minutes for the rotation
+plus a 24-hour overlap window.
 
 ### Migrating to Secrets Manager (if rotation cadence increases)
 
@@ -131,11 +183,13 @@ import('./js/cloud-config.js').then(c => {
     console.log('configured?', c.isCloudConfigured());
     console.log('connected?', c.isCloudConnected());
     console.log('endpoints', c.CLOUD_ENDPOINTS);
+    console.log('key starts with:', c.SANDBOX_API_KEY?.slice(0, 8) + '...');
 });
 ```
 
 - `isCloudConfigured` false → `cloud-config.js` still has `PASTE_FUNCTION_URL_HERE` placeholders. Push the real URLs.
-- `isCloudConnected` false → user hasn't entered the key. Have them open the Cloud Library section and connect.
+- `isCloudConnected` false but configured is true → the embedded `SANDBOX_API_KEY` is empty. Check the source file.
+- Key starts with unexpected prefix → the deployed bundle is out of date. Wait a minute for GitHub Pages, then hard-refresh.
 
 ### Step 3 — Check Function URL CORS
 
@@ -267,9 +321,8 @@ sandbox would require:
 
 | User sees | Likely cause | Fix |
 |---|---|---|
-| Cloud Library section not visible at all | `cloud-config.js` still has placeholders | Paste the real Function URLs, commit, push |
-| "Connect this browser to the cloud library →" | Cloud is configured, key not entered on this device | Click the link, paste the key |
-| "Cloud key was rejected" / 401 | Wrong key; or key was rotated and this browser still has the old one | Click Manage → enter the new key |
+| Cloud Library section not visible at all | `cloud-config.js` still has placeholders, OR they're using an older cached bundle | Hard-refresh; verify Function URLs are pasted in `cloud-config.js` and the file was pushed |
+| "Cloud key was rejected by the server" | Lambda `SANDBOX_KEY` env var was rotated but `cloud-config.js` hasn't been pushed yet, OR vice versa | Verify both sides match; see "Rotating the sandbox API key" |
 | "Couldn't load cloud templates: Failed to fetch" | Function URL is wrong, missing, or CORS blocked | DevTools → Network tab → find the failing request → check URL and CORS |
 | "Cloud save failed: bad_request" | Client sent invalid input (e.g., empty name, too many sections) | The message will say which field; verify the client code matches the API contract |
 | "Cloud save failed: timeout" | Lambda took >20s | CloudWatch logs for that function; check memory, concurrency, throttling |

@@ -24,7 +24,6 @@ import {
     deleteTemplate as cloudDeleteTemplate,
     CloudError,
 } from './cloud-storage.js';
-import { openCloudKeyModal } from './cloud-key-modal.js';
 
 /**
  * Initialize UI components
@@ -215,10 +214,7 @@ function initTemplateDropdown() {
         cloudSectionEl.id = 'cloud-templates-section';
         cloudSectionEl.className = 'mb-3';
         cloudSectionEl.innerHTML = `
-            <div class="flex items-center justify-between mb-2">
-                <div class="text-xs text-gray-500 uppercase tracking-wide">Cloud Library</div>
-                <button id="cloud-connect-btn" class="text-xs text-cardinal hover:underline">Manage</button>
-            </div>
+            <div class="text-xs text-gray-500 uppercase tracking-wide mb-2">Cloud Library</div>
             <div id="cloud-status" class="text-xs text-gray-400 mb-2 hidden"></div>
             <div id="cloud-template-list" class="space-y-2"></div>
         `;
@@ -232,16 +228,6 @@ function initTemplateDropdown() {
         cloudListEl = cloudSectionEl.querySelector('#cloud-template-list');
         cloudStatusEl = cloudSectionEl.querySelector('#cloud-status');
 
-        // Wire up Connect/Manage button
-        const connectBtn = cloudSectionEl.querySelector('#cloud-connect-btn');
-        connectBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            openCloudKeyModal(() => {
-                renderCloudSection();
-                // Save modal is destination-aware via isCloudConnected()
-            });
-        });
-
         // List click handler — delegated for both load-template and delete
         cloudListEl.addEventListener('click', handleCloudListClick);
 
@@ -249,8 +235,10 @@ function initTemplateDropdown() {
     }
 
     /**
-     * Render the Cloud Library section based on current connection state.
-     * Hides itself entirely when cloud is not configured (Phase 1 not deployed).
+     * Render the Cloud Library section. Hides itself entirely when cloud
+     * is not configured (Phase 1 endpoints not deployed). Otherwise loads
+     * and renders the template list directly — the API key is embedded in
+     * cloud-config.js so no "Connect" step is required.
      */
     async function renderCloudSection() {
         // Cloud not configured → hide section completely
@@ -262,22 +250,8 @@ function initTemplateDropdown() {
         ensureCloudSection();
         cloudSectionEl.classList.remove('hidden');
 
-        if (!isCloudConnected()) {
-            // Configured but not connected → show connect prompt
-            cloudStatusEl.classList.remove('hidden');
-            cloudStatusEl.innerHTML = `<button id="cloud-connect-now" class="text-cardinal hover:underline">Connect this browser to the cloud library →</button>`;
-            cloudListEl.innerHTML = '';
-            const connectNow = cloudStatusEl.querySelector('#cloud-connect-now');
-            if (connectNow) {
-                connectNow.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    openCloudKeyModal(() => renderCloudSection());
-                });
-            }
-            return;
-        }
-
-        // Connected → load and render list
+        // Load + render list directly. The X-Sandbox-Key header is set
+        // automatically via getCloudKey() inside cloud-storage.js.
         cloudStatusEl.classList.remove('hidden');
         cloudStatusEl.textContent = 'Loading…';
         cloudListEl.innerHTML = '';
@@ -308,14 +282,10 @@ function initTemplateDropdown() {
         } catch (err) {
             const isCloud = err instanceof CloudError;
             if (isCloud && err.code === 'unauthorized') {
-                cloudStatusEl.innerHTML = 'Cloud key was rejected. <button id="cloud-fix-key" class="text-cardinal hover:underline">Re-enter key</button>';
-                const fix = cloudStatusEl.querySelector('#cloud-fix-key');
-                if (fix) {
-                    fix.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        openCloudKeyModal(() => renderCloudSection());
-                    });
-                }
+                // The embedded key was rejected. This typically means the
+                // Lambda SANDBOX_KEY env var was rotated but cloud-config.js
+                // hasn't been pushed yet.
+                cloudStatusEl.textContent = 'Cloud key was rejected by the server. The deployed key may be out of sync with this build — contact the developer.';
             } else {
                 cloudStatusEl.textContent = `Couldn't load cloud templates: ${err.message}`;
             }
@@ -461,7 +431,7 @@ function initTemplateDropdown() {
                     } catch (err) {
                         setSaving(false);
                         if (err instanceof CloudError && err.code === 'unauthorized') {
-                            alert('Cloud key was rejected. Please re-enter the key from the Cloud Library section.');
+                            alert('Cloud key was rejected by the server. The deployed key may be out of sync with this build — contact the developer.');
                         } else {
                             alert(`Cloud save failed: ${err.message}`);
                         }

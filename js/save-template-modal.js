@@ -8,7 +8,7 @@
  */
 
 import { templateNameExists } from './template-storage.js';
-import { isCloudConnected } from './cloud-config.js';
+import { isCloudConfigured } from './cloud-config.js';
 
 let currentCallback = null;
 
@@ -181,11 +181,13 @@ export function openSaveTemplateModal(callback) {
     confirmBtn.disabled = false;
     confirmBtn.textContent = 'Save Template';
 
-    // Show or hide destination toggle based on cloud connection status
+    // Show or hide destination toggle based on whether cloud is configured.
+    // Since the API key is embedded in cloud-config.js, "configured" implies
+    // "usable" — no separate connect step is required.
     if (destinationGroup) {
-        if (isCloudConnected()) {
+        if (isCloudConfigured()) {
             destinationGroup.classList.remove('hidden');
-            // Default to cloud when connected
+            // Default to cloud when configured
             const cloudRadio = destinationGroup.querySelector('input[value="cloud"]');
             if (cloudRadio) cloudRadio.checked = true;
         } else {

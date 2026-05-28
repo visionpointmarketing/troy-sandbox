@@ -1,20 +1,29 @@
 /**
  * TROY Sandbox — Cloud Configuration
  *
- * Endpoint URLs for the AWS Lambda Function URLs that back the cloud-save
- * feature. **The URLs are not secret** — they're served as part of this
- * static JS bundle. The trust boundary is the sandbox API key, which is
- * NOT stored in this file. The user enters the key on first connect and
- * it is stored in their browser's localStorage.
+ * Endpoint URLs and shared API key for the AWS Lambda Function URLs that
+ * back the cloud-save feature.
+ *
+ * **TRUST MODEL — read this before changing anything:**
+ *
+ * Both the endpoint URLs AND the sandbox API key are committed in this file.
+ * Anyone with the editor URL has cloud save working with zero setup.
+ * Per Dave Olsen's planning review, this is a sandbox-scoped trust model:
+ * anyone with the editor URL can save, list, and delete templates.
+ *
+ * Threat protection layers:
+ *   1. Lambda Function URL CORS is locked to https://visionpointmarketing.github.io
+ *      so browser-based calls from other origins are blocked.
+ *   2. DynamoDB Point-in-Time Recovery is enabled on TroySandbox_Templates,
+ *      giving a 35-day rollback window for abuse/accident recovery.
+ *   3. The Sandbox API key gates writes server-side; rotation is a one-step
+ *      Lambda env var change + this file update (see docs/AWS-RUNBOOK.md).
+ *
+ * To DISABLE the cloud features (e.g. for testing locally without AWS),
+ * change CLOUD_ENDPOINTS values back to 'PASTE_FUNCTION_URL_HERE'. The
+ * app checks isCloudConfigured() and falls back to local-only behavior.
  *
  * See docs/CLOUD-IMPLEMENTATION.md for the full design rationale.
- *
- * AFTER AWS DEPLOYMENT: paste each Function URL below in place of the
- * PASTE_FUNCTION_URL_HERE placeholders, then commit + push to deploy.
- *
- * To DISABLE the cloud features (e.g. for testing locally), leave the
- * placeholders in place. The app checks isCloudConfigured() and falls
- * back to localStorage-only when URLs aren't real.
  */
 
 // ============================================================================
@@ -51,9 +60,32 @@ export const SANDBOX_ID = 'troy';
 export const IMAGES_BUCKET = 'troy-sandbox-images.vpmdevtech.com';
 
 // ============================================================================
-// Local storage keys
+// Sandbox API key — sent as X-Sandbox-Key on every request
+// ============================================================================
+//
+// MUST MATCH the SANDBOX_KEY env var on every Lambda. To rotate:
+//   1. (Optional but recommended) Set SANDBOX_KEY_PREV on each Lambda to this
+//      value so the old key keeps working during the deploy window.
+//      Requires the Lambda handler to accept either key — not yet implemented;
+//      see docs/AWS-RUNBOOK.md "Migrating to dual-key rotation".
+//   2. Generate a new key (`openssl rand -hex 32`).
+//   3. Update SANDBOX_KEY env var on all 5 Lambdas (see runbook).
+//   4. Update SANDBOX_API_KEY below, commit + push. GitHub Pages redeploys
+//      in 30–90 seconds.
+//   5. After ~1 hour, remove SANDBOX_KEY_PREV from Lambdas if used.
+//
+// Why committed instead of prompted? See docs/CLOUD-IMPLEMENTATION.md
+// → "Design decision: key in deployed bundle".
+export const SANDBOX_API_KEY = 'bafa15e3cc207754bb289cafaa467f5c7e2f35e0a6328aa2e5ed73cdf95a4c40';
+
+// ============================================================================
+// Local storage keys (legacy + dev override)
 // ============================================================================
 
+// Legacy: if a key was previously stored in localStorage from an older
+// version of the editor, it takes precedence over SANDBOX_API_KEY. This
+// also serves as a dev-override mechanism — set it manually in DevTools
+// to test a different key without redeploying.
 const KEY_STORAGE = 'troy-sandbox-cloud-key';
 
 // ============================================================================
@@ -98,20 +130,29 @@ export function endpoint(name) {
 // ============================================================================
 
 /**
- * Returns the user's stored sandbox API key, or null if not set.
- * The key is per-browser; users enter it once on their device.
+ * Returns the active sandbox API key.
+ *
+ * Resolution order:
+ *   1. A key in localStorage under troy-sandbox-cloud-key (dev override —
+ *      set manually in DevTools to test a different key without redeploying).
+ *   2. The SANDBOX_API_KEY constant above (the normal path).
+ *
+ * Returns null only if both are missing (shouldn't happen in production).
  */
 export function getCloudKey() {
     try {
-        return localStorage.getItem(KEY_STORAGE) || null;
+        const override = localStorage.getItem(KEY_STORAGE);
+        if (override) return override;
     } catch {
-        return null;
+        // localStorage not available — fall through to embedded key
     }
+    return SANDBOX_API_KEY || null;
 }
 
 /**
- * Stores the sandbox API key in localStorage for this browser.
- * Returns true on success, false if localStorage isn't writable.
+ * Manual override: stores a different key in localStorage for this browser.
+ * Useful for testing alternate keys before deploying, or as an emergency
+ * lever during a rotation if the embedded key is rejected.
  */
 export function setCloudKey(key) {
     if (!key || typeof key !== 'string') return false;
@@ -124,7 +165,8 @@ export function setCloudKey(key) {
 }
 
 /**
- * Clears the stored sandbox API key (disconnect from cloud).
+ * Clears the manual key override. After clearing, the editor falls back
+ * to the SANDBOX_API_KEY constant.
  */
 export function clearCloudKey() {
     try {
@@ -136,8 +178,9 @@ export function clearCloudKey() {
 }
 
 /**
- * True if cloud is configured AND the user has a key stored.
- * This is the gate the UI checks before showing cloud features.
+ * True if cloud is configured (endpoints set) AND a key is available.
+ * Since the key is embedded in this file, this is effectively equivalent
+ * to isCloudConfigured() in production.
  */
 export function isCloudConnected() {
     return isCloudConfigured() && !!getCloudKey();
@@ -146,6 +189,7 @@ export function isCloudConnected() {
 export default {
     CLOUD_ENDPOINTS,
     SANDBOX_ID,
+    SANDBOX_API_KEY,
     IMAGES_BUCKET,
     isCloudConfigured,
     isCloudConnected,

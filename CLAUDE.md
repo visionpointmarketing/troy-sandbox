@@ -42,9 +42,8 @@ This is a **standalone project** — not a fork of the wireframe-builder, but a 
 | `js/preview-iframe.js` | Responsive preview rendering |
 | `js/sections/index.js` | Registry — imports all sections, exports `sectionTemplates` |
 | `js/sections/*.js` | Individual section templates (11 total) |
-| `js/cloud-config.js` | Cloud Lambda endpoint URLs + sandbox API key helpers. See "Cloud Save" below. |
+| `js/cloud-config.js` | Cloud Lambda endpoint URLs + embedded sandbox API key. See "Cloud Save" below. |
 | `js/cloud-storage.js` | API client for AWS-backed save. Mirrors `template-storage.js` public surface. |
-| `js/cloud-key-modal.js` | Modal that prompts the user for the sandbox API key on first connect. |
 | `lambda/` | AWS Lambda handlers, IAM policies, and config — one subdirectory per function. See `lambda/README.md` and `docs/CLOUD-IMPLEMENTATION.md`. |
 | `styles/editor.css` | Editor UI styles (controls, handles, canvas chrome) |
 | `static/base.css` | Base component styles (buttons, typography) |
@@ -172,10 +171,12 @@ no network calls. When real Lambda Function URLs are pasted in, the Cloud
 Library section appears in the Templates popover and users can connect.
 
 The trust model is a single shared API key (`X-Sandbox-Key` header,
-sandbox-scoped, not per-user) per Dave Olsen's planning review. Users enter
-the key once per browser; it's stored in `localStorage` under
-`troy-sandbox-cloud-key`. The key is the trust boundary — see the
-implementation doc for rationale.
+sandbox-scoped, not per-user) per Dave Olsen's planning review. The key is
+**embedded in `js/cloud-config.js`** and committed to the repo, so anyone
+who visits the editor URL has cloud save working with zero setup. The
+public-repo / public-URL trade-off is documented in `docs/CLOUD-IMPLEMENTATION.md`
+→ "Design decision: key in deployed bundle". DynamoDB Point-in-Time Recovery
+is enabled on `TroySandbox_Templates` as the safety net (35-day rollback).
 
 ### What's deployed vs. planned
 
