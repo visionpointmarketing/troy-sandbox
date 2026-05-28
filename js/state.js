@@ -62,6 +62,10 @@ const state = {
     // a local template. Set when loading a cloud template or after a fresh
     // cloud save. See js/cloud-storage.js and docs/CLOUD-IMPLEMENTATION.md.
     cloudTemplateId: null,
+    // Name of the currently-associated cloud template. Used by the save
+    // modal to pre-fill the input and switch to "Update <name>" mode so
+    // editing a loaded cloud template doesn't ask the user to re-name it.
+    cloudTemplateName: null,
 
     // Callbacks for state changes
     onChange: null,
@@ -78,6 +82,7 @@ const state = {
             this.sections = [];
         }
         this.cloudTemplateId = null;
+        this.cloudTemplateName = null;
         this.history = [];
         this.historyIndex = -1;
         this._saveToHistory();
@@ -93,11 +98,30 @@ const state = {
     },
 
     /**
+     * Get the name of the currently-associated cloud template, or null.
+     * Used by the save modal to pre-fill the input in update mode.
+     */
+    getCloudTemplateName() {
+        return this.cloudTemplateName;
+    },
+
+    /**
      * Set the associated cloud template ID. Pass null to clear (decouples
      * the current canvas from any cloud record — next cloud save will create).
+     * @deprecated Prefer setCloudTemplate(id, name) which keeps name in sync.
      */
     setCloudTemplateId(templateId) {
         this.cloudTemplateId = templateId || null;
+        if (!templateId) this.cloudTemplateName = null;
+    },
+
+    /**
+     * Set both the cloud template ID and name together. Pass null for both
+     * to disassociate the canvas from any cloud record.
+     */
+    setCloudTemplate(templateId, name) {
+        this.cloudTemplateId = templateId || null;
+        this.cloudTemplateName = templateId ? (name || null) : null;
     },
 
     /**
@@ -427,6 +451,7 @@ const state = {
         applyColorMigration(this.sections);
         // Imported JSON is a fresh canvas — don't associate it with a cloud record
         this.cloudTemplateId = null;
+        this.cloudTemplateName = null;
         this._saveToHistory();
         this._notifyChange();
         return true;
@@ -438,6 +463,7 @@ const state = {
     clear() {
         this.sections = [];
         this.cloudTemplateId = null;
+        this.cloudTemplateName = null;
         this._saveToHistory();
         this._notifyChange();
     },
@@ -450,12 +476,17 @@ const state = {
      * @param {string|null} [options.cloudTemplateId=null] - If this template
      *   came from the cloud, associate it so subsequent saves update the
      *   same record. Pass null (default) for local templates / presets.
+     * @param {string|null} [options.cloudTemplateName=null] - Display name
+     *   of the cloud template. Used by the save modal in update mode.
      */
     loadTemplate(templateSections, sectionTemplates, options = {}) {
         // Clear existing sections
         this.sections = [];
         // Set or clear cloud association based on source
         this.cloudTemplateId = options.cloudTemplateId || null;
+        this.cloudTemplateName = options.cloudTemplateId
+            ? (options.cloudTemplateName || null)
+            : null;
 
         // Add each section from the template
         templateSections.forEach(templateSection => {

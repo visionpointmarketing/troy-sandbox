@@ -216,7 +216,13 @@
     <!-- Save Template Modal -->
     <div id="save-template-modal" class="hidden fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
         <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
-            <h3 class="text-lg font-bold mb-4">Save as Template</h3>
+            <h3 id="save-template-title" class="text-lg font-bold mb-4">Save as Template</h3>
+            <!-- Update banner — shown when editing a cloud-loaded template -->
+            <div id="save-template-update-banner" class="hidden mb-4 px-3 py-2 bg-sand rounded text-sm">
+                <span class="font-semibold">Updating cloud template:</span>
+                <span id="save-template-update-name" class="font-mono"></span>
+                <button id="save-template-make-new-copy" class="block mt-1 text-xs text-cardinal hover:underline">Save as a new copy instead</button>
+            </div>
             <div class="mb-4">
                 <input
                     type="text"

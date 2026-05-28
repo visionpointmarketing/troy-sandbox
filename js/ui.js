@@ -332,7 +332,10 @@ function initTemplateDropdown() {
                 alert('Cloud template returned unexpected data.');
                 return;
             }
-            state.loadTemplate(tmpl.sections, sectionTemplates, { cloudTemplateId: templateId });
+            state.loadTemplate(tmpl.sections, sectionTemplates, {
+                cloudTemplateId: templateId,
+                cloudTemplateName: tmpl.name,
+            });
             templatePopover.classList.add('hidden');
             templatesBtn.classList.remove('active');
             showToast(`Loaded "${tmpl.name}" from cloud.`, { kind: 'info', durationMs: 3000 });
@@ -403,48 +406,62 @@ function initTemplateDropdown() {
                 return;
             }
 
-            openSaveTemplateModal(async (name, destination) => {
-                if (destination === 'cloud') {
-                    // Cloud save — async, may upload images, may update existing
-                    setSaving(true, 'Saving to cloud…');
-                    try {
-                        const existingId = state.getCloudTemplateId
-                            ? state.getCloudTemplateId()
-                            : null;
-                        const result = await cloudSaveTemplate(
-                            name,
-                            currentSections,
-                            existingId
-                        );
-                        // Associate the canvas with the saved cloud record
-                        if (state.setCloudTemplateId && result?.templateId) {
-                            state.setCloudTemplateId(result.templateId);
+            // Pull current cloud association from state so the modal opens
+            // in "update" mode when the user is editing a cloud-loaded template.
+            const currentCloudId = state.getCloudTemplateId
+                ? state.getCloudTemplateId() : null;
+            const currentCloudName = state.getCloudTemplateName
+                ? state.getCloudTemplateName() : null;
+
+            openSaveTemplateModal(
+                async (name, destination, modalUpdateId) => {
+                    if (destination === 'cloud') {
+                        // Use the ID the modal returned: it's either the existing
+                        // cloud ID (update) or null (the user clicked "Save as a
+                        // new copy" — should create a new record).
+                        const targetId = modalUpdateId || null;
+                        setSaving(true, targetId ? 'Updating cloud…' : 'Saving to cloud…');
+                        try {
+                            const result = await cloudSaveTemplate(
+                                name,
+                                currentSections,
+                                targetId
+                            );
+                            // Associate the canvas with the saved/updated record
+                            if (state.setCloudTemplate && result?.templateId) {
+                                state.setCloudTemplate(result.templateId, name);
+                            }
+                            closeSaveTemplateModal();
+                            showToast(
+                                result?.created === false
+                                    ? `Updated "${name}" in cloud library.`
+                                    : `Saved "${name}" to cloud library.`,
+                                { kind: 'info', durationMs: 3000 }
+                            );
+                            renderCloudSection();
+                        } catch (err) {
+                            setSaving(false);
+                            if (err instanceof CloudError && err.code === 'unauthorized') {
+                                alert('Cloud key was rejected by the server. The deployed key may be out of sync with this build — contact the developer.');
+                            } else {
+                                alert(`Cloud save failed: ${err.message}`);
+                            }
                         }
-                        closeSaveTemplateModal();
-                        showToast(
-                            result?.created === false
-                                ? `Updated "${name}" in cloud library.`
-                                : `Saved "${name}" to cloud library.`,
-                            { kind: 'info', durationMs: 3000 }
-                        );
-                        renderCloudSection();
-                    } catch (err) {
-                        setSaving(false);
-                        if (err instanceof CloudError && err.code === 'unauthorized') {
-                            alert('Cloud key was rejected by the server. The deployed key may be out of sync with this build — contact the developer.');
-                        } else {
-                            alert(`Cloud save failed: ${err.message}`);
+                    } else {
+                        // Local save — synchronous. Local templates use name as
+                        // the dedup key, not an ID; we always create here.
+                        const saved = saveTemplate(name, currentSections);
+                        if (saved) {
+                            renderSavedTemplates();
                         }
+                        // Modal closes itself on local-save path.
                     }
-                } else {
-                    // Local save — synchronous
-                    const saved = saveTemplate(name, currentSections);
-                    if (saved) {
-                        renderSavedTemplates();
-                    }
-                    // Modal closes itself on local-save path (see save-template-modal.js)
+                },
+                {
+                    updateTemplateId: currentCloudId,
+                    updateTemplateName: currentCloudName,
                 }
-            });
+            );
         });
     }
 

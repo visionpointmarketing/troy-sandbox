@@ -149,7 +149,15 @@ export const handler = async (event) => {
             });
 
             const uploadUrl = await getSignedUrl(s3, command, { expiresIn: PRESIGN_EXPIRES_SECONDS });
-            const cdnUrl = `https://${IMAGES_BUCKET}.s3.${REGION}.amazonaws.com/${key}`;
+            // PATH-STYLE URL (bucket name comes AFTER s3.<region>.amazonaws.com).
+            // Virtual-hosted style (bucket-name.s3.<region>.amazonaws.com) fails
+            // for buckets whose names contain periods because the S3 wildcard
+            // TLS certificate (*.s3.<region>.amazonaws.com) only matches a
+            // single subdomain label. Our bucket is named
+            // "troy-sandbox-images.vpmdevtech.com" (dotted, by VP convention)
+            // so virtual-hosted URLs trigger a browser cert error and the
+            // image never loads. Path-style works for any bucket name.
+            const cdnUrl = `https://s3.${REGION}.amazonaws.com/${IMAGES_BUCKET}/${key}`;
 
             return {
                 imageId: img.imageId,
