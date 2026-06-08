@@ -593,8 +593,8 @@
 
 /* Template Popover */
 #template-popover {
-    min-width: 300px;
-    max-width: 320px;
+    min-width: 380px;
+    max-width: 440px;
 }
 
 .template-card {
@@ -666,8 +666,12 @@
     background: #f59e0b;
 }
 
-/* Delete button for saved templates */
-.saved-template-delete {
+/* Action buttons on saved/cloud template cards (copy-link + delete).
+   Both use the same shared base styling for layout, with hover-specific
+   tinting so users can tell them apart by intent. Always visible — these
+   are core actions, no reason to hide them behind a hover state. */
+.saved-template-delete,
+.saved-template-copylink {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -675,24 +679,38 @@
     background: #f9fafb;
     border: 1px solid #e5e7eb;
     border-left: none;
-    border-radius: 0 6px 6px 0;
     cursor: pointer;
     color: #9ca3af;
     transition: all 0.15s ease;
-    opacity: 0;
-}
-
-.saved-template-card:hover .saved-template-delete {
     opacity: 1;
 }
 
+/* Middle action in a row (e.g. copy-link) keeps square corners */
+.saved-template-copylink {
+    border-radius: 0;
+}
+
+/* Last action (delete) gets the right-side rounding */
+.saved-template-delete {
+    border-radius: 0 6px 6px 0;
+}
+
+/* Copy-link hover: blue/info tint (this is a benign action) */
+.saved-template-copylink:hover {
+    background: #dbeafe;
+    border-color: #93c5fd;
+    color: #1d4ed8;
+}
+
+/* Delete hover: red/danger tint (this is destructive) */
 .saved-template-delete:hover {
     background: #fee2e2;
     border-color: #fca5a5;
     color: #dc2626;
 }
 
-.saved-template-delete svg {
+.saved-template-delete svg,
+.saved-template-copylink svg {
     stroke: currentColor;
 }
 

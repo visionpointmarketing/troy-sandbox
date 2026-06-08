@@ -271,6 +271,12 @@ function initTemplateDropdown() {
                             <span class="template-card-badge saved">${t.sectionCount || 0} sections</span>
                         </div>
                     </button>
+                    <button class="saved-template-copylink" data-cloud-copylink-id="${escapeAttr(t.templateId)}" title="Copy shareable link">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                        </svg>
+                    </button>
                     <button class="saved-template-delete" data-cloud-delete-id="${escapeAttr(t.templateId)}" title="Delete from cloud">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <polyline points="3 6 5 6 21 6"/>
@@ -293,9 +299,25 @@ function initTemplateDropdown() {
     }
 
     /**
-     * Click handler for the cloud template list (load / delete).
+     * Click handler for the cloud template list (copy-link / delete / load).
      */
     async function handleCloudListClick(e) {
+        // Copy shareable link button
+        const copyBtn = e.target.closest('[data-cloud-copylink-id]');
+        if (copyBtn) {
+            e.stopPropagation();
+            const templateId = copyBtn.dataset.cloudCopylinkId;
+            const shareUrl = `${window.location.origin}${window.location.pathname}?template=${encodeURIComponent(templateId)}`;
+            try {
+                await navigator.clipboard.writeText(shareUrl);
+                showToast('Shareable link copied to clipboard.', { kind: 'info', durationMs: 3000 });
+            } catch (err) {
+                // Fallback: prompt user with the URL so they can copy manually
+                window.prompt('Copy this shareable link:', shareUrl);
+            }
+            return;
+        }
+
         const deleteBtn = e.target.closest('[data-cloud-delete-id]');
         if (deleteBtn) {
             e.stopPropagation();
@@ -306,7 +328,9 @@ function initTemplateDropdown() {
                 showToast('Cloud template deleted.', { kind: 'info', durationMs: 3000 });
                 // If the current canvas was tied to this template, decouple it
                 if (state.getCloudTemplateId && state.getCloudTemplateId() === templateId) {
-                    state.setCloudTemplateId(null);
+                    state.setCloudTemplate
+                        ? state.setCloudTemplate(null, null)
+                        : state.setCloudTemplateId(null);
                 }
                 renderCloudSection();
             } catch (err) {

@@ -502,11 +502,18 @@ const state = {
                 ...deepClone(templateSection.content || {})
             };
 
-            // Initialize visibility
+            // Initialize visibility: start with all fields visible, then
+            // overlay the saved visibility on top so the user's hidden/shown
+            // choices are restored. Newer fields added to the template after
+            // a save was taken remain visible by default, which is the
+            // graceful-degrade behavior we want when the schema evolves.
             const visibility = {};
             sectionModule.fields.forEach(field => {
                 visibility[field.key] = true;
             });
+            if (templateSection.visibility && typeof templateSection.visibility === 'object') {
+                Object.assign(visibility, deepClone(templateSection.visibility));
+            }
 
             // Get colors (use template colors if provided, otherwise defaults)
             const colors = templateSection.colors
